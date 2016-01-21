@@ -8,7 +8,7 @@
   ;; An option with a required argument
   [["-p" "--path PATH" "path to project to build"
     :default "./"
-    :validate [#(.isDirectory (io/file %))]]
+    :validate [#(and (.isDirectory (io/file %)) (.isFile (io/file % "chaincode.conf")))]]
    ["-h" "--help"]])
 
 (defn exit [status msg]
@@ -18,8 +18,11 @@
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     ;; Handle help and error conditions
-    (cond (or (:help options) (not= errors nil))
+    (cond (:help options)
           (exit 0 summary))
+
+    (cond (not= errors nil)
+          (exit -1 (str "Error: " errors)))
 
     (println "Starting cljparse with path:" (:path options) "and errors:" errors)))
 
