@@ -31,7 +31,7 @@
             (exit -1 (str "Configuration not found at " (:path options))))
 
       (println "Starting cljparse with path:" (:path options) "and errors:" errors)
-      (config/parser (io/file (:path options) configname)))))
+      (config/parser file))))
 
 
 
