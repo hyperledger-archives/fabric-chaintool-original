@@ -32,5 +32,5 @@
                             (exit -1 "Configuration not found at " path)
                             :else
                             (do
-                              (println "Starting cljparse on:" (.getAbsolutePath file) "and errors:" errors)
+                              (println "Starting cljparse on:" (.getAbsolutePath file))
                               (config/parser file))))))))
