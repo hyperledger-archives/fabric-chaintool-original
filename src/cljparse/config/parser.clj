@@ -3,7 +3,9 @@
             [clojure.java.io :as io]
             [clojure.string :as str]))
 
-(def grammar (insta/parser (io/resource "config.bnf")))
+(def whitespace (insta/parser "whitespace = #'[ \t]*'"))
+
+(def grammar (insta/parser (io/resource "config.bnf") :auto-whitespace whitespace))
 
 (defn parser [file]
   (grammar (slurp file)))

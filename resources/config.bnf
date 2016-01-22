@@ -1,5 +1,13 @@
 
-S = AB*'\n'*
-AB = A B
-A = 'a'+
-B = 'b'+
+S ::= name version <newline>*
+
+name ::= "Name:" ident <newline>
+version ::= "Version:" ident <newline>
+
+newline ::= '\n'
+(* ident ::= #"[A-Za-z._\-]*" *)
+ident := #"\S+"
+int ::= #"\d+"
+
+
+
