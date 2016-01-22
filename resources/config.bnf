@@ -1,8 +1,8 @@
 
 S ::= name version
 
-name ::= "Name:" ident <newline>
-version ::= "Version:" ident <newline>
+name ::= <"Name:"> ident <newline>
+version ::= <"Version:"> ident <newline>
 
 newline ::= '\n'
 ident := #"\S+"
