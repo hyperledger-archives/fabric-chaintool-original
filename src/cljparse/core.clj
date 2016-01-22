@@ -25,12 +25,12 @@
                (not= errors nil)
                (exit -1 (str "Error: " errors))
 
-              :else (let [ path (:path options)
+               :else (let [ path (:path options)
                            file (io/file path configname) ]
                       (do
                         (cond (not (.isFile file))
                             (exit -1 (str ("Configuration not found at " path)))
                             :else
                             (do
-                              (println "Starting cljparse with path:" path "and errors:" errors)
+                              (println "Starting cljparse on:" (.getAbsolutePath file) "and errors:" errors)
                               (config/parser file))))))))
