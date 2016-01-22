@@ -13,27 +13,23 @@
    ["-h" "--help"]])
 
 (defn exit [status msg]
-  (throw (Exception. msg)))
+  (do
+    (println msg)
+    status))
 
 (defn -main [& args]
   (let [ {:keys [options arguments errors summary]} (parse-opts args cli-options) ]
          (cond (:help options)
-              (do
-                (println summary)
-                0)
+               (exit 0 summary)
 
-              (not= errors nil)
-              (do
-                (println "Error: " errors)
-                -1)
+               (not= errors nil)
+               (exit -1 (str "Error: " errors))
 
               :else (let [ path (:path options)
                            file (io/file path configname) ]
                       (do
                         (cond (not (.isFile file))
-                            (do
-                              (println "Configuration not found at " path)
-                              -1)
+                            (exit -1 (str ("Configuration not found at " path)))
                             :else
                             (do
                               (println "Starting cljparse with path:" path "and errors:" errors)
