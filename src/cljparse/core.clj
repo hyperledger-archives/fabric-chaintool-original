@@ -9,33 +9,29 @@
 
 (def cli-options
   ;; An option with a required argument
-  [["-p" "--path PATH" "path to project to build"
-    :default "./"]
+  [["-p" "--path PATH" "path to project to build" :default "./"]
    ["-h" "--help"]])
 
 (defn exit [status msg]
-  (println msg)
-  (System/exit status))
+  (do
+    (println msg)
+    status))
 
 (defn -main [& args]
-  (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
-    ;; Handle help and error conditions
-    (cond (:help options)
-          (exit 0 summary))
+  (let [ {:keys [options arguments errors summary]} (parse-opts args cli-options) ]
+         (cond (:help options)
+               (exit 0 summary)
 
-    (cond (not= errors nil)
-          (exit -1 (str "Error: " errors)))
+               (not= errors nil)
+               (exit -1 (str "Error: " errors))
 
-    (let [file (io/file (:path options) configname)]
-      (cond (not (.isFile file))
-            (exit -1 (str "Configuration not found at " (:path options))))
-
-      (println "Starting cljparse with path:" (:path options) "and errors:" errors)
-      (config/parser file))))
-
-
-
-
-
-
+               :else (let [ path (:path options)
+                           file (io/file path configname) ]
+                      (do
+                        (cond (not (.isFile file))
+                            (exit -1 (str ("Configuration not found at " path)))
+                            :else
+                            (do
+                              (println "Starting cljparse on:" (.getAbsolutePath file) "and errors:" errors)
+                              (config/parser file))))))))
 

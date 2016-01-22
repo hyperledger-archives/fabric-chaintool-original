@@ -1,5 +1,5 @@
 
-S = AB*
+S = AB*'\n'*
 AB = A B
 A = 'a'+
 B = 'b'+
