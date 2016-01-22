@@ -6,4 +6,4 @@
 (def grammar (insta/parser (io/resource "config.bnf")))
 
 (defn parser [file]
-  (grammar (str/trim-newline(slurp file))))
+  (grammar (slurp file)))
