@@ -5,4 +5,4 @@
 (def grammar (insta/parser (io/resource "config.bnf")))
 
 (defn parser [file]
-  (println "Parsing" file))
+  (grammar file))
