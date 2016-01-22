@@ -1,0 +1,11 @@
+
+skipper ::= (whitespace | blankline | comment)*
+
+whitespace ::= #"[ \t]"
+blankline ::= #"^\n"
+comment ::= #"\#.*\n"
+
+
+
+
+
