@@ -33,4 +33,4 @@
                             :else
                             (do
                               (println "Starting cljparse on:" (.getAbsolutePath file))
-                              (config/parser file))))))))
+                              (println (config/parser file)))))))))
