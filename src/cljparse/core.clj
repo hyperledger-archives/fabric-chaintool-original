@@ -34,4 +34,3 @@
                             (do
                               (println "Starting cljparse on:" (.getAbsolutePath file) "and errors:" errors)
                               (config/parser file))))))))
-
