@@ -1,15 +1,13 @@
 
-S ::= schema name version platform
+configuration ::= schema name version platform
 
-schema ::= <"Schema:"> int <newline>
-name ::= <"Name:"> ident <newline>
-version ::= <"Version:"> ident <newline>
+schema ::= <"Schema:"> int nl
+name ::= <"Name:"> ident nl
+version ::= <"Version:"> ident nl
 
-platform ::= <"Platform"> <'{'> name version <'}'>
+platform ::= <"Platform"> <'{'> name version? <'}'>
 
-newline ::= '\n'
+<nl> ::= <'\n'>
 <ident> := #"\S+"
 <int> ::= #"\d+"
-
-
 
