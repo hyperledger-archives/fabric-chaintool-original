@@ -12,9 +12,9 @@
   [["-p" "--path PATH" "path to project to build" :default "./"]
    ["-h" "--help"]])
 
-(defn exit [status msg]
+(defn exit [status msg & rest]
   (do
-    (println msg)
+    (println msg rest)
     status))
 
 (defn -main [& args]
@@ -23,13 +23,13 @@
                (exit 0 summary)
 
                (not= errors nil)
-               (exit -1 (str "Error: " errors))
+               (exit -1 "Error: " errors)
 
                :else (let [ path (:path options)
                            file (io/file path configname) ]
                       (do
                         (cond (not (.isFile file))
-                            (exit -1 (str ("Configuration not found at " path)))
+                            (exit -1 "Configuration not found at " path)
                             :else
                             (do
                               (println "Starting cljparse on:" (.getAbsolutePath file) "and errors:" errors)
