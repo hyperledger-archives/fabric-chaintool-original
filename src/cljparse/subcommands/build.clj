@@ -1,4 +1,5 @@
-(ns cljparse.subcommands.deps)
+(ns cljparse.subcommands.build)
 
 (defn run [options]
-  )
+  (println "Build!"))
+

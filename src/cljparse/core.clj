@@ -57,5 +57,6 @@
                     (exit -1 "Configuration not found at " path)
                     :else
                     (do
-                      (println "Starting cljparse on:" (.getAbsolutePath file))
-                      (config/parser file))))))))
+                      (if-let [[_ func] (subcommands (first arguments))]
+                        (func options)
+                        (exit 1 (usage summary))))))))))
