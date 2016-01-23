@@ -50,13 +50,13 @@
           (exit -1 "Error: bad argument count")
 
           :else
-          (let [ path (:path options)
-                 file (io/file path configname) ]
+          (let [path (:path options)
+                file (io/file path configname)]
             (do
               (cond (not (.isFile file))
                     (exit -1 "Configuration not found at " path)
                     :else
-                    (do
+                    (let [config (config/parser file)]
                       (if-let [[_ func] (subcommands (first arguments))]
-                        (func options)
+                        (func path config)
                         (exit 1 (usage summary))))))))))

@@ -1,5 +1,5 @@
 (ns cljparse.subcommands.package)
 
-(defn run [options]
+(defn run [path config]
   (println "Package!"))
 

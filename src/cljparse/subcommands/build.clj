@@ -1,5 +1,5 @@
 (ns cljparse.subcommands.build)
 
-(defn run [options]
-  (println "Build!"))
+(defn run [path config]
+  (println "Build using configuration: " config))
 

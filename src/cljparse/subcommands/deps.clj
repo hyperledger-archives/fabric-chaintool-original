@@ -1,5 +1,5 @@
 (ns cljparse.subcommands.deps)
 
-(defn run [options]
+(defn run [path config]
   (println "Deps!"))
 
