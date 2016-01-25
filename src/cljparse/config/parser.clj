@@ -16,23 +16,22 @@
 (defn fqp [_loc]
   (loop [loc _loc
          path ()]
+
     (cond
+      (= loc nil)
+      (vec path)
 
-         (= loc nil)
-         (into [] path)
-
-         :else
-         (recur (zip/up loc) (->> loc zip/node nodename (conj path))))))
+      :else
+      (recur (zip/up loc) (->> loc zip/node nodename (conj path))))))
 
 (defn find [path tree]
   (loop [loc tree]
     (cond
-
       (zip/end? loc)
       nil
 
       (= (fqp loc) path)
-      (rest (zip/node loc))
+      (->> loc zip/node rest vec)
 
       :else
       (recur (zip/next loc)))))      
