@@ -22,7 +22,7 @@
          (into [] path)
 
          :else
-         (recur (zip/up loc) (conj path (nodename (zip/node loc)))))))
+         (recur (zip/up loc) (->> loc zip/node nodename (conj path))))))
 
 (defn find [path tree]
   (loop [loc tree]
