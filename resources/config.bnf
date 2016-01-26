@@ -1,7 +1,7 @@
 
 configuration ::= schema name version platform provides? consumes?
 
-schema ::= <"Schema:"> int nl
+<schema> ::= <"Schema:"> <"1"> nl
 name ::= <"Name:"> ident nl
 version ::= <"Version:"> ident nl
 
