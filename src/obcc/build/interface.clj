@@ -3,7 +3,7 @@
             [clojure.zip :as zip]
             [instaparse.core :as insta]
             [obcc.config.parser :as config]))
-            
+
 
 (def grammar (insta/parser (io/resource "interface.bnf")
                            :auto-whitespace (insta/parser (io/resource "skip.bnf"))))
@@ -33,5 +33,3 @@
 (defn compile [path config]
   (let [interfaces (getinterfaces config)]
     (map #(compileintf path %) interfaces)))
-
-
