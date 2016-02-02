@@ -1,4 +1,4 @@
-# cljparse
+# obcc
 
 FIXME: description
 
@@ -10,7 +10,7 @@ Download from http://example.com/FIXME.
 
 FIXME: explanation
 
-    $ java -jar cljparse-0.1.0-standalone.jar [args]
+    $ java -jar obcc-0.1.0-standalone.jar [args]
 
 ## Options
 

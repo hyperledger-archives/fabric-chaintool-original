@@ -1,4 +1,4 @@
-(ns cljparse.config.parser
+(ns obcc.config.parser
   (:require [instaparse.core :as insta]
             [clojure.java.io :as io]
             [clojure.string :as str]

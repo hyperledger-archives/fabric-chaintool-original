@@ -1,12 +1,12 @@
-(ns cljparse.core
+(ns obcc.core
   (:require [instaparse.core :as insta]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
-            [cljparse.config.parser :as config]
-            [cljparse.subcommands.deps :as depscmd]
-            [cljparse.subcommands.build :as buildcmd]
-            [cljparse.subcommands.package :as packagecmd])
+            [obcc.config.parser :as config]
+            [obcc.subcommands.deps :as depscmd]
+            [obcc.subcommands.build :as buildcmd]
+            [obcc.subcommands.package :as packagecmd])
   (:gen-class))
 
 (def configname "chaincode.conf")

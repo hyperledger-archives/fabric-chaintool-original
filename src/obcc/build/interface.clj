@@ -1,8 +1,8 @@
-(ns cljparse.build.interface
+(ns obcc.build.interface
   (:require [clojure.java.io :as io]
             [clojure.zip :as zip]
             [instaparse.core :as insta]
-            [cljparse.config.parser :as config]))
+            [obcc.config.parser :as config]))
             
 
 (def grammar (insta/parser (io/resource "interface.bnf")

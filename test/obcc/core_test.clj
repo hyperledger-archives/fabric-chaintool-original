@@ -1,6 +1,6 @@
-(ns cljparse.core-test
+(ns obcc.core-test
   (:require [clojure.test :refer :all]
-            [cljparse.core :refer :all]))
+            [obcc.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
