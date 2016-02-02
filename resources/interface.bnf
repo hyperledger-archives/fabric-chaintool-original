@@ -1,0 +1,19 @@
+
+configuration ::= schema name version platform provides? consumes?
+
+<schema> ::= <"Schema:"> <"1"> nl
+name ::= <"Name:"> ident nl
+version ::= <"Version:"> ident nl
+
+platform ::= <"Platform"> <'{'> name version? <'}'>
+provides ::= <"Provides:"> identlist
+consumes ::= <"Consumes:"> identlist
+
+<identlist> ::= ob (!cb ident delim?)* cb
+<delim> ::= <','>
+<nl> ::= <'\n'>
+<ob> ::= <'['>
+<cb> ::= <']'>
+<ident> := #"[0-9A-Za-z._-]+"
+<int> ::= #"\d+"
+
