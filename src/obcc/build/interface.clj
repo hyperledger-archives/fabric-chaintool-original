@@ -31,5 +31,5 @@
     (println tree)))
 
 (defn compile [path config]
-  (let [interfaces (getinterfaces config)]
+  (let [interfaces (-> config getinterfaces (conj "project"))]
     (map #(compileintf path %) interfaces)))

@@ -1,0 +1,10 @@
+
+message Party {
+        optional string entity = 1;
+        optional int32  value  = 2;
+}
+
+message Init {
+        optional Party partyA = 1;
+        optional Party partyB = 2;
+}
