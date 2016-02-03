@@ -5,8 +5,8 @@
             [obcc.config.parser :as config]))
 
 
-(def grammar (insta/parser (io/resource "interface.bnf")
-                           :auto-whitespace (insta/parser (io/resource "config/skip.bnf"))))
+(def grammar (insta/parser (io/resource "interface/grammar.bnf")
+                           :auto-whitespace (insta/parser (io/resource "interface/skip.bnf"))))
 
 (defn parse [intf] (->> intf grammar zip/vector-zip))
 
