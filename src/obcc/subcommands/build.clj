@@ -3,5 +3,5 @@
 
 (defn run [path config]
   (println "Build using configuration for " path)
-  (intf/compile path config))
-
+  (let [result (intf/compile path config)]
+      (println result)))

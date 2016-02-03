@@ -28,8 +28,9 @@
   (let [ipath (str path "/src/interfaces")
         opath (str path "/build/interfaces")
         tree (->> (open ipath intf) slurp parse)]
-    (println tree)))
+    {:interface intf :ast tree}))
 
 (defn compile [path config]
   (let [interfaces (-> config getinterfaces (conj "project"))]
-    (map #(compileintf path %) interfaces)))
+    (println interfaces)
+    (map #(compileintf path %) (remove nil? interfaces))))
