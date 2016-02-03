@@ -25,7 +25,7 @@
   {"deps",    ["Resolve dependencies",                 depscmd/run],
    "build",   ["Build the chaincode project",          buildcmd/run],
    "package", ["Package the chaincode for deployment", packagecmd/run]})
-  
+
 (defn usage [options-summary]
   (->> (flatten ["Usage: obcc [options] action"
         ""
