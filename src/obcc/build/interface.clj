@@ -23,14 +23,24 @@
       :else
       (throw (Exception. (str (.getAbsolutePath file) " not found"))))))
 
-(defn compileintf [path intf]
+(defn compileintf [path proto intf]
   (println "Compile " intf)
   (let [ipath (str path "/src/interfaces")
-        opath (str path "/build/interfaces")
-        tree (->> (open ipath intf) slurp parse)]
-    {:interface intf :ast tree}))
+        ast (->> (open ipath intf) slurp parse)
+        tree {:interface intf :ast ast}]
+    (.write proto (str tree))
+    tree))
 
 (defn compile [path config]
-  (let [interfaces (-> config getinterfaces (conj "project"))]
-    (println interfaces)
-    (map #(compileintf path %) (remove nil? interfaces))))
+  (let [interfaces (->> config getinterfaces (cons "project") (remove nil?))
+        protopath (io/file path "build/proto/project.proto")]
+
+    ;; ensure the path exists, but the file is truncated to 0
+    (io/make-parents protopath)
+
+    (if (.exists protopath)
+        (io/delete-file protopath))
+
+    ;; and then generate our output
+    (with-open [proto (io/writer protopath :truncate true)]
+      (doall (map #(compileintf path proto %) interfaces)))))
