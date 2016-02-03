@@ -6,7 +6,7 @@
 
 
 (def grammar (insta/parser (io/resource "interface.bnf")
-                           :auto-whitespace (insta/parser (io/resource "skip.bnf"))))
+                           :auto-whitespace (insta/parser (io/resource "config/skip.bnf"))))
 
 (defn parse [intf] (->> intf grammar zip/vector-zip))
 

@@ -4,9 +4,9 @@
             [clojure.string :as str]
             [clojure.zip :as zip]))
 
-(def skipper (insta/parser (io/resource "skip.bnf")))
+(def skipper (insta/parser (io/resource "config/skip.bnf")))
 
-(def grammar (insta/parser (io/resource "config.bnf") :auto-whitespace skipper))
+(def grammar (insta/parser (io/resource "config/grammar.bnf") :auto-whitespace skipper))
 
 (defn parser [file] (->> file slurp grammar zip/vector-zip))
 
@@ -34,7 +34,4 @@
       (->> loc zip/node rest vec)
 
       :else
-      (recur (zip/next loc)))))      
-     
-
-
+      (recur (zip/next loc)))))
