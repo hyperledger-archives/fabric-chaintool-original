@@ -35,11 +35,8 @@
   (let [interfaces (->> config getinterfaces (cons "project") (remove nil?))
         protopath (io/file path "build/proto/project.proto")]
 
-    ;; ensure the path exists, but the file is truncated to 0
+    ;; ensure the path exists
     (io/make-parents protopath)
-
-    (if (.exists protopath)
-        (io/delete-file protopath))
 
     ;; and then generate our output
     (with-open [proto (io/writer protopath :truncate true)]
