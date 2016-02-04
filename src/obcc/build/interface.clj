@@ -66,8 +66,9 @@
         (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
 
 (defn buildmessage [ast]
-  (let [name (->> zip/right zip/node)
-        fields (buildfields (->> zip/right zip/right))]))
+  (let [name (->> ast zip/right zip/node)
+        fields (buildfields (->> ast zip/right zip/right))]
+      [name fields]))
 
 ;;(defn generateproto [intf ast template]
 ;;  (loop [loc ast]
