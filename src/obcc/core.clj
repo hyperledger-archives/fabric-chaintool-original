@@ -6,6 +6,7 @@
             [obcc.config.parser :as config]
             [obcc.subcommands.deps :as depscmd]
             [obcc.subcommands.build :as buildcmd]
+            [obcc.subcommands.clean :as cleancmd]
             [obcc.subcommands.package :as packagecmd])
   (:gen-class))
 
@@ -24,6 +25,7 @@
 (def subcommands
   {"deps",    ["Resolve dependencies",                 depscmd/run],
    "build",   ["Build the chaincode project",          buildcmd/run],
+   "clean",   ["Clean the chaincode project",          cleancmd/run]
    "package", ["Package the chaincode for deployment", packagecmd/run]})
 
 (defn usage [options-summary]
