@@ -64,7 +64,6 @@
       fields
 
       :else
-      ;; do something with each node here
       (let [attrs (->> loc zip/down zip/right getfieldattrs)]
         (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
 
