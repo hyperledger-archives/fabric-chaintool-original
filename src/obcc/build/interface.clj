@@ -68,17 +68,29 @@
         (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
 
 ;;-----------------------------------------------------------------
+;; manage object names
+;;-----------------------------------------------------------------
+(defn qualifyname [base name]
+  (str base "_" name))
+
+;; scalar types should just be passed naked.  user types should be fully qualified
+(defn typeconvert [basename [type name]]
+  (if (= type :scalar)
+      name
+      (qualifyname basename name)))
+
+;;-----------------------------------------------------------------
 ;; buildX - build our ST friendly objects from the AST
 ;;-----------------------------------------------------------------
-(defn buildfields [ast]
+(defn buildfields [basename ast]
   (let [rawfields (getfields ast)]
     (into {} (map (fn [[index {:keys [modifier type fieldName]}]]
-                    (vector index (->Field modifier (let [[_ _type] type] _type) fieldName index))) rawfields))))
+                    (vector index (->Field modifier (typeconvert basename type) fieldName index))) rawfields))))
 
-(defn buildmessage [fqname ast]
+(defn buildmessage [basename ast]
   (let [name (->> ast zip/right zip/node)
-        fields (buildfields (->> ast zip/right zip/right))]
-    (->Message (str fqname "_" name) fields)))
+        fields (buildfields basename (->> ast zip/right zip/right))]
+    (->Message (qualifyname basename name) fields )))
 
 (defn buildmessages [fqname ast]
   (loop [loc ast msgs '()]
