@@ -37,14 +37,13 @@
 ;; it to an AST.
 (defn compileintf [path intf]
   (println "Compile " intf)
-  (let [ipath (str path "/src/interfaces")
-        ast (->> (open ipath intf) slurp parse)]
-    [intf ast]))
+  (let [ipath (str path "/src/interfaces")]
+    (->> (open ipath intf) slurp parse)))
 
 ;; compile all applicable interfaces into a map of ASTs keyed by interface name
 (defn compileall [path config]
   (let [interfaces (getinterfaces config)]
-    (into {} (map #(compileintf path %) interfaces))))
+    (into {} (map #(vector % (compileintf path %)) interfaces))))
 
 ;;(defn generateproto [intf ast template]
 ;;  (loop [loc ast]
