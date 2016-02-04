@@ -45,6 +45,30 @@
   (let [interfaces (getinterfaces config)]
     (into {} (map #(vector % (compileintf path %)) interfaces))))
 
+(defn fieldattrs [ast]
+  (loop [loc ast attrs {}]
+    (if (nil? loc)
+      attrs
+      ;; else
+      (let [[k v] (zip/node loc)]
+        (recur (zip/right loc) (assoc attrs k v))))))
+
+(defn buildfields [ast]
+  (loop [loc ast fields {}]
+    (cond
+
+      (nil? loc)
+      fields
+
+      :else
+      (let [attrs (->> loc zip/down zip/right fieldattrs)]
+        ;; do something with each node here
+        (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
+
+(defn buildmessage [ast]
+  (let [name (->> zip/right zip/node)
+        fields (buildfields (->> zip/right zip/right))]))
+
 ;;(defn generateproto [intf ast template]
 ;;  (loop [loc ast]
 ;;    (cond
