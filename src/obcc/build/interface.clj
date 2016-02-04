@@ -20,8 +20,9 @@
 ;; aggregate all of the interfaces declared in the config, adding the implicit
 ;; "project.cci"
 (defn getinterfaces [config]
-  (let [keys [[:configuration :provides] [:configuration :consumes]]]
-        (->> (map #(config/find % config) keys) flatten (into #{}) (cons "project") (remove nil?) (into '()))))
+  (let [keys [[:configuration :provides] [:configuration :consumes]]
+        explicit (map #(config/find % config) keys)]
+    (->> explicit flatten (into #{}) (cons "project") (remove nil?) (into '()))))
 
 (defn open [path intf]
   (let [file (io/file path (str intf ".cci"))]
@@ -59,7 +60,7 @@
 
 (defn compile [path config]
 
-  (let [interfaces (compileall path config)
+  (let [asts (compileall path config)
         protopath (io/file path "build/proto/project.proto")]
 
     ;; ensure the path exists
