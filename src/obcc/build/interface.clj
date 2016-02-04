@@ -75,12 +75,12 @@
     (map (fn [[index {:keys [modifier type fieldName]}]]
            (->Field modifier (let [[_ _type] type] _type) fieldName index)) rawfields)))
 
-(defn buildmessage [ast]
+(defn buildmessage [fqname ast]
   (let [name (->> ast zip/right zip/node)
         fields (buildfields (->> ast zip/right zip/right))]
-    (->Message name fields)))
+    (->Message (str fqname "." name) fields)))
 
-(defn buildmessages [ast]
+(defn buildmessages [fqname ast]
   (loop [loc ast msgs '()]
     (cond
 
@@ -91,8 +91,11 @@
       (let [node (->> loc zip/node)]
         (recur (->> loc zip/next)
                (if (= node :message)
-                 (cons (buildmessage loc) msgs)
+                 (cons (buildmessage fqname loc) msgs)
                  msgs))))))
+
+(defn buildallmessages [ast]
+  (->> ast (map (fn [[fqname ast]] (buildmessages fqname ast))) flatten))
 
 ;;(defn generateproto [intf ast template]
 ;;  (loop [loc ast]
@@ -109,6 +112,7 @@
 (defn compile [path config]
 
   (let [asts (compileall path config)
+        messages (buildallmessages asts)
         protopath (io/file path "build/proto/project.proto")]
 
     ;; ensure the path exists
@@ -117,5 +121,6 @@
     ;; and then generate our output
     (let [stg  (STGroupFile. "generators/proto.stg")
           template (.getInstanceOf stg "protobuf")]
+      (.add template "messages" messages)
       (with-open [output (io/writer protopath :truncate true)]
         (.write output (.render template))))))
