@@ -9,7 +9,7 @@
 ;; types to map to java objects that string template expects.
 ;;
 
-;;(deftype Field    [^String modifier ^String type ^String name ^Int index])
+(deftype Field    [^String modifier ^String type ^String name ^String index])
 (deftype Message  [^String name ^ArrayList fields])
 
 (def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf")
@@ -73,7 +73,7 @@
 ;;-----------------------------------------------------------------
 (defn buildfields [ast]
   (let [rawfields (getfields ast)]
-      rawfields))
+    (map (fn [[index {:keys [modifier type fieldName]}]] (->Field modifier type fieldName index)) rawfields)))
 
 (defn buildmessage [ast]
   (let [name (->> ast zip/right zip/node)
