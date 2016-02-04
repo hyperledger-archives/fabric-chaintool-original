@@ -79,7 +79,21 @@
 (defn buildmessage [ast]
   (let [name (->> ast zip/right zip/node)
         fields (buildfields (->> ast zip/right zip/right))]
-      (->Message name fields)))
+    (->Message name fields)))
+
+(defn buildmessages [ast]
+  (loop [loc ast msgs '()]
+    (cond
+
+      (or (nil? loc) (zip/end? loc))
+      msgs
+
+      :else
+      (let [node (->> loc zip/node)]
+        (recur (->> loc zip/next)
+               (if (= node :message)
+                 (cons (buildmessage loc) msgs)
+                 msgs))))))
 
 ;;(defn generateproto [intf ast template]
 ;;  (loop [loc ast]
