@@ -78,7 +78,7 @@
 (defn buildmessage [fqname ast]
   (let [name (->> ast zip/right zip/node)
         fields (buildfields (->> ast zip/right zip/right))]
-    (->Message (str fqname "." name) fields)))
+    (->Message (str fqname "_" name) fields)))
 
 (defn buildmessages [fqname ast]
   (loop [loc ast msgs '()]
