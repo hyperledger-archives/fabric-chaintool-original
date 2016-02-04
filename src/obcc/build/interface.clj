@@ -1,12 +1,12 @@
 (ns obcc.build.interface
+  (:import [org.stringtemplate.v4 STGroupFile ST])
   (:require [clojure.java.io :as io]
             [clojure.zip :as zip]
             [instaparse.core :as insta]
             [obcc.config.parser :as config]))
 
-
-(def grammar (insta/parser (io/resource "interface/grammar.bnf")
-                           :auto-whitespace (insta/parser (io/resource "interface/skip.bnf"))))
+(def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf")
+                           :auto-whitespace (insta/parser (io/resource "parsers/interface/skip.bnf"))))
 
 (defn parse [intf] (->> intf grammar zip/vector-zip))
 
