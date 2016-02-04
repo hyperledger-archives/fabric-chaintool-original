@@ -95,7 +95,8 @@
                  msgs))))))
 
 (defn buildallmessages [ast]
-  (->> ast (map (fn [[fqname ast]] (buildmessages fqname ast))) flatten))
+  (let [msgs (->> ast (map (fn [[fqname ast]] (buildmessages fqname ast))) flatten)]
+    (into {} (map #(vector (.name %) %) msgs))))
 
 ;;(defn generateproto [intf ast template]
 ;;  (loop [loc ast]
