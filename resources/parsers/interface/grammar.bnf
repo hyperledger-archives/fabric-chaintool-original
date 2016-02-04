@@ -9,7 +9,7 @@ enumField ::= ident "=" intLit ";"
 
 optionBody ::= ident ( "." ident )* "=" constant
 
-messageBody ::= <"{"> ( field | enum | message )* <"}">
+<messageBody> ::= <"{"> ( field | enum | message )* <"}">
 
 field ::= modifier type fieldName <"="> index ( <"["> fieldOption ( <","> fieldOption )* <"]"> )? <";">
 
