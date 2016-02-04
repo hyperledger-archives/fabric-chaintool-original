@@ -1,5 +1,6 @@
 
 protobuf(messages) ::=
 <<
-<messages.values:{x | COMPONENTS += component.<x.name> }; separator="\n">
+<messages.values:{x | message <x.name> {\} }; separator="\n">
+
 >>
