@@ -32,6 +32,8 @@
     tree))
 
 (defn compile [path config]
+  ;; aggregate all of the interfaces declared in the config,
+  ;; add the virtual "project.cci", and strip any nils
   (let [interfaces (->> config getinterfaces (cons "project") (remove nil?))
         protopath (io/file path "build/proto/project.proto")]
 
