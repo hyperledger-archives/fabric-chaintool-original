@@ -1,6 +1,14 @@
+msgfields(message) ::=
+<<
+<message.fields:{field | <field.modifier> <field.type> <field.name> = <field.index>; }; separator="\n">
+>>
 
 protobuf(messages) ::=
 <<
-<messages.values:{x | message <x.name> {\} }; separator="\n">
+<messages.values:{x | message <x.name>
+{
+        <directives(component)>
+\}
+}; separator="\n">
 
 >>
