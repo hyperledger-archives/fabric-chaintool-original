@@ -10,7 +10,7 @@
 ;;
 
 ;;(deftype Field    [^String modifier ^String type ^String name ^Int index])
-;;(deftype Message  [^String name ^ArrayList fields])
+(deftype Message  [^String name ^ArrayList fields])
 
 (def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf")
                            :auto-whitespace (insta/parser (io/resource "parsers/interface/skip.bnf"))))
@@ -45,7 +45,10 @@
   (let [interfaces (getinterfaces config)]
     (into {} (map #(vector % (compileintf path %)) interfaces))))
 
-(defn fieldattrs [ast]
+;;-----------------------------------------------------------------
+;; getX - extracts fields from an AST message
+;;-----------------------------------------------------------------
+(defn getfieldattrs [ast]
   (loop [loc ast attrs {}]
     (if (nil? loc)
       attrs
@@ -53,7 +56,7 @@
       (let [[k v] (zip/node loc)]
         (recur (zip/right loc) (assoc attrs k v))))))
 
-(defn buildfields [ast]
+(defn getfields [ast]
   (loop [loc ast fields {}]
     (cond
 
@@ -61,14 +64,21 @@
       fields
 
       :else
-      (let [attrs (->> loc zip/down zip/right fieldattrs)]
-        ;; do something with each node here
+      ;; do something with each node here
+      (let [attrs (->> loc zip/down zip/right getfieldattrs)]
         (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
+
+;;-----------------------------------------------------------------
+;; buildX - build our ST friendly objects from the AST
+;;-----------------------------------------------------------------
+(defn buildfields [ast]
+  (let [rawfields (getfields ast)]
+      rawfields))
 
 (defn buildmessage [ast]
   (let [name (->> ast zip/right zip/node)
         fields (buildfields (->> ast zip/right zip/right))]
-      [name fields]))
+      (->Message name fields)))
 
 ;;(defn generateproto [intf ast template]
 ;;  (loop [loc ast]
