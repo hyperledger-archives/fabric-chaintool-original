@@ -72,8 +72,8 @@
 ;;-----------------------------------------------------------------
 (defn buildfields [ast]
   (let [rawfields (getfields ast)]
-    (map (fn [[index {:keys [modifier type fieldName]}]]
-           (->Field modifier (let [[_ _type] type] _type) fieldName index)) rawfields)))
+    (into {} (map (fn [[index {:keys [modifier type fieldName]}]]
+                    (vector index (->Field modifier (let [[_ _type] type] _type) fieldName index))) rawfields))))
 
 (defn buildmessage [fqname ast]
   (let [name (->> ast zip/right zip/node)
