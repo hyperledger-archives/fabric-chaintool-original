@@ -36,7 +36,6 @@
 ;; takes an interface name, maps it to a file, and if present, compiles
 ;; it to an AST.
 (defn compileintf [path intf]
-  (println "Compile " intf)
   (let [ipath (str path "/src/interfaces")]
     (->> (open ipath intf) slurp parse)))
 
@@ -110,30 +109,22 @@
   (let [msgs (->> ast (map (fn [[fqname ast]] (buildmessages fqname ast))) flatten)]
     (into {} (map #(vector (.name %) %) msgs))))
 
-;;(defn generateproto [intf ast template]
-;;  (loop [loc ast]
-;;    (cond
-;;
-;;      (zip/end? loc)
-;;      nil
-;;
-;;      :else
-;;      (do
-;;        ;; do something with each node here
-;;        (recur (zip/next loc))))))
-
-(defn compile [path config]
-
+(defn generateproto [path config]
   (let [asts (compileall path config)
         messages (buildallmessages asts)
+        stg  (STGroupFile. "generators/proto.stg")
+        template (.getInstanceOf stg "protobuf")]
+
+    (.add template "messages" messages)
+    (.render template)))
+
+(defn compile [path config]
+  (let [protobuf (generateproto path config)
         protopath (io/file path "build/proto/project.proto")]
 
     ;; ensure the path exists
     (io/make-parents protopath)
 
-    ;; and then generate our output
-    (let [stg  (STGroupFile. "generators/proto.stg")
-          template (.getInstanceOf stg "protobuf")]
-      (.add template "messages" messages)
-      (with-open [output (io/writer protopath :truncate true)]
-        (.write output (.render template))))))
+    ;; and then emit our output
+    (with-open [output (io/writer protopath :truncate true)]
+      (.write output protobuf))))
