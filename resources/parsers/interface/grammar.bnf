@@ -11,7 +11,10 @@ invoke ::= <"invoke"> functions
 query ::= <"query"> functions
 
 <functions> ::= <"{"> function* <"}">
-function ::= type ident <"("> type <")"> <"="> index <";">
+function ::= rettype functionName <"("> param <")"> <"="> index <";">
+functionName := ident
+rettype ::= ident
+param ::= ident
 
 optionBody ::= ident ( "." ident )* "=" constant
 
