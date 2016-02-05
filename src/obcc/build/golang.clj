@@ -99,6 +99,16 @@
     (.add template "queries" queries)
     (.render template)))
 
+(defn protoc [proto]
+  (let [{:keys [exit err]} (shell/sh "protoc" "--go_out=./" (str proto))]
+    (cond
+
+      (= exit 0)
+      true
+
+      :else
+      (throw (Exception. (str "protoc error:" err))))))
+
 ;;-----------------------------------------------------------------
 ;; compile - generates golang shim code and writes it to
 ;; the default location in the build area
@@ -115,4 +125,4 @@
       (.write output shim))
 
     ;; generate protobuf output
-    (shell/sh "protoc" "--go_out=./" (str protofile))))
+    (protoc protofile)))
