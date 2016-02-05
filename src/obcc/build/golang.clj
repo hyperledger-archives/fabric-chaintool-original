@@ -41,36 +41,41 @@
 (defn queries? [ast] (find :queries ast))
 
 ;;-----------------------------------------------------------------
+;; getX - helper functions to extract attributes from an AST function
+;;-----------------------------------------------------------------
+(defn getattrs [ast]
+  (loop [loc ast attrs {}]
+    (if (nil? loc)
+      attrs
+      ;; else
+      (let [[k v] (zip/node loc)]
+        (recur (zip/right loc) (assoc attrs k v))))))
+
+;;-----------------------------------------------------------------
 ;; buildX - build our ST friendly objects from the AST
 ;;-----------------------------------------------------------------
-;;(defn buildfields [basename ast]
-;;  (let [rawfields (intf/getfields ast)]
-;;    (into {} (map (fn [[index {:keys [modifier type fieldName]}]]
-;;                    (vector index (->Field modifier (typeconvert basename type) fieldName index))) rawfields))))
-;;
-;;(defn buildmessage [basename ast]
-;;  (let [name (->> ast zip/right zip/node)
-;;        fields (buildfields basename (->> ast zip/right zip/right))]
-;;    (->Message (qualifyname basename name) fields )))
-;;
-;;(defn buildmessages [fqname ast]
-;;  (loop [loc ast msgs '()]
-;;    (cond
-;;
-;;      (or (nil? loc) (zip/end? loc))
-;;      msgs
-;;
-;;      :else
-;;      (let [node (->> loc zip/node)]
-;;        (recur (->> loc zip/next)
-;;               (if (= node :message)
-;;                 (cons (buildmessage fqname loc) msgs)
-;;                 msgs))))))
+
+(defn buildfunction [ast]
+  (let [[index {:keys [rettype functionName param]}] (->> ast zip/down zip/right getattrs)]
+    (->Function rettype functionName param index)))
+
+(defn buildfunctions [name view aliases]
+  (loop [loc view functions {}]
+    (cond
+
+      (nil? loc)
+      functions
+
+      :else
+      (let [function (buildfunction (zip/node loc))]
+        (recur (->> loc zip/right) (assoc functions (.index function) function))))))
 
 (defn buildinterface [name view aliases]
-  )
+  (let [functions (buildfunctions name (->> view zip/down zip/right) aliases)]
+    (->Interface name (aliases name) functions)))
 
 (defn build [interfaces aliases pred]
+  ;; FIXME - We should only be considering interfaces in the [:provides] list
   (let [candidates (for [[name ast] interfaces :let [view (pred ast)] :when view] [name view])]
     (into {} (map (fn [[name view]] (vector name (buildinterface name view aliases))) candidates))))
 

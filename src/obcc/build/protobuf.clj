@@ -27,10 +27,32 @@
       (qualifyname basename name)))
 
 ;;-----------------------------------------------------------------
+;; getX - helper functions to extract fields from an AST message
+;;-----------------------------------------------------------------
+(defn getfieldattrs [ast]
+  (loop [loc ast attrs {}]
+    (if (nil? loc)
+      attrs
+      ;; else
+      (let [[k v] (zip/node loc)]
+        (recur (zip/right loc) (assoc attrs k v))))))
+
+(defn getfields [ast]
+  (loop [loc ast fields {}]
+    (cond
+
+      (nil? loc)
+      fields
+
+      :else
+      (let [attrs (->> loc zip/down zip/right getfieldattrs)]
+        (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
+
+;;-----------------------------------------------------------------
 ;; buildX - build our ST friendly objects from the AST
 ;;-----------------------------------------------------------------
 (defn buildfields [basename ast]
-  (let [rawfields (intf/getfields ast)]
+  (let [rawfields (getfields ast)]
     (into {} (map (fn [[index {:keys [modifier type fieldName]}]]
                     (vector index (->Field modifier (typeconvert basename type) fieldName index))) rawfields))))
 
