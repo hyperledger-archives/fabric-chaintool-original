@@ -3,6 +3,7 @@
   (:import [java.util ArrayList])
   (:require [clojure.java.io :as io]
             [clojure.zip :as zip]
+            [clojure.string :as string]
             [instaparse.core :as insta]
             [obcc.config.parser :as config]
             [obcc.build.interface :as intf]))
@@ -17,7 +18,7 @@
 ;; manage object names
 ;;-----------------------------------------------------------------
 (defn qualifyname [base name]
-  (str base "_" name))
+  (str (string/replace base "." "_") "_" name))
 
 ;; scalar types should just be passed naked.  user types should be fully qualified
 (defn typeconvert [basename [type name]]
@@ -52,8 +53,8 @@
                  (cons (buildmessage fqname loc) msgs)
                  msgs))))))
 
-(defn buildallmessages [ast]
-  (let [msgs (->> ast (map (fn [[fqname ast]] (buildmessages fqname ast))) flatten)]
+(defn buildallmessages [ast aliases]
+  (let [msgs (->> ast (map (fn [[fqname ast]] (buildmessages (aliases fqname) ast))) flatten)]
     (into {} (map #(vector (.name %) %) msgs))))
 
 ;;-----------------------------------------------------------------
@@ -61,8 +62,8 @@
 ;; protobuf specification, suitable for writing to a file or
 ;; passing to protoc
 ;;-----------------------------------------------------------------
-(defn generateproto [interfaces]
-  (let [messages (buildallmessages interfaces)
+(defn generateproto [interfaces aliases]
+  (let [messages (buildallmessages interfaces aliases)
         stg  (STGroupFile. "generators/proto.stg")
         template (.getInstanceOf stg "protobuf")]
 
@@ -73,8 +74,8 @@
 ;; compile - generates a protobuf specification and writes it to
 ;; the default location in the build area
 ;;-----------------------------------------------------------------
-(defn compile [path interfaces]
-  (let [protobuf (generateproto interfaces)
+(defn compile [path interfaces aliases]
+  (let [protobuf (generateproto interfaces aliases)
         protopath (io/file path "build/proto/project.proto")]
 
     ;; ensure the path exists

@@ -4,6 +4,7 @@
   (:require [clojure.java.io :as io]
             [clojure.zip :as zip]
             [clojure.walk :as walk]
+            [clojure.string :as string]
             [instaparse.core :as insta]
             [obcc.config.parser :as config]))
 
@@ -20,8 +21,14 @@
         explicit (map #(config/find % config) keys)]
     (->> explicit flatten (into #{}) (walk/postwalk-replace {"self" name}) (cons "project") (remove nil?) (into '()))))
 
+(defn filename [intf]
+  (str intf ".cci"))
+
+(defn aliases [config]
+  (into {} (map #(vector % (last (string/split % #"\."))) (getinterfaces config)))) ;; FIXME - support overrides
+
 (defn open [path intf]
-  (let [file (io/file path (str intf ".cci"))]
+  (let [file (io/file path (filename intf))]
     (cond
       (.exists file)
       file
