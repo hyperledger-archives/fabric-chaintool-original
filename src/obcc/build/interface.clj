@@ -109,6 +109,11 @@
   (let [msgs (->> ast (map (fn [[fqname ast]] (buildmessages fqname ast))) flatten)]
     (into {} (map #(vector (.name %) %) msgs))))
 
+;;-----------------------------------------------------------------
+;; generate protobuf output - compiles the interfaces into a
+;; protobuf specification, suitable for writing to a file or
+;; passing to protoc
+;;-----------------------------------------------------------------
 (defn generateproto [path config]
   (let [asts (compileall path config)
         messages (buildallmessages asts)
@@ -118,6 +123,10 @@
     (.add template "messages" messages)
     (.render template)))
 
+;;-----------------------------------------------------------------
+;; compile - generates a protobuf specification and writes it to
+;; the default location in the build area
+;;-----------------------------------------------------------------
 (defn compile [path config]
   (let [protobuf (generateproto path config)
         protopath (io/file path "build/proto/project.proto")]
