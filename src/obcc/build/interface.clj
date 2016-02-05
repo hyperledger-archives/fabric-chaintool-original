@@ -3,6 +3,7 @@
   (:import [java.util ArrayList])
   (:require [clojure.java.io :as io]
             [clojure.zip :as zip]
+            [clojure.walk :as walk]
             [instaparse.core :as insta]
             [obcc.config.parser :as config]))
 
@@ -12,11 +13,12 @@
 (defn parse [intf] (->> intf grammar zip/vector-zip))
 
 ;; aggregate all of the interfaces declared in the config, adding the implicit
-;; "project.cci"
+;; "project.cci" and translating "self" to the name of the project
 (defn getinterfaces [config]
-  (let [keys [[:configuration :provides] [:configuration :consumes]]
+  (let [name (->> config (config/find [:configuration :name]) first)
+        keys [[:configuration :provides] [:configuration :consumes]]
         explicit (map #(config/find % config) keys)]
-    (->> explicit flatten (into #{}) (cons "project") (remove nil?) (into '()))))
+    (->> explicit flatten (into #{}) (walk/postwalk-replace {"self" name})(cons "project") (remove nil?) (into '()))))
 
 (defn open [path intf]
   (let [file (io/file path (str intf ".cci"))]

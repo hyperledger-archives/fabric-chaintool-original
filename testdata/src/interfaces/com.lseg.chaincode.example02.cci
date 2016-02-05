@@ -1,0 +1,22 @@
+
+message PaymentParams {
+        optional string partySrc = 1;
+        optional string partyDst = 2;
+        optional int32  amount   = 3;
+}
+
+message BalanceParams {
+        optional string party = 1;
+}
+
+message BalanceResult {
+        optional int32 balance = 1;
+}
+
+invoke {
+       void MakePayment(PaymentParams) = 1;
+}
+
+query {
+      BalanceResult CheckBalance(BalanceParams) = 1;
+}
