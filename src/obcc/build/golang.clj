@@ -56,7 +56,8 @@
 ;;-----------------------------------------------------------------
 
 (defn buildfunction [ast]
-  (let [[index {:keys [rettype functionName param]}] (->> ast zip/down zip/right getattrs)]
+  (let [attrs (->> ast zip/down zip/right getattrs)
+        {:keys [rettype functionName param index]} attrs]
     (->Function rettype functionName param index)))
 
 (defn buildfunctions [name view aliases]
@@ -67,7 +68,8 @@
       functions
 
       :else
-      (let [function (buildfunction (zip/node loc))]
+      (let [node (zip/node loc)
+            function (buildfunction loc)]
         (recur (->> loc zip/right) (assoc functions (.index function) function))))))
 
 (defn buildinterface [name view aliases]
