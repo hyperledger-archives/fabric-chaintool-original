@@ -1,6 +1,6 @@
 declarefunctions(intf) ::=
 <<
-<intf.functions.values:{x | <intf.shortname><x.name>(<x.param>) <x.rettype> }; separator="\n">
+<intf.functions.values:{x | <intf.shortname><x.name>(pb.<x.param>) pb.<x.rettype> }; separator="\n">
 >>
 
 implementtransaction(ns, func) ::=
@@ -24,10 +24,8 @@ package obccshim
 
 import (
 	"errors"
-	"fmt"
-	"strconv"
-
 	"github.com/openblockchain/obc-peer/openchain/chaincode/shim"
+        pb "chaincode_wireprotocol"
 )
 
 type Transactions interface {
@@ -44,7 +42,6 @@ type ShimHandler struct {
 }
 
 <transactions.values:{intf | <implementtransactions(intf)> }>
-
 
 // Run callback representing the invocation of a chaincode
 func (t *ShimHandler) Run(stub *shim.ChaincodeStub, intf string, function int32, params []byte) ([]byte, error) {

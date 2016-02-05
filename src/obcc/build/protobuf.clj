@@ -98,7 +98,7 @@
 ;;-----------------------------------------------------------------
 (defn compile [path interfaces aliases]
   (let [protobuf (generateproto interfaces aliases)
-        protopath (io/file path "build/proto/project.proto")]
+        protopath (io/file path "build/src/chaincode_wireprotocol/chaincode_wireprotocol.proto")]
 
     ;; ensure the path exists
     (io/make-parents protopath)
