@@ -12,4 +12,4 @@
     (pb/compile path interfaces aliases)
 
     ;; generate golang shim output
-    (go/compile path interfaces)))
+    (go/compile path interfaces aliases)))
