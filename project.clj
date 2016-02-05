@@ -7,7 +7,7 @@
                  [org.clojure/tools.cli "0.3.3"]
                  [instaparse "1.4.1"]
                  [clojure-tools "1.1.3"]
-                 [org.antlr/stringtemplate "4.0.2"]]
+                 [org.antlr/ST4 "4.0.8"]]
   :main ^:skip-aot obcc.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
