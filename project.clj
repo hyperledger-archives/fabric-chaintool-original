@@ -7,7 +7,6 @@
                  [org.clojure/tools.cli "0.3.3"]
                  [instaparse "1.4.1"]
                  [clojure-tools "1.1.3"]
-                 [org.bituf/clj-stringtemplate "0.2"]
                  [org.antlr/stringtemplate "4.0.2"]]
   :main ^:skip-aot obcc.core
   :target-path "target/%s"
