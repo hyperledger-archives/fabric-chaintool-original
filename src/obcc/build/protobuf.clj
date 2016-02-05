@@ -98,11 +98,14 @@
 ;;-----------------------------------------------------------------
 (defn compile [path interfaces aliases]
   (let [protobuf (generateproto interfaces aliases)
-        protopath (io/file path "build/src/chaincode_wireprotocol/chaincode_wireprotocol.proto")]
+        protopath (io/file path "build/src/chaincode_wireprotocol")
+        protofile (io/file protopath "chaincode_wireprotocol.proto")]
 
     ;; ensure the path exists
-    (io/make-parents protopath)
+    (io/make-parents protofile)
 
-    ;; and then emit our output
-    (with-open [output (io/writer protopath :truncate true)]
-      (.write output protobuf))))
+    ;; and emit our output
+    (with-open [output (io/writer protofile :truncate true)]
+      (.write output protobuf))
+
+    protofile))

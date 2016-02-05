@@ -4,6 +4,7 @@
   (:require [clojure.java.io :as io]
             [clojure.zip :as zip]
             [clojure.string :as string]
+            [clojure.java.shell :as shell]
             [instaparse.core :as insta]
             [obcc.config.parser :as config]
             [obcc.build.interface :as intf]))
@@ -102,7 +103,7 @@
 ;; compile - generates golang shim code and writes it to
 ;; the default location in the build area
 ;;-----------------------------------------------------------------
-(defn compile [path interfaces aliases]
+(defn compile [path interfaces aliases protofile]
   (let [shim (generateshim interfaces aliases)
         shimpath (io/file path "build/src/obccshim/obccshim.go")]
 
@@ -111,4 +112,7 @@
 
     ;; and then emit our output
     (with-open [output (io/writer shimpath :truncate true)]
-      (.write output shim))))
+      (.write output shim))
+
+    ;; generate protobuf output
+    (shell/sh "protoc" "--go_out=./" (str protofile))))

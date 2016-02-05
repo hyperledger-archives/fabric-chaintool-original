@@ -6,10 +6,8 @@
 (defn run [path config]
   (println "Build using configuration for " path)
   (let [interfaces (intf/compile path config)
-        aliases (intf/aliases config)]
-
-    ;; generate protobuf output
-    (pb/compile path interfaces aliases)
+        aliases (intf/aliases config)
+        protofile (pb/compile path interfaces aliases)]
 
     ;; generate golang shim output
-    (go/compile path interfaces aliases)))
+    (go/compile path interfaces aliases protofile)))
