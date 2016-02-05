@@ -1,11 +1,17 @@
 
-interface  ::= ( message | enum )*
+interface  ::= ( message | enum )* invoke? query?
 
 message ::= <"message"> ident messageBody
 
 enum ::= <"enum"> ident <"{"> ( enumField | ";" )* <"}">
 
 enumField ::= ident "=" intLit ";"
+
+invoke ::= <"invoke"> functions
+query ::= <"query"> functions
+
+<functions> ::= <"{"> function* <"}">
+function ::= type ident <"("> type <")"> <"="> index <";">
 
 optionBody ::= ident ( "." ident )* "=" constant
 

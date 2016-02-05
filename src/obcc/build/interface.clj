@@ -18,7 +18,7 @@
   (let [name (->> config (config/find [:configuration :name]) first)
         keys [[:configuration :provides] [:configuration :consumes]]
         explicit (map #(config/find % config) keys)]
-    (->> explicit flatten (into #{}) (walk/postwalk-replace {"self" name})(cons "project") (remove nil?) (into '()))))
+    (->> explicit flatten (into #{}) (walk/postwalk-replace {"self" name}) (cons "project") (remove nil?) (into '()))))
 
 (defn open [path intf]
   (let [file (io/file path (str intf ".cci"))]
