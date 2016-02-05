@@ -13,10 +13,10 @@ message BalanceResult {
         optional int32 balance = 1;
 }
 
-invoke {
+transactions {
        void MakePayment(PaymentParams) = 1;
 }
 
-query {
+queries {
       BalanceResult CheckBalance(BalanceParams) = 1;
 }

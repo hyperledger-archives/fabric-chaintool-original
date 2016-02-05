@@ -11,24 +11,38 @@
 ;; types to map to java objects that string template expects.
 ;;
 
-;;(deftype Field    [^String modifier ^String type ^String name ^String index])
-;;(deftype Message  [^String name ^ArrayList fields])
-;;
-;;;;-----------------------------------------------------------------
-;;;; manage object names
-;;;;-----------------------------------------------------------------
-;;(defn qualifyname [base name]
-;;  (str (string/replace base "." "_") "_" name))
-;;
-;;;; scalar types should just be passed naked.  user types should be fully qualified
-;;(defn typeconvert [basename [type name]]
-;;  (if (= type :scalar)
-;;      name
-;;      (qualifyname basename name)))
-;;
-;;;;-----------------------------------------------------------------
-;;;; buildX - build our ST friendly objects from the AST
-;;;;-----------------------------------------------------------------
+(deftype Function  [^String rettype ^String name ^String param ^Integer index])
+(deftype Interface  [^String name ^String shortname ^ArrayList functions])
+
+
+;;-----------------------------------------------------------------
+;; manage object names
+;;-----------------------------------------------------------------
+(defn qualifyname [base name]
+  (str (string/replace base "." "_") "_" name))
+
+;;-----------------------------------------------------------------
+;; find a specific element in the AST
+;;-----------------------------------------------------------------
+(defn find [term ast]
+  (loop [loc ast]
+    (cond
+
+      (or (nil? loc) (zip/end? loc))
+      nil
+
+      (= (zip/node loc) term)
+      (zip/up loc)
+
+      :else
+      (recur (zip/next loc)))))
+
+(defn transactions? [ast] (find :transactions ast))
+(defn queries? [ast] (find :queries ast))
+
+;;-----------------------------------------------------------------
+;; buildX - build our ST friendly objects from the AST
+;;-----------------------------------------------------------------
 ;;(defn buildfields [basename ast]
 ;;  (let [rawfields (intf/getfields ast)]
 ;;    (into {} (map (fn [[index {:keys [modifier type fieldName]}]]
@@ -52,13 +66,16 @@
 ;;               (if (= node :message)
 ;;                 (cons (buildmessage fqname loc) msgs)
 ;;                 msgs))))))
-;;
-;;(defn buildallmessages [ast aliases]
-;;  (let [msgs (->> ast (map (fn [[fqname ast]] (buildmessages (aliases fqname) ast))) flatten)]
-;;    (into {} (map #(vector (.name %) %) msgs))))
 
-(defn buildtransactions [ast aliases] nil)
-(defn buildqueries [ast aliases] nil)
+(defn buildinterface [name view aliases]
+  )
+
+(defn build [interfaces aliases pred]
+  (let [candidates (for [[name ast] interfaces :let [view (pred ast)] :when view] [name view])]
+    (into {} (map (fn [[name view]] (vector name (buildinterface name view aliases))) candidates))))
+
+(defn buildtransactions [interfaces aliases] (build interfaces aliases transactions?))
+(defn buildqueries [interfaces aliases] (build interfaces aliases queries?))
 
 ;;-----------------------------------------------------------------
 ;; generate shim output - compiles the interfaces into a

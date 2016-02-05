@@ -1,5 +1,5 @@
 
-interface  ::= ( message | enum )* invoke? query?
+interface  ::= ( message | enum )* transactions? queries?
 
 message ::= <"message"> ident messageBody
 
@@ -7,8 +7,8 @@ enum ::= <"enum"> ident <"{"> ( enumField | ";" )* <"}">
 
 enumField ::= ident "=" intLit ";"
 
-invoke ::= <"invoke"> functions
-query ::= <"query"> functions
+transactions ::= <"transactions"> functions
+queries ::= <"queries"> functions
 
 <functions> ::= <"{"> function* <"}">
 function ::= rettype functionName <"("> param <")"> <"="> index <";">
