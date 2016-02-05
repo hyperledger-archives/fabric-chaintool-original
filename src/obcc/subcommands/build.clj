@@ -1,7 +1,8 @@
 (ns obcc.subcommands.build
-  (:require [obcc.build.interface :as intf]))
+  (:require [obcc.build.interface :as intf]
+            [obcc.build.protobuf :as pb]))
 
 (defn run [path config]
   (println "Build using configuration for " path)
-  (let [result (intf/compile path config)]
-      (println result)))
+  (let [interfaces (intf/compile path config)]
+    (pb/compile path interfaces)))
