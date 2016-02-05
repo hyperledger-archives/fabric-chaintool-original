@@ -1,6 +1,19 @@
-functions(intf) ::=
+declarefunctions(intf) ::=
 <<
-<intf.functions.values:{x | <x.name>(<x.param>) <x.rettype> }; separator="\n">
+<intf.functions.values:{x | <intf.shortname><x.name>(<x.param>) <x.rettype> }; separator="\n">
+>>
+
+implementtransaction(ns, func) ::=
+<<
+func (t *ShimHandler) <ns><func.name>Wrapper(params []byte) ([]byte, error) {
+     t.transactions.<ns><func.name>(params)
+}
+
+>>
+
+implementtransactions(intf) ::=
+<<
+<intf.functions.values:{x | <implementtransaction(intf.shortname, x)> }>     
 >>
 
 golang(transactions, queries) ::=
@@ -18,17 +31,19 @@ import (
 )
 
 type Transactions interface {
-     <transactions.values:{intf | <functions(intf)> }>
+     <transactions.values:{intf | <declarefunctions(intf)> }>
 }
 
 type Queries interface {
-     <queries.values:{intf | <functions(intf)> }>
+     <queries.values:{intf | <declarefunctions(intf)> }>
 }
 
 type ShimHandler struct {
      transactions Transactions
      queries      Queries
 }
+
+<transactions.values:{intf | <implementtransactions(intf)> }>
 
 
 // Run callback representing the invocation of a chaincode
