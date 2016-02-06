@@ -116,9 +116,11 @@
     ;; ensure the path exists
     (io/make-parents shimpath)
 
-    ;; and then emit our output
+    ;; emit our output
     (with-open [output (io/writer shimpath :truncate true)]
       (.write output shim))
 
     ;; generate protobuf output
-    (protoc protofile)))
+    (protoc protofile)
+
+    (println "Compilation complete")))
