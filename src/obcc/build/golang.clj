@@ -6,6 +6,7 @@
             [clojure.string :as string]
             [me.raynes.conch :as sh]
             [instaparse.core :as insta]
+            [obcc.util :as util]
             [obcc.config.parser :as config]
             [obcc.build.interface :as intf]))
 
@@ -111,7 +112,7 @@
 ;;-----------------------------------------------------------------
 (defn compile [path interfaces aliases protofile]
   (let [shim (generateshim interfaces aliases)
-        shimpath (io/file path "build/src/obccshim/obccshim.go")]
+        shimpath (io/file path util/supportpath "shim.go")]
 
     ;; ensure the path exists
     (io/make-parents shimpath)

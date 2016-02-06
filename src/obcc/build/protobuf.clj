@@ -5,6 +5,7 @@
             [clojure.zip :as zip]
             [clojure.string :as string]
             [instaparse.core :as insta]
+            [obcc.util :as util]
             [obcc.config.parser :as config]
             [obcc.build.interface :as intf]))
 
@@ -98,8 +99,7 @@
 ;;-----------------------------------------------------------------
 (defn compile [path interfaces aliases]
   (let [protobuf (generateproto interfaces aliases)
-        protopath (io/file path "build/src/chaincode_wireprotocol")
-        protofile (io/file protopath "chaincode_wireprotocol.proto")]
+        protofile (io/file path util/supportpath "wireprotocol.proto")]
 
     ;; ensure the path exists
     (io/make-parents protofile)

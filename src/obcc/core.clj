@@ -4,13 +4,12 @@
             [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
             [obcc.config.parser :as config]
+            [obcc.util :as util]
             [obcc.subcommands.deps :as depscmd]
             [obcc.subcommands.build :as buildcmd]
             [obcc.subcommands.clean :as cleancmd]
             [obcc.subcommands.package :as packagecmd])
   (:gen-class))
-
-(def configname "chaincode.conf")
 
 (def cli-options
   ;; An option with a required argument
@@ -53,7 +52,7 @@
 
           :else
           (let [path (:path options)
-                file (io/file path configname)]
+                file (io/file path util/configname)]
             (do
               (cond (not (.isFile file))
                     (exit -1 "Configuration not found at " path)
