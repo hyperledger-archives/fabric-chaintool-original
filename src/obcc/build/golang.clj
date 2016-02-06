@@ -4,7 +4,7 @@
   (:require [clojure.java.io :as io]
             [clojure.zip :as zip]
             [clojure.string :as string]
-            [clojure.java.shell :as shell]
+            [me.raynes.conch :as sh]
             [instaparse.core :as insta]
             [obcc.config.parser :as config]
             [obcc.build.interface :as intf]))
@@ -100,14 +100,10 @@
     (.render template)))
 
 (defn protoc [proto]
-  (let [{:keys [exit err]} (shell/sh "protoc" "--go_out=./" (str proto))]
-    (cond
-
-      (= exit 0)
-      true
-
-      :else
-      (throw (Exception. (str "protoc error:" err))))))
+  (let [protoc (sh/programs protoc)]
+    (try
+      (protoc "--go_out=./" (str proto))
+      (catch Exception e (println "Error:" (:stderr (ex-data e)))))))
 
 ;;-----------------------------------------------------------------
 ;; compile - generates golang shim code and writes it to
