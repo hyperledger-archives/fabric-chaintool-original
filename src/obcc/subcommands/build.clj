@@ -10,4 +10,4 @@
         protofile (pb/compile path interfaces aliases)]
 
     ;; generate golang shim output
-    (go/compile path interfaces aliases protofile)))
+    (go/compile path config interfaces aliases protofile)))

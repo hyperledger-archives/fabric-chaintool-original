@@ -15,14 +15,22 @@
 (defn parse [intf] (->> intf grammar zip/vector-zip))
 
 ;;-----------------------------------------------------------------
-;; aggregate all of the interfaces declared in the config, adding the implicit
+;; retrieve all "provided" interfaces, adding the implicit
 ;; "project.cci" and translating "self" to the name of the project
 ;;-----------------------------------------------------------------
-(defn getinterfaces [config]
+(defn getprovides [config]
   (let [name (->> config (config/find [:configuration :name]) first)
-        keys [[:configuration :provides] [:configuration :consumes]]
-        explicit (map #(config/find % config) keys)]
-    (->> explicit flatten (into #{}) (walk/postwalk-replace {"self" name}) (cons "project") (remove nil?) (into '()))))
+        entries (config/find [:configuration :provides] config)]
+    (->> entries flatten (remove nil?) (walk/postwalk-replace {"self" name}) (cons "project") (into #{}))))
+
+(defn getconsumes [config]
+  (->> config (config/find [:configuration :consumes]) (remove nil?) (into #{})))
+
+;;-----------------------------------------------------------------
+;; aggregate all of the interfaces declared in the config
+;;-----------------------------------------------------------------
+(defn getinterfaces [config]
+  (into '() (clojure.set/union (getprovides config) (getconsumes config))))
 
 (defn filename [intf]
   (str intf ".cci"))

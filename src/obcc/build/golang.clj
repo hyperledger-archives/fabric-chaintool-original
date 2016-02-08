@@ -80,7 +80,6 @@
     (->Interface name (aliases name) functions)))
 
 (defn build [interfaces aliases pred]
-  ;; FIXME - We should only be considering interfaces in the [:provides] list
   (let [candidates (for [[name ast] interfaces :let [view (pred ast)] :when view] [name view])]
     (into {} (map (fn [[name view]] (vector name (buildinterface name view aliases))) candidates))))
 
@@ -91,9 +90,10 @@
 ;; generate shim output - compiles the interfaces into a
 ;; golang shim, suitable for writing to a file
 ;;-----------------------------------------------------------------
-(defn generateshim [interfaces aliases]
-  (let [transactions (buildtransactions interfaces aliases)
-        queries (buildqueries interfaces aliases)
+(defn generateshim [config interfaces aliases]
+  (let [providedinterfaces (map #(vector % (interfaces %)) (intf/getprovides config))
+        transactions (buildtransactions providedinterfaces aliases)
+        queries (buildqueries providedinterfaces aliases)
         stg  (STGroupFile. "generators/golang.stg")
         template (.getInstanceOf stg "golang")]
 
@@ -111,8 +111,8 @@
 ;; compile - generates golang shim code and writes it to
 ;; the default location in the build area
 ;;-----------------------------------------------------------------
-(defn compile [path interfaces aliases protofile]
-  (let [shim (generateshim interfaces aliases)
+(defn compile [path config interfaces aliases protofile]
+  (let [shim (generateshim config interfaces aliases)
         shimpath (io/file path util/supportpath "shim.go")]
 
     ;; ensure the path exists
