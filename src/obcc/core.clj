@@ -19,7 +19,7 @@
 (defn exit [status msg & rest]
   (do
     (apply println msg rest)
-    status))
+    (System/exit status)))
 
 (def subcommands
   {"deps",    ["Resolve dependencies",                 depscmd/run],
@@ -59,5 +59,7 @@
                     :else
                     (let [config (config/parser file)]
                       (if-let [[_ func] (subcommands (first arguments))]
-                        (func path config)
+                        (do
+                          (func path config)
+                          (System/exit 0))
                         (exit 1 (usage summary))))))))))
