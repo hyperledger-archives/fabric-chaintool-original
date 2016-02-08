@@ -1,6 +1,6 @@
 declarefunctions(intf) ::=
 <<
-<intf.functions.values:{x | <intf.shortname><x.name>(pb.<x.param>) pb.<x.rettype> }; separator="\n">
+<intf.functions.values:{x | <intf.shortname><x.name>(pb.<x.param>) <if(x.rettype)>pb.<x.rettype><endif> }; separator="\n">
 >>
 
 implementtransaction(ns, func) ::=
@@ -29,7 +29,7 @@ import (
 )
 
 type Transactions interface {
-     <transactions.values:{intf | <declarefunctions(intf)> }>
+     <transactions.values:{intf | <declarefunctions(intf)> }; separator="\n">
 }
 
 type Queries interface {

@@ -22,24 +22,13 @@
 (defn queries? [ast] (ast/find :queries ast))
 
 ;;-----------------------------------------------------------------
-;; getX - helper functions to extract attributes from an AST function
-;;-----------------------------------------------------------------
-(defn getattrs [ast]
-  (loop [loc ast attrs {}]
-    (if (nil? loc)
-      attrs
-      ;; else
-      (let [[k v] (zip/node loc)]
-        (recur (zip/right loc) (assoc attrs k v))))))
-
-;;-----------------------------------------------------------------
 ;; buildX - build our ST friendly objects from the AST
 ;;-----------------------------------------------------------------
 
 (defn buildfunction [ast]
-  (let [attrs (->> ast zip/down zip/right getattrs)
+  (let [attrs (->> ast zip/down zip/right intf/getattrs)
         {:keys [rettype functionName param index]} attrs]
-    (->Function rettype functionName param index)))
+    (->Function (if (not= rettype "void") rettype nil) functionName param index)))
 
 (defn buildfunctions [name view namespaces]
   (loop [loc view functions {}]

@@ -49,7 +49,7 @@
 ;;-----------------------------------------------------------------
 ;; getX - helper functions to extract messages/fields from an AST message
 ;;-----------------------------------------------------------------
-(defn getfieldattrs [ast]
+(defn getattrs [ast]
   (loop [loc ast attrs {}]
     (if (nil? loc)
       attrs
@@ -65,7 +65,7 @@
       fields
 
       :else
-      (let [attrs (->> loc zip/down zip/right getfieldattrs)]
+      (let [attrs (->> loc zip/down zip/right getattrs)]
         (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
 
 (defn getmessage [ast]
