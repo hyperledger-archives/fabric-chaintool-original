@@ -104,4 +104,11 @@ func (t *ShimHandler) Query(stub *shim.ChaincodeStub, intf string, function int3
 	return nil, errors.New("Invalid query")
 }
 
+func Start(transactions *Transactions, queries *Queries) error {
+       err := shim.Start(&ShimHandler{transactions: transactions, queries: queries})
+       if err != nil {
+               return err
+       }
+
+       return nil
 >>

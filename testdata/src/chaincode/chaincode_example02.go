@@ -24,105 +24,74 @@ import (
 	"fmt"
 	"strconv"
 
+	"chaincode_support"
 	"github.com/openblockchain/obc-peer/openchain/chaincode/shim"
 )
 
-// SimpleChaincode example simple Chaincode implementation
-type SimpleChaincode struct {
+type ChaincodeExample struct {
+	chaincode_support.Transactions
+	chaincode_support.Queries
 }
 
-func (t *SimpleChaincode) init(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
-	var A, B string    // Entities
-	var Aval, Bval int // Asset holdings
+// Called to initialize the chaincode
+func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *chaincode_support.Init) error {
+
 	var err error
 
-	if len(args) != 4 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 4")
-	}
-
-	// Initialize the chaincode
-	A = args[0]
-	Aval, err = strconv.Atoi(args[1])
-	if err != nil {
-		return nil, errors.New("Expecting integer value for asset holding")
-	}
-	B = args[2]
-	Bval, err = strconv.Atoi(args[3])
-	if err != nil {
-		return nil, errors.New("Expecting integer value for asset holding")
-	}
-	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
+	fmt.Printf("Aval = %d, Bval = %d\n", param.PartyA.GetValue(), param.PartyB.GetValue())
 
 	// Write the state to the ledger
-	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	err = t.PutState(shim, param.PartyA)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
+	err = t.PutState(shim, param.PartyB))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return nil, nil
+	return nil
 }
 
 // Transaction makes payment of X units from A to B
-func (t *SimpleChaincode) invoke(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
-	var A, B string    // Entities
-	var Aval, Bval int // Asset holdings
-	var X int          // Transaction value
+func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *chaincode_support.PaymentParams) error {
+
 	var err error
 
-	if len(args) != 3 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 3")
-	}
-
-	A = args[0]
-	B = args[1]
-
 	// Get the state from the ledger
-	// TODO: will be nice to have a GetAllState call to ledger
-	Avalbytes, err := stub.GetState(A)
+	src, err := t.GetState(stub, param.GetPartySrc())
 	if err != nil {
-		return nil, errors.New("Failed to get state")
+		return err
 	}
-	if Avalbytes == nil {
-		return nil, errors.New("Entity not found")
-	}
-	Aval, _ = strconv.Atoi(string(Avalbytes))
 
-	Bvalbytes, err := stub.GetState(B)
+	dst, err := t.GetState(stub, param.GetPartyDst())
 	if err != nil {
-		return nil, errors.New("Failed to get state")
+		return err
 	}
-	if Avalbytes == nil {
-		return nil, errors.New("Entity not found")
-	}
-	Bval, _ = strconv.Atoi(string(Bvalbytes))
 
 	// Perform the execution
-	X, err = strconv.Atoi(args[2])
-	Aval = Aval - X
-	Bval = Bval + X
-	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
+	X := param.GetAmount()
+	src = src - X
+	dst = dst + X
+	fmt.Printf("Aval = %d, Bval = %d\n", src, dst)
 
 	// Write the state back to the ledger
-	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	err = stub.PutState(param.GetPartySrc(), []byte(strconv.Itoa(src)))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
+	err = stub.PutState(param.GetPartyDst(), []byte(strconv.Itoa(dst)))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return nil, nil
+	return nil
 }
 
 // Deletes an entity from state
-func (t *SimpleChaincode) delete(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *ChaincodeExample) delete(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 3")
 	}
@@ -138,59 +107,45 @@ func (t *SimpleChaincode) delete(stub *shim.ChaincodeStub, args []string) ([]byt
 	return nil, nil
 }
 
-// Run callback representing the invocation of a chaincode
-// This chaincode will manage two accounts A and B and will transfer X units from A to B upon invoke
-func (t *SimpleChaincode) Run(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-
-	// Handle different functions
-	if function == "init" {
-		// Initialize the entities and their asset holdings
-		return t.init(stub, args)
-	} else if function == "invoke" {
-		// Transaction makes payment of X units from A to B
-		return t.invoke(stub, args)
-	} else if function == "delete" {
-		// Deletes an entity from its state
-		return t.delete(stub, args)
-	}
-
-	return nil, errors.New("Received unknown function invocation")
-}
 
 // Query callback representing the query of a chaincode
-func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-	if function != "query" {
-		return nil, errors.New("Invalid query function name. Expecting \"query\"")
-	}
-	var A string // Entities
+func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *chaincode_support.BalanceParams) (*chaincode_support.BalanceResult, error) {
 	var err error
 
-	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
-	}
-
-	A = args[0]
-
 	// Get the state from the ledger
-	Avalbytes, err := stub.GetState(A)
+	val, err := t.GetState(stub, param.GetParty())
 	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get state for " + A + "\"}"
-		return nil, errors.New(jsonResp)
+		return nil, err
 	}
 
-	if Avalbytes == nil {
-		jsonResp := "{\"Error\":\"Nil amount for " + A + "\"}"
-		return nil, errors.New(jsonResp)
-	}
-
-	jsonResp := "{\"Name\":\"" + A + "\",\"Amount\":\"" + string(Avalbytes) + "\"}"
-	fmt.Printf("Query Response:%s\n", jsonResp)
-	return Avalbytes, nil
+	fmt.Printf("Query Response: %d\n", val)
+	return &chaincode_support.BalanceResult{Balance: val}, nil
 }
 
 func main() {
-	err := shim.Start(new(SimpleChaincode))
+	self := &ChaincodeExample{}
+	err := chaincode_support.Start(self, self) // Our one instance implements both Transactions and Queries interfaces
 	if err != nil {
-		fmt.Printf("Error starting Simple chaincode: %s", err)
+		fmt.Printf("Error starting example chaincode: %s", err)
 	}
+}
+
+//-------------------------------------------------
+// Helpers
+//-------------------------------------------------
+func (t *ChaincodeExample) PutState(stub *shim.ChaincodeStub, party *chaincode_support.Party) error {
+	return stub.PutState(party.GetEntity(), []byte(strconv.Itoa(party.GetValue())))
+}
+
+func (t *ChaincodeExample) GetState(stub *shim.ChaincodeStub, entity *string) (int32, error) {
+	bytes, err := stub.GetState(entity)
+	if err != nil {
+		return nil, errors.New("Failed to get state")
+	}
+	if bytes == nil {
+		return nil, errors.New("Entity not found")
+	}
+	val, _ := strconv.Atoi(string(bytes))
+
+	return val, nil
 }
