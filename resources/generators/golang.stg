@@ -3,10 +3,15 @@ declarefunctions(intf) ::=
 <intf.functions.values:{x | <intf.shortname><x.name>(*shim.ChaincodeStub, *<x.param>) <if(x.rettype)>(<x.rettype>, error)<else>error<endif> }; separator="\n">
 >>
 
+wrappersuffix(txn) ::=
+<<
+<if(txn)>Txn<else>Query<endif>Wrapper
+>>
+
 implementwrapper(txn, ns, func) ::=
 <<
 
-func (t *ShimHandler) <ns><func.name><if(txn)>Txn<else>Query<endif>Wrapper(params []byte) ([]byte, error) {
+func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(params []byte) ([]byte, error) {
 
      params := <func.param>{}
      err := proto.Unmarshal(_params, params)
@@ -37,6 +42,17 @@ func (t *ShimHandler) <ns><func.name><if(txn)>Txn<else>Query<endif>Wrapper(param
 implementwrappers(txn, intf) ::=
 <<
 <intf.functions.values:{x | <implementwrapper(txn, intf.shortname, x)> }; separator="\n">
+>>
+
+dispatchfunction(txn, intf, func) ::=
+<<
+case intf == "<intf.name>" && function == <func.index>:
+     return t.<intf.shortname><func.name><wrappersuffix(txn)>(stub, params)
+>>
+
+dispatchfunctions(txn, intf) ::=
+<<
+<intf.functions.values:{x | <dispatchfunction(txn, intf, x)> }; separator="\n">
 >>
 
 golang(transactions, queries) ::=
@@ -72,6 +88,9 @@ type ShimHandler struct {
 func (t *ShimHandler) Run(stub *shim.ChaincodeStub, intf string, function int32, params []byte) ([]byte, error) {
 
 	// Handle different functions
+        switch {
+        <transactions.values:{intf | <dispatchfunctions(true, intf)> }; separator="\n">
+        }
 
 	return nil, errors.New("Received unknown function invocation")
 }
@@ -79,6 +98,9 @@ func (t *ShimHandler) Run(stub *shim.ChaincodeStub, intf string, function int32,
 // Query callback representing the query of a chaincode
 func (t *ShimHandler) Query(stub *shim.ChaincodeStub, intf string, function int32, params []byte) ([]byte, error) {
 
+        switch {
+        <queries.values:{intf | <dispatchfunctions(false, intf)> }; separator="\n">
+        }
 	return nil, errors.New("Invalid query")
 }
 
