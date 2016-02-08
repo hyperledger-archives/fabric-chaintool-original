@@ -11,7 +11,7 @@ wrappersuffix(txn) ::=
 implementwrapper(txn, ns, func) ::=
 <<
 
-func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(params []byte) ([]byte, error) {
+func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeStub, _params []byte) ([]byte, error) {
 
      params := <func.param>{}
      err := proto.Unmarshal(_params, params)
@@ -21,7 +21,7 @@ func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(params []byte) ([]byte
 
      <if(x.rettype)>
      result, <endif>
-     err = t.<if(txn)>transactions<else>queries<endif>.<ns><func.name>(stub, params)
+     err := t.<if(txn)>transactions<else>queries<endif>.<ns><func.name>(stub, params)
      if (err != nil) {
         return nil, err
      }
