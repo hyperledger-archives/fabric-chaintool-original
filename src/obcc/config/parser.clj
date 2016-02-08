@@ -1,4 +1,5 @@
 (ns obcc.config.parser
+  (:refer-clojure :exclude [find])
   (:require [instaparse.core :as insta]
             [clojure.java.io :as io]
             [clojure.string :as str]

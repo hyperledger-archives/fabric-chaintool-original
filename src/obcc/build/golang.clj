@@ -1,4 +1,5 @@
 (ns obcc.build.golang
+  (:refer-clojure :exclude [find compile])
   (:import [org.stringtemplate.v4 STGroupFile ST])
   (:import [java.util ArrayList])
   (:require [clojure.java.io :as io]
