@@ -37,14 +37,6 @@
 (defn filename [intf]
   (str intf ".cci"))
 
-;;-----------------------------------------------------------------
-;; create a mapping of interface name to interface alias.  By default
-;; the alias is the "short name".  E.g. for an interface
-;; "com.acme.myinterface", the short name is "myinterface"
-;;-----------------------------------------------------------------
-(defn aliases [config]
-  (into {} (map #(vector % (last (string/split % #"\."))) (getinterfaces config)))) ;; FIXME - support overrides
-
 (defn open [path intf]
   (let [file (io/file path (filename intf))]
     (cond

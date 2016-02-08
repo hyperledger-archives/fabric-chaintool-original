@@ -18,13 +18,6 @@
 (deftype Function  [^String rettype ^String name ^String param ^Integer index])
 (deftype Interface  [^String name ^String shortname ^ArrayList functions])
 
-
-;;-----------------------------------------------------------------
-;; manage object names
-;;-----------------------------------------------------------------
-(defn qualifyname [base name]
-  (str (string/replace base "." "_") "_" name))
-
 (defn transactions? [ast] (ast/find :transactions ast))
 (defn queries? [ast] (ast/find :queries ast))
 
@@ -48,7 +41,7 @@
         {:keys [rettype functionName param index]} attrs]
     (->Function rettype functionName param index)))
 
-(defn buildfunctions [name view aliases]
+(defn buildfunctions [name view namespaces]
   (loop [loc view functions {}]
     (cond
 
@@ -60,25 +53,25 @@
             function (buildfunction loc)]
         (recur (->> loc zip/right) (assoc functions (.index function) function))))))
 
-(defn buildinterface [name view aliases]
-  (let [functions (buildfunctions name (->> view zip/down zip/right) aliases)]
-    (->Interface name (aliases name) functions)))
+(defn buildinterface [name view namespaces]
+  (let [functions (buildfunctions name (->> view zip/down zip/right) namespaces)]
+    (->Interface name (namespaces name) functions)))
 
-(defn build [interfaces aliases pred]
+(defn build [interfaces namespaces pred]
   (let [candidates (for [[name ast] interfaces :let [view (pred ast)] :when view] [name view])]
-    (into {} (map (fn [[name view]] (vector name (buildinterface name view aliases))) candidates))))
+    (into {} (map (fn [[name view]] (vector name (buildinterface name view namespaces))) candidates))))
 
-(defn buildtransactions [interfaces aliases] (build interfaces aliases transactions?))
-(defn buildqueries [interfaces aliases] (build interfaces aliases queries?))
+(defn buildtransactions [interfaces namespaces] (build interfaces namespaces transactions?))
+(defn buildqueries [interfaces namespaces] (build interfaces namespaces queries?))
 
 ;;-----------------------------------------------------------------
 ;; generate shim output - compiles the interfaces into a
 ;; golang shim, suitable for writing to a file
 ;;-----------------------------------------------------------------
-(defn generateshim [config interfaces aliases]
+(defn generateshim [config interfaces namespaces]
   (let [providedinterfaces (map #(vector % (interfaces %)) (intf/getprovides config))
-        transactions (buildtransactions providedinterfaces aliases)
-        queries (buildqueries providedinterfaces aliases)
+        transactions (buildtransactions providedinterfaces namespaces)
+        queries (buildqueries providedinterfaces namespaces)
         stg  (STGroupFile. "generators/golang.stg")
         template (.getInstanceOf stg "golang")]
 
@@ -96,8 +89,8 @@
 ;; compile - generates golang shim code and writes it to
 ;; the default location in the build area
 ;;-----------------------------------------------------------------
-(defn compile [path config interfaces aliases protofile]
-  (let [shim (generateshim config interfaces aliases)
+(defn compile [path config interfaces namespaces protofile]
+  (let [shim (generateshim config interfaces namespaces)
         shimpath (io/file path util/supportpath "shim.go")]
 
     ;; ensure the path exists
