@@ -1,10 +1,11 @@
 declarefunctions(intf) ::=
 <<
-<intf.functions.values:{x | <intf.shortname><x.name>(pb.<x.param>) <if(x.rettype)>pb.<x.rettype><endif> }; separator="\n">
+<intf.functions.values:{x | <intf.shortname><x.name>(pb.<x.param>) <if(x.rettype)>(pb.<x.rettype>, error)<else>error<endif> }; separator="\n">
 >>
 
 implementtransaction(ns, func) ::=
 <<
+
 func (t *ShimHandler) <ns><func.name>Wrapper(params []byte) ([]byte, error) {
      t.transactions.<ns><func.name>(params)
 }
@@ -13,7 +14,7 @@ func (t *ShimHandler) <ns><func.name>Wrapper(params []byte) ([]byte, error) {
 
 implementtransactions(intf) ::=
 <<
-<intf.functions.values:{x | <implementtransaction(intf.shortname, x)> }>     
+<intf.functions.values:{x | <implementtransaction(intf.shortname, x)> }; separator="\n">
 >>
 
 golang(transactions, queries) ::=
