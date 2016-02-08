@@ -8,6 +8,7 @@
             [me.raynes.conch :as sh]
             [instaparse.core :as insta]
             [obcc.util :as util]
+            [obcc.ast :as ast]
             [obcc.config.parser :as config]
             [obcc.build.interface :as intf]))
 
@@ -24,24 +25,8 @@
 (defn qualifyname [base name]
   (str (string/replace base "." "_") "_" name))
 
-;;-----------------------------------------------------------------
-;; find a specific element in the AST
-;;-----------------------------------------------------------------
-(defn find [term ast]
-  (loop [loc ast]
-    (cond
-
-      (or (nil? loc) (zip/end? loc))
-      nil
-
-      (= (zip/node loc) term)
-      (zip/up loc)
-
-      :else
-      (recur (zip/next loc)))))
-
-(defn transactions? [ast] (find :transactions ast))
-(defn queries? [ast] (find :queries ast))
+(defn transactions? [ast] (ast/find :transactions ast))
+(defn queries? [ast] (ast/find :queries ast))
 
 ;;-----------------------------------------------------------------
 ;; getX - helper functions to extract attributes from an AST function
