@@ -109,4 +109,5 @@
     (with-open [output (io/writer protofile :truncate true)]
       (.write output protobuf))
 
+    ;; finally, return the name of the file so other tools (like protoc) may consume it
     protofile))
