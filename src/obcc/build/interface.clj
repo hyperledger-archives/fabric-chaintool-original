@@ -6,6 +6,7 @@
             [clojure.zip :as zip]
             [clojure.walk :as walk]
             [clojure.string :as string]
+            [clojure.set :as set]
             [instaparse.core :as insta]
             [obcc.config.parser :as config]))
 
@@ -30,7 +31,7 @@
 ;; aggregate all of the interfaces declared in the config
 ;;-----------------------------------------------------------------
 (defn getinterfaces [config]
-  (into '() (clojure.set/union (getprovides config) (getconsumes config))))
+  (into '() (set/union (getprovides config) (getconsumes config))))
 
 (defn filename [intf]
   (str intf ".cci"))
