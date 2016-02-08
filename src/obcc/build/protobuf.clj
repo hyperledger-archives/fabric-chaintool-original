@@ -32,29 +32,15 @@
 ;;-----------------------------------------------------------------
 ;; buildX - build our ST friendly objects from the AST
 ;;-----------------------------------------------------------------
-(defn buildfields [basename ast]
-  (let [rawfields (intf/getfields ast)]
-    (into {} (map (fn [[index {:keys [modifier type fieldName]}]]
-                    (vector index (->Field modifier (typeconvert basename type) fieldName index))) rawfields))))
+(defn buildfields [basename fields]
+  (into {} (map (fn [[index {:keys [modifier type fieldName]}]]
+                  (vector index (->Field modifier (typeconvert basename type) fieldName index))) fields)))
 
-(defn buildmessage [basename ast]
-  (let [name (->> ast zip/right zip/node)
-        fields (buildfields basename (->> ast zip/right zip/right))]
-    (->Message (qualifyname basename name) fields )))
+(defn buildmessage [basename [name fields]]
+  (->Message (qualifyname basename name) (buildfields basename fields)))
 
 (defn buildmessages [fqname ast]
-  (loop [loc ast msgs '()]
-    (cond
-
-      (or (nil? loc) (zip/end? loc))
-      msgs
-
-      :else
-      (let [node (->> loc zip/node)]
-        (recur (->> loc zip/next)
-               (if (= node :message)
-                 (cons (buildmessage fqname loc) msgs)
-                 msgs))))))
+  (map #(buildmessage fqname %) (intf/getmessages ast)))
 
 (defn buildallmessages [ast aliases]
   (let [msgs (->> ast (map (fn [[fqname ast]] (buildmessages (aliases fqname) ast))) flatten)]
