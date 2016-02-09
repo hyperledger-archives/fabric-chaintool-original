@@ -62,7 +62,7 @@
 (defn go [path & args]
   (let [cwd (System/getProperty "user.dir")
         fqpath (str cwd "/" path)
-        gopath (str fqpath "/build" ":" fqpath ":" (System/getenv "GOPATH"))
+        gopath (str fqpath "/build/deps" ":" fqpath "/build" ":" fqpath ":" (System/getenv "GOPATH"))
         _args (into [] (concat ["go"] args [:env {"GOPATH" gopath}]))]
     (apply println _args)
     (let [result (apply sh/proc _args)]
