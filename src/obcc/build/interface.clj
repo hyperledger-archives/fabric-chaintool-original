@@ -47,7 +47,7 @@
       (throw (Exception. (str (.getAbsolutePath file) " not found"))))))
 
 ;;-----------------------------------------------------------------
-;; getX - helper functions to extract messages/fields from an AST message
+;; getX - helper functions to extract data from an interface AST
 ;;-----------------------------------------------------------------
 (defn getattrs [ast]
   (loop [loc ast attrs {}]
@@ -57,7 +57,7 @@
       (let [[k v] (zip/node loc)]
         (recur (zip/right loc) (assoc attrs k v))))))
 
-(defn getfields [ast]
+(defn getentries [ast]
   (loop [loc ast fields {}]
     (cond
 
@@ -70,7 +70,7 @@
 
 (defn getmessage [ast]
   (let [name (->> ast zip/right zip/node)
-        fields (getfields (->> ast zip/right zip/right))]
+        fields (getentries (->> ast zip/right zip/right))]
       (vector name fields)))
 
 (defn getmessages [interface]
@@ -86,6 +86,20 @@
                         (if (= node :message)
                           (cons (getmessage loc) msgs)
                           msgs)))))))
+
+(defn getfunctions [ast]
+  (let [name (->> ast zip/down zip/node)
+        functions (getentries (->> ast zip/down zip/right))]
+    (vector name functions)))
+
+
+(defn getgeneric [ast term]
+  (if-let [results (ast/find term ast)]
+    (getfunctions results)))
+
+(defn gettransactions [ast] (getgeneric ast :transactions))
+(defn getqueries [ast] (getgeneric ast :queries))
+(defn getallfunctions [ast] (->> (vector (gettransactions ast) (getqueries ast)) (into {})))
 
 ;;-----------------------------------------------------------------
 ;; takes an interface name, maps it to a file, and if present, compiles

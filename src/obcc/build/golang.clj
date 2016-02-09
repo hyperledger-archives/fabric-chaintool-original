@@ -5,6 +5,7 @@
   (:require [clojure.java.io :as io]
             [clojure.zip :as zip]
             [clojure.string :as string]
+            [clojure.algo.generic.functor :as algo]
             [me.raynes.conch :as sh]
             [instaparse.core :as insta]
             [obcc.util :as util]
@@ -16,56 +17,40 @@
 ;;
 
 (deftype Function  [^String rettype ^String name ^String param ^Integer index])
-(deftype Interface  [^String name ^String ns ^ArrayList functions])
-
-(defn transactions? [ast] (ast/find :transactions ast))
-(defn queries? [ast] (ast/find :queries ast))
+(deftype Interface  [^String name ^String ns ^ArrayList transactions ^ArrayList queries])
 
 ;;-----------------------------------------------------------------
-;; buildX - build our ST friendly objects from the AST
+;; buildX - build our ST friendly objects
 ;;-----------------------------------------------------------------
 
-(defn buildfunction [ast]
-  (let [attrs (->> ast zip/down zip/right intf/getattrs)
-        {:keys [rettype functionName param index]} attrs]
-    (->Function (if (not= rettype "void") rettype nil) functionName param index)))
+(defn buildfunction [{:keys [rettype functionName param index]}]
+  (vector functionName (->Function (if (not= rettype "void") rettype nil) functionName param index)))
 
-(defn buildfunctions [name view namespaces]
-  (loop [loc view functions {}]
-    (cond
+(defn buildfunctions [functions]
+  (into {} (for [[k v] functions]
+             (buildfunction v))))
 
-      (nil? loc)
-      functions
+(defn buildinterface [name interface namespaces]
+  (let [transactions (buildfunctions (:transactions interface))
+        queries (buildfunctions (:queries interface))]
+    (vector name (->Interface name (namespaces name) transactions queries))))
 
-      :else
-      (let [node (zip/node loc)
-            function (buildfunction loc)]
-        (recur (->> loc zip/right) (assoc functions (.index function) function))))))
-
-(defn buildinterface [name view namespaces]
-  (let [functions (buildfunctions name (->> view zip/down zip/right) namespaces)]
-    (->Interface name (namespaces name) functions)))
-
-(defn build [interfaces namespaces pred]
-  (let [candidates (for [[name ast] interfaces :let [view (pred ast)] :when view] [name view])]
-    (into {} (map (fn [[name view]] (vector name (buildinterface name view namespaces))) candidates))))
-
-(defn buildtransactions [interfaces namespaces] (build interfaces namespaces transactions?))
-(defn buildqueries [interfaces namespaces] (build interfaces namespaces queries?))
+(defn build [interfaces namespaces]
+  (into {} (map (fn [[name interface]] (buildinterface name interface namespaces)) interfaces)))
 
 ;;-----------------------------------------------------------------
 ;; generate shim output - compiles the interfaces into a
 ;; golang shim, suitable for writing to a file
 ;;-----------------------------------------------------------------
 (defn generateshim [config interfaces namespaces]
-  (let [providedinterfaces (map #(vector % (interfaces %)) (intf/getprovides config))
-        transactions (buildtransactions providedinterfaces namespaces)
-        queries (buildqueries providedinterfaces namespaces)
+  (let [functions (algo/fmap intf/getallfunctions interfaces)
+        provides (build (select-keys functions (intf/getprovides config)) namespaces)
+        consumes (build (select-keys functions (intf/getconsumes config)) namespaces)
         stg  (STGroupFile. "generators/golang.stg")
         template (.getInstanceOf stg "golang")]
 
-    (.add template "transactions" transactions)
-    (.add template "queries" queries)
+    (.add template "provides" provides)
+    (.add template "consumes" consumes)
     (.render template)))
 
 (defn protoc [proto]

@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.cli "0.3.3"]
+                 [org.clojure/algo.generic "0.1.2"]
                  [instaparse "1.4.1"]
                  [clojure-tools "1.1.3"]
                  [org.antlr/ST4 "4.0.8"]
