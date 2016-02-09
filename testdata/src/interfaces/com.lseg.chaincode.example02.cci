@@ -5,8 +5,8 @@ message PaymentParams {
         optional int32  amount   = 3;
 }
 
-message BalanceParams {
-        optional string party = 1;
+message Entity {
+        optional string id = 1;
 }
 
 message BalanceResult {
@@ -14,9 +14,10 @@ message BalanceResult {
 }
 
 transactions {
-       void MakePayment(PaymentParams) = 1;
+        void MakePayment(PaymentParams) = 1;
+        void DeleteAccount(Entity) = 2;
 }
 
 queries {
-      BalanceResult CheckBalance(BalanceParams) = 1;
+      BalanceResult CheckBalance(Entity) = 1;
 }
