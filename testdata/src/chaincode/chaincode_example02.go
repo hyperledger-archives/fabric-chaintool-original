@@ -25,6 +25,7 @@ import (
 	"strconv"
 
 	"chaincode_support"
+	"github.com/golang/protobuf/proto"
 	"github.com/openblockchain/obc-peer/openchain/chaincode/shim"
 )
 
@@ -41,12 +42,12 @@ func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *chaincode_suppo
 	fmt.Printf("Aval = %d, Bval = %d\n", param.PartyA.GetValue(), param.PartyB.GetValue())
 
 	// Write the state to the ledger
-	err = t.PutState(shim, param.PartyA)
+	err = t.PutState(stub, param.PartyA)
 	if err != nil {
 		return err
 	}
 
-	err = t.PutState(shim, param.PartyB))
+	err = t.PutState(stub, param.PartyB)
 	if err != nil {
 		return err
 	}
@@ -71,7 +72,7 @@ func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *chaincod
 	}
 
 	// Perform the execution
-	X := param.GetAmount()
+	X := int(param.GetAmount())
 	src = src - X
 	dst = dst + X
 	fmt.Printf("Aval = %d, Bval = %d\n", src, dst)
@@ -91,35 +92,29 @@ func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *chaincod
 }
 
 // Deletes an entity from state
-func (t *ChaincodeExample) delete(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
-	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 3")
-	}
-
-	A := args[0]
+func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *chaincode_support.Entity) error {
 
 	// Delete the key from the state in ledger
-	err := stub.DelState(A)
+	err := stub.DelState(param.GetId())
 	if err != nil {
-		return nil, errors.New("Failed to delete state")
+		return errors.New("Failed to delete state")
 	}
 
-	return nil, nil
+	return nil
 }
 
-
 // Query callback representing the query of a chaincode
-func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *chaincode_support.BalanceParams) (*chaincode_support.BalanceResult, error) {
+func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *chaincode_support.Entity) (*chaincode_support.BalanceResult, error) {
 	var err error
 
 	// Get the state from the ledger
-	val, err := t.GetState(stub, param.GetParty())
+	val, err := t.GetState(stub, param.GetId())
 	if err != nil {
 		return nil, err
 	}
 
 	fmt.Printf("Query Response: %d\n", val)
-	return &chaincode_support.BalanceResult{Balance: val}, nil
+	return &chaincode_support.BalanceResult{Balance: proto.Int32(int32(val))}, nil
 }
 
 func main() {
@@ -134,18 +129,18 @@ func main() {
 // Helpers
 //-------------------------------------------------
 func (t *ChaincodeExample) PutState(stub *shim.ChaincodeStub, party *chaincode_support.Party) error {
-	return stub.PutState(party.GetEntity(), []byte(strconv.Itoa(party.GetValue())))
+	return stub.PutState(party.GetEntity(), []byte(strconv.Itoa(int(party.GetValue()))))
 }
 
-func (t *ChaincodeExample) GetState(stub *shim.ChaincodeStub, entity *string) (int32, error) {
+func (t *ChaincodeExample) GetState(stub *shim.ChaincodeStub, entity string) (int, error) {
 	bytes, err := stub.GetState(entity)
 	if err != nil {
-		return nil, errors.New("Failed to get state")
+		return 0, errors.New("Failed to get state")
 	}
 	if bytes == nil {
-		return nil, errors.New("Entity not found")
+		return 0, errors.New("Entity not found")
 	}
-	val, _ := strconv.Atoi(string(bytes))
 
+	val, _ := strconv.Atoi(string(bytes))
 	return val, nil
 }
