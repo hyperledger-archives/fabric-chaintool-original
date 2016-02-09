@@ -55,7 +55,13 @@
 
 (defn protoc [proto]
   (let [protoc (sh/programs protoc)]
-    (protoc "--go_out=./" (str proto))))
+    (println "Compiling protocol buffers")
+    (println (:stderr (protoc "--go_out=./" (str proto) {:verbose true})))))
+
+(defn go [package]
+  (let [go (sh/programs go)]
+    (println "Compiling golang")
+    (println (:stderr (go "build" package {:verbose true})))))
 
 ;;-----------------------------------------------------------------
 ;; compile - generates golang shim code and writes it to
@@ -74,5 +80,8 @@
 
     ;; generate protobuf output
     (protoc protofile)
+
+    ;; test-compile our chaincode
+    (go "chaincode")
 
     (println "Compilation complete")))
