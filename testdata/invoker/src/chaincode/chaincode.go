@@ -39,15 +39,8 @@ func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *chaincode_suppo
 
 	var err error
 
-	fmt.Printf("Aval = %d, Bval = %d\n", param.PartyA.GetValue(), param.PartyB.GetValue())
-
 	// Write the state to the ledger
-	err = t.PutState(stub, param.PartyA)
-	if err != nil {
-		return err
-	}
-
-	err = t.PutState(stub, param.PartyB)
+	err = stub.PutState("ProxyAddress", param.GetAddress())
 	if err != nil {
 		return err
 	}
@@ -61,60 +54,22 @@ func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *chaincod
 	var err error
 
 	// Get the state from the ledger
-	src, err := t.GetState(stub, param.GetPartySrc())
+	addr, err := stub.GetState("ProxyAddress")
 	if err != nil {
 		return err
 	}
 
-	dst, err := t.GetState(stub, param.GetPartyDst())
-	if err != nil {
-		return err
-	}
-
-	// Perform the execution
-	X := int(param.GetAmount())
-	src = src - X
-	dst = dst + X
-	fmt.Printf("Aval = %d, Bval = %d\n", src, dst)
-
-	// Write the state back to the ledger
-	err = stub.PutState(param.GetPartySrc(), []byte(strconv.Itoa(src)))
-	if err != nil {
-		return err
-	}
-
-	err = stub.PutState(param.GetPartyDst(), []byte(strconv.Itoa(dst)))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return chaincode_support.MakePayment(stub, addr, param)
 }
 
 // Deletes an entity from state
 func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *chaincode_support.Entity) error {
 
-	// Delete the key from the state in ledger
-	err := stub.DelState(param.GetId())
-	if err != nil {
-		return errors.New("Failed to delete state")
-	}
-
-	return nil
 }
 
 // Query callback representing the query of a chaincode
 func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *chaincode_support.Entity) (*chaincode_support.BalanceResult, error) {
-	var err error
 
-	// Get the state from the ledger
-	val, err := t.GetState(stub, param.GetId())
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Printf("Query Response: %d\n", val)
-	return &chaincode_support.BalanceResult{Balance: proto.Int32(int32(val))}, nil
 }
 
 func main() {
@@ -123,24 +78,4 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error starting example chaincode: %s", err)
 	}
-}
-
-//-------------------------------------------------
-// Helpers
-//-------------------------------------------------
-func (t *ChaincodeExample) PutState(stub *shim.ChaincodeStub, party *chaincode_support.Party) error {
-	return stub.PutState(party.GetEntity(), []byte(strconv.Itoa(int(party.GetValue()))))
-}
-
-func (t *ChaincodeExample) GetState(stub *shim.ChaincodeStub, entity string) (int, error) {
-	bytes, err := stub.GetState(entity)
-	if err != nil {
-		return 0, errors.New("Failed to get state")
-	}
-	if bytes == nil {
-		return 0, errors.New("Entity not found")
-	}
-
-	val, _ := strconv.Atoi(string(bytes))
-	return val, nil
 }
