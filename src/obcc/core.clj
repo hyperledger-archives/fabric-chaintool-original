@@ -28,15 +28,17 @@
    "package", ["Package the chaincode for deployment", packagecmd/run]})
 
 (defn usage [options-summary]
-  (->> (flatten ["Usage: obcc [options] action"
-        ""
-        "Options:"
-        options-summary
-        ""
-        "Actions:"
-        (map (fn [[name [desc func]]] (str "  " name " -> " desc)) subcommands)
-        ""
-        "Please refer to the manual page for more information."])
+  (->> (flatten [(str "obcc version: v" util/app-version)
+                 ""
+                 "Usage: obcc [options] action"
+                 ""
+                 "Options:"
+                 options-summary
+                 ""
+                 "Actions:"
+                 (map (fn [[name [desc func]]] (str "  " name " -> " desc)) subcommands)
+                 ""
+                 "Please refer to the manual page for more information."])
        (string/join \newline)))
 
 (defn -main [& args]

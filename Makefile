@@ -11,7 +11,7 @@ PROPS = $(PROPSDIR)/application.properties
 
 SRCS += $(shell find src/$(NAME) -name "*.clj")
 
-all: $(JAR)
+all: compile
 
 $(PROPSDIR):
 	@mkdir -p $@
@@ -31,7 +31,6 @@ project.clj: project.clj.in Makefile $(PROPS)
 	cat project.clj.in \
 	  | sed 's|_VERSION_|$(VERSION)|' \
 	  | sed 's|_PROPSDIR_|$(PROPSDIR)|' \
-	  | sed 's|_REPO_|$(REPO)|' \
 	  >> project.clj
 
 compile: project.clj $(PROPS) $(SRCS) Makefile
