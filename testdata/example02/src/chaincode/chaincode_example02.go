@@ -24,18 +24,18 @@ import (
 	"fmt"
 	"strconv"
 
-	"chaincode_support"
+	ccs "chaincode_support"
 	"github.com/golang/protobuf/proto"
 	"github.com/openblockchain/obc-peer/openchain/chaincode/shim"
 )
 
 type ChaincodeExample struct {
-	chaincode_support.Transactions
-	chaincode_support.Queries
+	ccs.Transactions
+	ccs.Queries
 }
 
 // Called to initialize the chaincode
-func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *chaincode_support.Init) error {
+func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *ccs.Init) error {
 
 	var err error
 
@@ -56,7 +56,7 @@ func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *chaincode_suppo
 }
 
 // Transaction makes payment of X units from A to B
-func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *chaincode_support.PaymentParams) error {
+func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *ccs.PaymentParams) error {
 
 	var err error
 
@@ -92,7 +92,7 @@ func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *chaincod
 }
 
 // Deletes an entity from state
-func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *chaincode_support.Entity) error {
+func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *ccs.Entity) error {
 
 	// Delete the key from the state in ledger
 	err := stub.DelState(param.GetId())
@@ -104,7 +104,7 @@ func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *chainc
 }
 
 // Query callback representing the query of a chaincode
-func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *chaincode_support.Entity) (*chaincode_support.BalanceResult, error) {
+func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *ccs.Entity) (*ccs.BalanceResult, error) {
 	var err error
 
 	// Get the state from the ledger
@@ -114,12 +114,12 @@ func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *chainco
 	}
 
 	fmt.Printf("Query Response: %d\n", val)
-	return &chaincode_support.BalanceResult{Balance: proto.Int32(int32(val))}, nil
+	return &ccs.BalanceResult{Balance: proto.Int32(int32(val))}, nil
 }
 
 func main() {
 	self := &ChaincodeExample{}
-	err := chaincode_support.Start(self, self) // Our one instance implements both Transactions and Queries interfaces
+	err := ccs.Start(self, self) // Our one instance implements both Transactions and Queries interfaces
 	if err != nil {
 		fmt.Printf("Error starting example chaincode: %s", err)
 	}
@@ -128,7 +128,7 @@ func main() {
 //-------------------------------------------------
 // Helpers
 //-------------------------------------------------
-func (t *ChaincodeExample) PutState(stub *shim.ChaincodeStub, party *chaincode_support.Party) error {
+func (t *ChaincodeExample) PutState(stub *shim.ChaincodeStub, party *ccs.Party) error {
 	return stub.PutState(party.GetEntity(), []byte(strconv.Itoa(int(party.GetValue()))))
 }
 
