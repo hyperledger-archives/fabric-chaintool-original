@@ -14,6 +14,7 @@
 (def cli-options
   ;; An option with a required argument
   [["-p" "--path PATH" "path to chaincode project" :default "./"]
+   ["-v" "--version"]
    ["-h" "--help"]])
 
 (defn exit [status msg & rest]
@@ -27,8 +28,10 @@
    "clean",   ["Clean the chaincode project",          cleancmd/run]
    "package", ["Package the chaincode for deployment", packagecmd/run]})
 
+(defn version [] (str "obcc version: v" util/app-version))
+
 (defn usage [options-summary]
-  (->> (flatten [(str "obcc version: v" util/app-version)
+  (->> (flatten [(version)
                  ""
                  "Usage: obcc [options] action"
                  ""
@@ -43,25 +46,33 @@
 
 (defn -main [& args]
   (let [ {:keys [options arguments errors summary]} (parse-opts args cli-options) ]
-    (cond (or (:help options) (= (count arguments) 0))
-          (exit 0 (usage summary))
+    (cond
 
-          (not= errors nil)
-          (exit -1 "Error: " (string/join errors))
+      (:help options)
+      (exit 0 (usage summary))
 
-          (not= (count arguments) 1)
-          (exit -1 "Error: bad argument count")
+      (:version options)
+      (exit 0 (version))
 
-          :else
-          (let [path (:path options)
-                file (io/file path util/configname)]
-            (do
-              (cond (not (.isFile file))
-                    (exit -1 "Configuration not found at " path)
-                    :else
-                    (let [config (config/parser file)]
-                      (if-let [[_ func] (subcommands (first arguments))]
-                        (do
-                          (func path config)
-                          (System/exit 0))
-                        (exit 1 (usage summary))))))))))
+      (= (count arguments) 0)
+      (exit 0 (usage summary))
+
+      (not= errors nil)
+      (exit -1 "Error: " (string/join errors))
+
+      (not= (count arguments) 1)
+      (exit -1 "Error: bad argument count")
+
+      :else
+      (let [path (:path options)
+            file (io/file path util/configname)]
+        (do
+          (cond (not (.isFile file))
+                (exit -1 "Configuration not found at " path)
+                :else
+                (let [config (config/parser file)]
+                  (if-let [[_ func] (subcommands (first arguments))]
+                    (do
+                      (func path config)
+                      (System/exit 0))
+                    (exit 1 (usage summary))))))))))
