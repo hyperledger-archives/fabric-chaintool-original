@@ -45,8 +45,8 @@ implementwrappers(txn, intf, functions) ::=
 implementclientstub(txn, intf, func) ::=
 <<
 
-func <intf.ns><func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.param>)<\\>
-<if(func.rettype)>(*<func.rettype), error)<else>error<endif> {
+func <intf.ns><func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.param>) <\\>
+<if(func.rettype)>(*<func.rettype>, error)<else>error<endif> {
 
      _params, err := proto.Marshal(params)
      if (err != nil) {
@@ -63,7 +63,7 @@ func <intf.ns><func.name>(stub *shim.ChaincodeStub, chaincodeName string, params
      }
      return result, nil
      <else>
-     return nil
+     return err
      <endif>
 }
 
