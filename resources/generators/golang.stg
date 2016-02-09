@@ -1,6 +1,6 @@
 declarefunctions(intf) ::=
 <<
-<intf.functions.values:{x | <intf.shortname><x.name>(*shim.ChaincodeStub, *<x.param>) <if(x.rettype)>(*<x.rettype>, error)<else>error<endif> }; separator="\n">
+<intf.functions.values:{x | <intf.ns><x.name>(*shim.ChaincodeStub, *<x.param>) <if(x.rettype)>(*<x.rettype>, error)<else>error<endif> }; separator="\n">
 >>
 
 wrappersuffix(txn) ::=
@@ -39,13 +39,13 @@ func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeSt
 
 implementwrappers(txn, intf) ::=
 <<
-<intf.functions.values:{x | <implementwrapper(txn, intf.shortname, x)> }; separator="\n">
+<intf.functions.values:{x | <implementwrapper(txn, intf.ns, x)> }; separator="\n">
 >>
 
 dispatchfunction(txn, intf, func) ::=
 <<
 case intf == "<intf.name>" && function == <func.index>:
-     return t.<intf.shortname><func.name><wrappersuffix(txn)>(stub, params)
+     return t.<intf.ns><func.name><wrappersuffix(txn)>(stub, params)
 >>
 
 dispatchfunctions(txn, intf) ::=

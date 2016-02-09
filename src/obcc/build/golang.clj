@@ -16,7 +16,7 @@
 ;;
 
 (deftype Function  [^String rettype ^String name ^String param ^Integer index])
-(deftype Interface  [^String name ^String shortname ^ArrayList functions])
+(deftype Interface  [^String name ^String ns ^ArrayList functions])
 
 (defn transactions? [ast] (ast/find :transactions ast))
 (defn queries? [ast] (ast/find :queries ast))
