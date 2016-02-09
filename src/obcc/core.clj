@@ -5,7 +5,6 @@
             [clojure.tools.cli :refer [parse-opts]]
             [obcc.config.parser :as config]
             [obcc.util :as util]
-            [obcc.subcommands.deps :as depscmd]
             [obcc.subcommands.build :as buildcmd]
             [obcc.subcommands.clean :as cleancmd]
             [obcc.subcommands.package :as packagecmd])
@@ -23,8 +22,7 @@
     (System/exit status)))
 
 (def subcommands
-  {"deps",    ["Resolve dependencies",                 depscmd/run],
-   "build",   ["Build the chaincode project",          buildcmd/run],
+  {"build",   ["Build the chaincode project",          buildcmd/run],
    "clean",   ["Clean the chaincode project",          cleancmd/run]
    "package", ["Package the chaincode for deployment", packagecmd/run]})
 
