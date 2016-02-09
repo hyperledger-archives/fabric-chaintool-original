@@ -6,7 +6,8 @@
             [clojure.zip :as zip]
             [clojure.string :as string]
             [clojure.algo.generic.functor :as algo]
-            [me.raynes.conch :as sh]
+            [me.raynes.conch :as conch]
+            [me.raynes.conch.low-level :as sh]
             [instaparse.core :as insta]
             [obcc.util :as util]
             [obcc.ast :as ast]
@@ -54,14 +55,19 @@
     (.render template)))
 
 (defn protoc [proto]
-  (let [protoc (sh/programs protoc)]
-    (println "Compiling protocol buffers")
+  (let [protoc (conch/programs protoc)]
+    (println "protoc")
     (println (:stderr (protoc "--go_out=./" (str proto) {:verbose true})))))
 
-(defn go [package]
-  (let [go (sh/programs go)]
-    (println "Compiling golang")
-    (println (:stderr (go "build" package {:verbose true})))))
+(defn go [path & args]
+  (let [cwd (System/getProperty "user.dir")
+        fqpath (str cwd "/" path)
+        gopath (str fqpath "/build" ":" fqpath ":" (System/getenv "GOPATH"))
+        _args (into [] (concat ["go"] args [:env {"GOPATH" gopath}]))]
+    (apply println _args)
+    (let [result (apply sh/proc _args)]
+      (sh/done result)
+      (println (sh/stream-to-string result :err)))))
 
 ;;-----------------------------------------------------------------
 ;; compile - generates golang shim code and writes it to
@@ -82,6 +88,7 @@
     (protoc protofile)
 
     ;; test-compile our chaincode
-    (go "chaincode")
+    (go path "get" "-d" "-v" "chaincode")
+    (go path "build" "chaincode")
 
     (println "Compilation complete")))
