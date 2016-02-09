@@ -19,12 +19,12 @@ func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeSt
         return nil, err
      }
 
-     <if(x.rettype)>result, err := <else>err = <endif>t.<if(txn)>transactions<else>queries<endif>.<ns><func.name>(stub, params)
+     <if(func.rettype)>result, err := <else>err = <endif>t.<if(txn)>transactions<else>queries<endif>.<ns><func.name>(stub, params)
      if (err != nil) {
         return nil, err
      }
 
-     <if(x.rettype)>
+     <if(func.rettype)>
      _result, err := proto.Marshal(result)
      if (err != nil) {
           return nil, err
@@ -40,6 +40,38 @@ func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeSt
 implementwrappers(txn, intf, functions) ::=
 <<
 <functions.values:{x | <implementwrapper(txn, intf.ns, x)> }; separator="\n">
+>>
+
+implementclientstub(txn, intf, func) ::=
+<<
+
+func <intf.ns><func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.param>)<\\>
+<if(func.rettype)>(*<func.rettype), error)<else>error<endif> {
+
+     _params, err := proto.Marshal(params)
+     if (err != nil) {
+        return <if(func.rettype)>nil, <endif>err
+     }
+
+     <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.InvokeChaincode(chaincodeName, "<intf.name>", <func.index>, _params)
+
+     <if(func.rettype)>
+     result := &<func.rettype>
+     err = proto.Unmarshal(_result, result)
+     if (err != nil) {
+          return nil, err
+     }
+     return result, nil
+     <else>
+     return nil
+     <endif>
+}
+
+>>
+
+implementclientstubs(txn, intf, functions) ::=
+<<
+<functions.values:{x | <implementclientstub(txn, intf, x)> }; separator="\n">
 >>
 
 dispatchfunction(txn, intf, func) ::=
@@ -84,8 +116,13 @@ type ShimHandler struct {
      queries      Queries
 }
 
+<if(provides.values)>/* Server stubs */<endif>
 <provides.values:{intf | <implementwrappers(true, intf, intf.transactions)> }>
 <provides.values:{intf | <implementwrappers(false, intf, intf.queries)> }>
+
+<if(consumes.values)>/* Client stubs */<endif>
+<consumes.values:{intf | <implementclientstubs(true, intf, intf.transactions)> }>
+<consumes.values:{intf | <implementclientstubs(false, intf, intf.queries)> }>
 
 // Run callback representing the invocation of a chaincode
 func (t *ShimHandler) Run(stub *shim.ChaincodeStub, intf string, function int32, params []byte) ([]byte, error) {
