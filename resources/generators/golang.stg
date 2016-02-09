@@ -88,9 +88,9 @@ func (t *ShimHandler) Run(stub *shim.ChaincodeStub, intf string, function int32,
 	// Handle different functions
         switch {
         <provides.values:{intf | <dispatchfunctions(true, intf, intf.transactions)> }; separator="\n">
+        default:
+                return nil, errors.New("Received unknown function invocation")
         }
-
-	return nil, errors.New("Received unknown function invocation")
 }
 
 // Query callback representing the query of a chaincode
@@ -98,8 +98,9 @@ func (t *ShimHandler) Query(stub *shim.ChaincodeStub, intf string, function int3
 
         switch {
         <provides.values:{intf | <dispatchfunctions(false, intf, intf.queries)> }; separator="\n">
+        default:
+                return nil, errors.New("Invalid query")
         }
-	return nil, errors.New("Invalid query")
 }
 
 func Start(transactions Transactions, queries Queries) error {
