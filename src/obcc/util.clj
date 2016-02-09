@@ -4,7 +4,8 @@
             [clojure.string :as string]
             [clojurewerkz.propertied.properties :as props]))
 
-(defn load-props [file-name] (->> file-name io/resource props/load-from props/properties->map))
+;;(defn load-props [file-name] (->> file-name io/resource props/load-from props/properties->map))
+(defn load-props [file-name] {})
 
 (defn app-props [] (load-props "application.properties"))
 
