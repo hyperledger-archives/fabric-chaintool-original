@@ -106,6 +106,10 @@
 
 ;;-----------------------------------------------------------------
 ;; sythesize the project::Init() transaction
+;;
+;; We allow the user to omit declaring an explicit transaction { void Init() }
+;; in the project.cci by simply specifying a message named "Init".  We will
+;; then sythesize a transaction with the signature "void Init(Init) = 1;"
 ;;-----------------------------------------------------------------
 (def inittxn [:transactions [:function [:rettype "void"] [:functionName "Init"] [:param "Init"] [:index "1"]]])
 
