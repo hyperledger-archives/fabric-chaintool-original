@@ -71,6 +71,8 @@
                 (let [config (config/parser file)]
                   (if-let [[_ func] (subcommands (first arguments))]
                     (do
-                      (func path config)
+                      (try
+                        (func path config)
+                        (catch Exception e (println "error:" (:stderr (ex-data e)))))
                       (System/exit 0))
                     (exit 1 (usage summary))))))))))

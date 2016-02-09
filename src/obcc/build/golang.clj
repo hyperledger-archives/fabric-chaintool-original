@@ -55,9 +55,7 @@
 
 (defn protoc [proto]
   (let [protoc (sh/programs protoc)]
-    (try
-      (protoc "--go_out=./" (str proto))
-      (catch Exception e (println "protoc error:" (:stderr (ex-data e)))))))
+    (protoc "--go_out=./" (str proto))))
 
 ;;-----------------------------------------------------------------
 ;; compile - generates golang shim code and writes it to
