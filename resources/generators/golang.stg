@@ -1,88 +1,3 @@
-declarefunctions(intf, functions) ::=
-<<
-<functions.values:{x | <intf.ns><x.name>(*shim.ChaincodeStub, *<x.param>) <if(x.rettype)>(*<x.rettype>, error)<else>error<endif> }; separator="\n">
->>
-
-wrappersuffix(txn) ::= "<if(txn)>Txn<else>Query<endif>Wrapper"
-
-implementwrapper(txn, ns, func) ::=
-<<
-
-func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeStub, _params string) ([]byte, error) {
-
-     params := &<func.param>{}
-     err := proto.UnmarshalString(_params, params)
-     if (err != nil) {
-        return nil, err
-     }
-
-     <if(func.rettype)>result, err := <else>err = <endif>t.<if(txn)>transactions<else>queries<endif>.<ns><func.name>(stub, params)
-     if (err != nil) {
-        return nil, err
-     }
-
-     <if(func.rettype)>
-     _result, err := marshaler.MarshalToString(result)
-     if (err != nil) {
-          return nil, err
-     }
-     return []byte(_result), nil
-     <else>
-     return nil, nil
-     <endif>
-}
-
->>
-
-compositename(txn, intf, func)          ::= "\"<intf.name>/<if(txn)>txn<else>query<endif>/<func.index>\""
-implementwrappers(txn, intf, functions) ::= "<functions.values:{x | <implementwrapper(txn, intf.ns, x)> }; separator=\"\n\">"
-
-implementclientstub(txn, intf, func) ::=
-<<
-
-func <intf.ns><func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.param>) <\\>
-<if(func.rettype)>(*<func.rettype>, error)<else>error<endif> {
-
-     args := make([]string, 1)
-     var err error
-
-     args[0], err = marshaler.MarshalToString(params)
-     if (err != nil) {
-        return <if(func.rettype)>nil, <endif>err
-     }
-
-     <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.<if(txn)>Invoke<else>Query<endif>Chaincode(chaincodeName, <compositename(txn, intf, func)>, args)
-
-     <if(func.rettype)>
-     result := &<func.rettype>{}
-     err = proto.UnmarshalString(string(_result), result)
-     if (err != nil) {
-          return nil, err
-     }
-     return result, nil
-     <else>
-     return err
-     <endif>
-}
-
->>
-
-implementclientstubs(txn, intf, functions) ::=
-<<
-<functions.values:{x | <implementclientstub(txn, intf, x)> }; separator="\n">
->>
-
-dispatchfunction(txn, intf, func) ::=
-<<
-case function == <compositename(txn, intf, func)>:
-     return t.<intf.ns><func.name><wrappersuffix(txn)>(stub, args[0])
->>
-
-dispatchfunctions(txn, intf, functions) ::=
-<<
-<functions.values:{x | <dispatchfunction(txn, intf, x)> }; separator="\n">
->>
-
 golang(provides, consumes) ::=
 <<
 <!
@@ -117,12 +32,12 @@ type ShimHandler struct {
 var marshaler *proto.Marshaler
 
 <if(provides.values)>/* Server stubs */<endif>
-<provides.values:{intf | <implementwrappers(true, intf, intf.transactions)> }>
-<provides.values:{intf | <implementwrappers(false, intf, intf.queries)> }>
+<provides.values:{intf | <implementservers(true, intf, intf.transactions)> }>
+<provides.values:{intf | <implementservers(false, intf, intf.queries)> }>
 
 <if(consumes.values)>/* Client stubs */<endif>
-<consumes.values:{intf | <implementclientstubs(true, intf, intf.transactions)> }>
-<consumes.values:{intf | <implementclientstubs(false, intf, intf.queries)> }>
+<consumes.values:{intf | <implementclients(true, intf, intf.transactions)> }>
+<consumes.values:{intf | <implementclients(false, intf, intf.queries)> }>
 
 // Run callback representing the invocation of a chaincode
 func (t *ShimHandler) Run(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
@@ -156,4 +71,82 @@ func Start(transactions Transactions, queries Queries) error {
 
        return nil
 }
+
 >>
+
+wrappersuffix(txn)                      ::= "<if(txn)>Txn<else>Query<endif>Wrapper"
+compositename(txn, intf, func)          ::= "\"<intf.name>/<if(txn)>txn<else>query<endif>/<func.index>\""
+implementservers(txn, intf, functions)  ::= "<functions.values:{x | <implementserver(txn, intf.ns, x)> }; separator=\"\n\">"
+implementclients(txn, intf, functions)  ::= "<functions.values:{x | <implementclient(txn, intf, x)> }; separator=\"\n\">"
+dispatchfunctions(txn, intf, functions) ::= "<functions.values:{x | <dispatchfunction(txn, intf, x)> }; separator=\"\n\">"
+
+declarefunctions(intf, functions) ::=
+<<
+<functions.values:{x | <intf.ns><x.name>(*shim.ChaincodeStub, *<x.param>) <if(x.rettype)>(*<x.rettype>, error)<else>error<endif> }; separator="\n">
+>>
+
+dispatchfunction(txn, intf, func) ::=
+<<
+case function == <compositename(txn, intf, func)>:
+     return t.<intf.ns><func.name><wrappersuffix(txn)>(stub, args[0])
+>>
+
+implementserver(txn, ns, func) ::=
+<<
+
+func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeStub, _params string) ([]byte, error) {
+
+     params := &<func.param>{}
+     err := proto.UnmarshalString(_params, params)
+     if (err != nil) {
+        return nil, err
+     }
+
+     <if(func.rettype)>result, err := <else>err = <endif>t.<if(txn)>transactions<else>queries<endif>.<ns><func.name>(stub, params)
+     if (err != nil) {
+        return nil, err
+     }
+
+     <if(func.rettype)>
+     _result, err := marshaler.MarshalToString(result)
+     if (err != nil) {
+          return nil, err
+     }
+     return []byte(_result), nil
+     <else>
+     return nil, nil
+     <endif>
+}
+
+>>
+
+implementclient(txn, intf, func) ::=
+<<
+
+func <intf.ns><func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.param>) <\\>
+<if(func.rettype)>(*<func.rettype>, error)<else>error<endif> {
+
+     args := make([]string, 1)
+     var err error
+
+     args[0], err = marshaler.MarshalToString(params)
+     if (err != nil) {
+        return <if(func.rettype)>nil, <endif>err
+     }
+
+     <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.<if(txn)>Invoke<else>Query<endif>Chaincode(chaincodeName, <compositename(txn, intf, func)>, args)
+
+     <if(func.rettype)>
+     result := &<func.rettype>{}
+     err = proto.UnmarshalString(string(_result), result)
+     if (err != nil) {
+          return nil, err
+     }
+     return result, nil
+     <else>
+     return err
+     <endif>
+}
+
+>>
+
