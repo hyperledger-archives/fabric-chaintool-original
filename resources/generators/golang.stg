@@ -83,7 +83,7 @@ func Start(transactions Transactions, queries Queries) error {
 !>
 >>
 
-wrappersuffix(txn)                      ::= "<if(txn)>Txn<else>Query<endif>Wrapper"
+stubsuffix(txn)                      ::= "<if(txn)>Txn<else>Query<endif>Stub"
 compositename(txn, intf, func)          ::= "\"<intf.name>/<if(txn)>txn<else>query<endif>/<func.index>\""
 implementservers(txn, intf, functions)  ::= "<functions.values:{x | <implementserver(txn, intf.ns, x)> }; separator=\"\n\">"
 implementclients(txn, intf, functions)  ::= "<functions.values:{x | <implementclient(txn, intf, x)> }; separator=\"\n\">"
@@ -97,13 +97,13 @@ declarefunctions(intf, functions) ::=
 dispatchfunction(txn, intf, func) ::=
 <<
 case function == <compositename(txn, intf, func)>:
-     return t.<intf.ns><func.name><wrappersuffix(txn)>(stub, args[0])
+     return t.<intf.ns><func.name><stubsuffix(txn)>(stub, args[0])
 >>
 
 implementserver(txn, ns, func) ::=
 <<
 
-func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeStub, _params string) ([]byte, error) {
+func (t *ShimHandler) <ns><func.name><stubsuffix(txn)>(stub *shim.ChaincodeStub, _params string) ([]byte, error) {
 
      params := &<func.param>{}
      err := proto.UnmarshalString(_params, params)
