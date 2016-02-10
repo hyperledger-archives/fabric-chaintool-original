@@ -11,7 +11,13 @@
                  [clojure-tools "1.1.3"]
                  [org.antlr/ST4 "4.0.8"]
                  [me.raynes/conch "0.8.0"]
-                 [me.raynes/fs "1.4.6"]]
+                 [me.raynes/fs "1.4.6"]
+                 [com.google.protobuf/protobuf-java "2.6.1"]
+                 [org.flatland/useful "0.9.0"]
+                 [org.flatland/schematic "0.1.0"]
+                 [org.flatland/io "0.3.0"]
+                 [ordered-collections "0.4.0"]
+                 [gloss "0.2.1"]]
   :main ^:skip-aot obcc.core
   :bin {:name "obcc"
         :bin-path "target"
