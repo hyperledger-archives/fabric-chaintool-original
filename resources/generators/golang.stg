@@ -56,7 +56,7 @@ func <intf.ns><func.name>(stub *shim.ChaincodeStub, chaincodeName string, params
      <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.<if(txn)>Invoke<else>Query<endif>Chaincode(chaincodeName, "<intf.name>", <func.index>, _params)
 
      <if(func.rettype)>
-     result := &<func.rettype>
+     result := &<func.rettype>{}
      err = proto.Unmarshal(_result, result)
      if (err != nil) {
           return nil, err
