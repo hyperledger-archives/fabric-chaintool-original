@@ -49,14 +49,14 @@
       (:help options)
       (exit 0 (usage summary))
 
+      (not= errors nil)
+      (exit -1 "Error: " (string/join errors))
+
       (:version options)
       (exit 0 (version))
 
       (= (count arguments) 0)
       (exit 0 (usage summary))
-
-      (not= errors nil)
-      (exit -1 "Error: " (string/join errors))
 
       (not= (count arguments) 1)
       (exit -1 "Error: bad argument count")
