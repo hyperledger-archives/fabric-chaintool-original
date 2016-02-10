@@ -37,6 +37,8 @@ func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeSt
 
 >>
 
+compositename(txn, intf, func) ::= "\"<intf.name>/<if(txn)>txn<else>query<endif>/<func.index>\""
+
 implementwrappers(txn, intf, functions) ::=
 <<
 <functions.values:{x | <implementwrapper(txn, intf.ns, x)> }; separator="\n">
@@ -48,12 +50,15 @@ implementclientstub(txn, intf, func) ::=
 func <intf.ns><func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.param>) <\\>
 <if(func.rettype)>(*<func.rettype>, error)<else>error<endif> {
 
+     args := make([]string, 1)
+     
      _params, err := proto.Marshal(params)
      if (err != nil) {
         return <if(func.rettype)>nil, <endif>err
      }
 
-     <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.<if(txn)>Invoke<else>Query<endif>Chaincode(chaincodeName, "<intf.name>", <func.index>, _params)
+     args[0] = string(_params)
+     <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.<if(txn)>Invoke<else>Query<endif>Chaincode(chaincodeName, <compositename(txn, intf, func)>, args)
 
      <if(func.rettype)>
      result := &<func.rettype>{}
@@ -76,8 +81,8 @@ implementclientstubs(txn, intf, functions) ::=
 
 dispatchfunction(txn, intf, func) ::=
 <<
-case intf == "<intf.name>" && function == <func.index>:
-     return t.<intf.ns><func.name><wrappersuffix(txn)>(stub, params)
+case function == <compositename(txn, intf, func)>:
+     return t.<intf.ns><func.name><wrappersuffix(txn)>(stub, []byte(args[0]))
 >>
 
 dispatchfunctions(txn, intf, functions) ::=
@@ -125,7 +130,7 @@ type ShimHandler struct {
 <consumes.values:{intf | <implementclientstubs(false, intf, intf.queries)> }>
 
 // Run callback representing the invocation of a chaincode
-func (t *ShimHandler) Run(stub *shim.ChaincodeStub, intf string, function int32, params []byte) ([]byte, error) {
+func (t *ShimHandler) Run(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 
 	// Handle different functions
         switch {
@@ -136,7 +141,7 @@ func (t *ShimHandler) Run(stub *shim.ChaincodeStub, intf string, function int32,
 }
 
 // Query callback representing the query of a chaincode
-func (t *ShimHandler) Query(stub *shim.ChaincodeStub, intf string, function int32, params []byte) ([]byte, error) {
+func (t *ShimHandler) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 
         switch {
         <provides.values:{intf | <dispatchfunctions(false, intf, intf.queries)> }; separator="\n">
