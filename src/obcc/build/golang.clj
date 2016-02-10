@@ -84,6 +84,10 @@
     (with-open [output (io/writer shimpath :truncate true)]
       (.write output shim))
 
+    ;; clean up the generated code with gofmt
+    (let [gofmt (conch/programs gofmt)]
+      (gofmt "-w" (.getAbsolutePath shimpath)))
+
     ;; generate protobuf output
     (protoc protofile)
 

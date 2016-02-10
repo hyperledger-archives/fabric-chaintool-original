@@ -20,12 +20,9 @@ under the License.
 package main
 
 import (
-	"errors"
 	"fmt"
-	"strconv"
 
 	"chaincode_support"
-	"github.com/golang/protobuf/proto"
 	"github.com/openblockchain/obc-peer/openchain/chaincode/shim"
 )
 
@@ -40,7 +37,7 @@ func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *chaincode_suppo
 	var err error
 
 	// Write the state to the ledger
-	err = stub.PutState("ProxyAddress", param.GetAddress())
+	err = stub.PutState("ProxyAddress", []byte(param.GetAddress()))
 	if err != nil {
 		return err
 	}
@@ -59,17 +56,35 @@ func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *chaincod
 		return err
 	}
 
-	return chaincode_support.MakePayment(stub, addr, param)
+	return chaincode_support.MakePayment(stub, string(addr), param)
 }
 
 // Deletes an entity from state
 func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *chaincode_support.Entity) error {
 
+	var err error
+
+	// Get the state from the ledger
+	addr, err := stub.GetState("ProxyAddress")
+	if err != nil {
+		return err
+	}
+
+	return chaincode_support.DeleteAccount(stub, string(addr), param)
 }
 
 // Query callback representing the query of a chaincode
 func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *chaincode_support.Entity) (*chaincode_support.BalanceResult, error) {
 
+	var err error
+
+	// Get the state from the ledger
+	addr, err := stub.GetState("ProxyAddress")
+	if err != nil {
+		return nil, err
+	}
+
+	return chaincode_support.CheckBalance(stub, string(addr), param)
 }
 
 func main() {
