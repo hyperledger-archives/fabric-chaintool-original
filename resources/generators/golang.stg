@@ -3,10 +3,7 @@ declarefunctions(intf, functions) ::=
 <functions.values:{x | <intf.ns><x.name>(*shim.ChaincodeStub, *<x.param>) <if(x.rettype)>(*<x.rettype>, error)<else>error<endif> }; separator="\n">
 >>
 
-wrappersuffix(txn) ::=
-<<
-<if(txn)>Txn<else>Query<endif>Wrapper
->>
+wrappersuffix(txn) ::= "<if(txn)>Txn<else>Query<endif>Wrapper"
 
 implementwrapper(txn, ns, func) ::=
 <<
@@ -37,12 +34,8 @@ func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeSt
 
 >>
 
-compositename(txn, intf, func) ::= "\"<intf.name>/<if(txn)>txn<else>query<endif>/<func.index>\""
-
-implementwrappers(txn, intf, functions) ::=
-<<
-<functions.values:{x | <implementwrapper(txn, intf.ns, x)> }; separator="\n">
->>
+compositename(txn, intf, func)          ::= "\"<intf.name>/<if(txn)>txn<else>query<endif>/<func.index>\""
+implementwrappers(txn, intf, functions) ::= "<functions.values:{x | <implementwrapper(txn, intf.ns, x)> }; separator=\"\n\">"
 
 implementclientstub(txn, intf, func) ::=
 <<
