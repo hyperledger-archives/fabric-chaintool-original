@@ -71,9 +71,9 @@
                         (do
                           (try
                             (func path config)
-                            (catch Exception e (println "error:" (:stderr (ex-data e))))))
-                          (exit 0 "done"))
-                        (exit 1 (usage summary)))))))))
+                            (catch Exception e (println "error:" (:stderr (ex-data e)))))
+                          (exit 0 ""))
+                        (exit 1 (usage summary))))))))))
 
 (defn -main [& args]
   (System/exit (apply -app args)))
