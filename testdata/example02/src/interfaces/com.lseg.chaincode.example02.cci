@@ -1,16 +1,16 @@
 
 message PaymentParams {
-        optional string partySrc = 1;
-        optional string partyDst = 2;
-        optional int32  amount   = 3;
+        string partySrc = 1;
+        string partyDst = 2;
+        int32  amount   = 3;
 }
 
 message Entity {
-        optional string id = 1;
+        string id = 1;
 }
 
 message BalanceResult {
-        optional int32 balance = 1;
+        int32 balance = 1;
 }
 
 transactions {
@@ -19,5 +19,5 @@ transactions {
 }
 
 queries {
-      BalanceResult CheckBalance(Entity) = 1;
+        BalanceResult CheckBalance(Entity) = 1;
 }

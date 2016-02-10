@@ -20,12 +20,12 @@ optionBody ::= ident ( "." ident )* "=" constant
 
 <messageBody> ::= <"{"> ( field | enum | message )* <"}">
 
-field ::= modifier type fieldName <"="> index ( <"["> fieldOption ( <","> fieldOption )* <"]"> )? <";">
+field ::= modifier? type fieldName <"="> index ( <"["> fieldOption ( <","> fieldOption )* <"]"> )? <";">
 
 fieldName ::= ident
 fieldOption ::= optionBody | "default" "=" constant
 
-modifier ::= "required" | "optional" | "repeated"
+modifier ::= "required" | "repeated"
 
 type ::= scalar / userType
 
