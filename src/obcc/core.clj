@@ -44,14 +44,15 @@
 
 (defn -app [& args]
   (let [ {:keys [options arguments errors summary]} (parse-opts args cli-options) ]
-    (cond (not= errors nil)
-          (exit -1 "Error: " (string/join errors))
-
+    (cond
           (:help options)
           (exit 0 (usage summary))
 
           (:version options)
           (exit 0 (version))
+
+          (not= errors nil)
+          (exit -1 "Error: " (string/join errors))
 
           (= (count arguments) 0)
           (exit 0 (usage summary))
