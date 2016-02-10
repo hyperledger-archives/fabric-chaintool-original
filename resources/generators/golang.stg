@@ -11,10 +11,10 @@ wrappersuffix(txn) ::=
 implementwrapper(txn, ns, func) ::=
 <<
 
-func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeStub, _params []byte) ([]byte, error) {
+func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeStub, _params string) ([]byte, error) {
 
      params := &<func.param>{}
-     err := proto.Unmarshal(_params, params)
+     err := proto.UnmarshalString(_params, params)
      if (err != nil) {
         return nil, err
      }
@@ -25,11 +25,11 @@ func (t *ShimHandler) <ns><func.name><wrappersuffix(txn)>(stub *shim.ChaincodeSt
      }
 
      <if(func.rettype)>
-     _result, err := proto.Marshal(result)
+     _result, err := marshaler.MarshalToString(result)
      if (err != nil) {
           return nil, err
      }
-     return _result, nil
+     return []byte(_result), nil
      <else>
      return nil, nil
      <endif>
@@ -51,18 +51,18 @@ func <intf.ns><func.name>(stub *shim.ChaincodeStub, chaincodeName string, params
 <if(func.rettype)>(*<func.rettype>, error)<else>error<endif> {
 
      args := make([]string, 1)
-     
-     _params, err := proto.Marshal(params)
+     var err error
+
+     args[0], err = marshaler.MarshalToString(params)
      if (err != nil) {
         return <if(func.rettype)>nil, <endif>err
      }
 
-     args[0] = string(_params)
      <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.<if(txn)>Invoke<else>Query<endif>Chaincode(chaincodeName, <compositename(txn, intf, func)>, args)
 
      <if(func.rettype)>
      result := &<func.rettype>{}
-     err = proto.Unmarshal(_result, result)
+     err = proto.UnmarshalString(string(_result), result)
      if (err != nil) {
           return nil, err
      }
@@ -82,7 +82,7 @@ implementclientstubs(txn, intf, functions) ::=
 dispatchfunction(txn, intf, func) ::=
 <<
 case function == <compositename(txn, intf, func)>:
-     return t.<intf.ns><func.name><wrappersuffix(txn)>(stub, []byte(args[0]))
+     return t.<intf.ns><func.name><wrappersuffix(txn)>(stub, args[0])
 >>
 
 dispatchfunctions(txn, intf, functions) ::=
@@ -104,7 +104,7 @@ package chaincode_support
 import (
        	"errors"
 
-	"github.com/golang/protobuf/proto"
+	proto "github.com/golang/protobuf/jsonpb"
 	"github.com/openblockchain/obc-peer/openchain/chaincode/shim"
 )
 
@@ -120,6 +120,8 @@ type ShimHandler struct {
      transactions Transactions
      queries      Queries
 }
+
+var marshaler *proto.Marshaler
 
 <if(provides.values)>/* Server stubs */<endif>
 <provides.values:{intf | <implementwrappers(true, intf, intf.transactions)> }>
@@ -151,6 +153,9 @@ func (t *ShimHandler) Query(stub *shim.ChaincodeStub, function string, args []st
 }
 
 func Start(transactions Transactions, queries Queries) error {
+
+       marshaler = &proto.Marshaler{}
+
        err := shim.Start(&ShimHandler{transactions: transactions, queries: queries})
        if err != nil {
                return err
