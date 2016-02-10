@@ -39,7 +39,7 @@ func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *ccs.Init) error
 
 	var err error
 
-	fmt.Printf("Aval = %d, Bval = %d\n", param.PartyA.GetValue(), param.PartyB.GetValue())
+	fmt.Printf("Aval = %d, Bval = %d\n", param.PartyA.Value, param.PartyB.Value)
 
 	// Write the state to the ledger
 	err = t.PutState(stub, param.PartyA)
@@ -61,29 +61,29 @@ func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *ccs.Paym
 	var err error
 
 	// Get the state from the ledger
-	src, err := t.GetState(stub, param.GetPartySrc())
+	src, err := t.GetState(stub, param.PartySrc)
 	if err != nil {
 		return err
 	}
 
-	dst, err := t.GetState(stub, param.GetPartyDst())
+	dst, err := t.GetState(stub, param.PartyDst)
 	if err != nil {
 		return err
 	}
 
 	// Perform the execution
-	X := int(param.GetAmount())
+	X := int(param.Amount)
 	src = src - X
 	dst = dst + X
 	fmt.Printf("Aval = %d, Bval = %d\n", src, dst)
 
 	// Write the state back to the ledger
-	err = stub.PutState(param.GetPartySrc(), []byte(strconv.Itoa(src)))
+	err = stub.PutState(param.PartySrc, []byte(strconv.Itoa(src)))
 	if err != nil {
 		return err
 	}
 
-	err = stub.PutState(param.GetPartyDst(), []byte(strconv.Itoa(dst)))
+	err = stub.PutState(param.PartyDst, []byte(strconv.Itoa(dst)))
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *ccs.Paym
 func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *ccs.Entity) error {
 
 	// Delete the key from the state in ledger
-	err := stub.DelState(param.GetId())
+	err := stub.DelState(param.Id)
 	if err != nil {
 		return errors.New("Failed to delete state")
 	}
@@ -108,7 +108,7 @@ func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *ccs.Ent
 	var err error
 
 	// Get the state from the ledger
-	val, err := t.GetState(stub, param.GetId())
+	val, err := t.GetState(stub, param.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func main() {
 // Helpers
 //-------------------------------------------------
 func (t *ChaincodeExample) PutState(stub *shim.ChaincodeStub, party *ccs.Party) error {
-	return stub.PutState(party.GetEntity(), []byte(strconv.Itoa(int(party.GetValue()))))
+	return stub.PutState(party.Entity, []byte(strconv.Itoa(int(party.Value))))
 }
 
 func (t *ChaincodeExample) GetState(stub *shim.ChaincodeStub, entity string) (int, error) {
