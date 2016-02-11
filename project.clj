@@ -1,8 +1,8 @@
 (defproject obcc "0.1_SNAPSHOT"
   :description "openblockchain compiler"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :url "https://github.com/openblockchain/obcc"
+  :license {:name "Apache License"
+            :url "http://www.apache.org/licenses/LICENSE-2.0.txt"}
   :min-lein-version "2.0.0"
   :javac-options ["-target" "1.7" "-source" "1.7"]
   :java-source-paths ["src"]
@@ -28,5 +28,4 @@
         :bin-path "target"
         :bootclasspath true}
   :target-path "target/%s"
-  :resource-paths ["resources" "_PROPSDIR_"]
   :profiles {:uberjar {:aot :all}})

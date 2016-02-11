@@ -1,36 +1,26 @@
-# obcc
+# obcc - openblockchain compiler
 
-FIXME: description
+obcc is a part of the chaincode toolchain.  It is used to help manage various
+phases of chaincode development, such as compilation, test, packaging, and
+deployment.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+   $ make install
 
 ## Usage
 
-FIXME: explanation
+    $ obcc -h
+    Usage: obcc [options] action
+    
+    Options:
+      -p, --path PATH  ./  path to chaincode project
+      -v, --version
+      -h, --help
+    
+    Actions:
+      build -> Build the chaincode project
+      clean -> Clean the chaincode project
+      package -> Package the chaincode for deployment
 
-    $ java -jar obcc-0.1.0-standalone.jar [args]
 
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2016 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
