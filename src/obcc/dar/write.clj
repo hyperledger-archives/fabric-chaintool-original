@@ -74,7 +74,7 @@
 
 (defn write [rootpath filespec outputfile]
   (let [files (buildfiles rootpath filespec)
-        header (fl/protobuf Header :magic "com.lseg.deterministic-archive" :version 1)
+        header (fl/protobuf Header :magic "com.obc.deterministic-archive" :version 1)
         entries (buildentries files)
         compression (fl/protobuf Compression :description "gzip")
         payload (fl/protobuf Payload :compression compression :entries entries) ;; FIXME: need Type enum set
