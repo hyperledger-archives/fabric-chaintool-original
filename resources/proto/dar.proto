@@ -1,0 +1,46 @@
+syntax = "proto2";
+package obcc.dar;
+
+message CompatibilityHeader {
+    required string magic    = 1;
+    required int32  version  = 2;
+    repeated string features = 3;
+}
+
+message Archive {
+    message Signature {
+        enum Type {
+            NONE = 1;
+            RSA  = 2;
+        }
+
+        optional Type   type        = 1;
+        optional string description = 2;
+        optional bytes  data        = 3;
+    }
+
+    message Payload {
+        message Compression {
+            enum Type {
+                NONE = 1;
+                GZIP = 2;
+            }
+
+            optional Type   type        = 1 [default = NONE];
+            optional string description = 2;
+        }
+
+        message Entries {
+            optional string    path      = 1;
+            optional uint64    size      = 2;
+            optional string    sha1      = 3;
+            optional bytes     data      = 16;
+        }
+
+        optional Compression compression = 1;
+        repeated Entries     entries     = 16;
+    }
+
+    optional Signature   signature   = 2;
+    optional bytes       payload     = 3;
+}
