@@ -1,4 +1,5 @@
 (ns obcc.dar.write
+  (:refer-clojure :exclude [import])
   (:import [org.apache.commons.io.input TeeInputStream]
            [org.apache.commons.io.output ByteArrayOutputStream]
            [java.util.zip GZIPOutputStream])
