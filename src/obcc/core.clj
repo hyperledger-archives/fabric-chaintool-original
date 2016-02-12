@@ -51,7 +51,8 @@
 
    {:name "package" :desc "Package the chaincode for deployment"
     :handler packagecmd/run
-    :options common-path-options}])
+    :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
+                           common-path-options)}])
 
 (def subcommands (->> subcommand-descriptors (map #(vector (:name %) %)) (into {})))
 

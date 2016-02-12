@@ -20,6 +20,12 @@
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]))
 
+(defn getoutputfile [options path]
+  (if-let [output (:output options)]
+    (io/file output)
+    (io/file path "build" "chaincode.cca")))
+
 (defn run [options args summary]
-  (let [[path _] (config.util/load-from-options options)]
-    (dar/write path ["src" "chaincode.conf"] (io/file path "build" "chaincode.cca"))))
+  (let [[path _] (config.util/load-from-options options)
+        outputfile (getoutputfile options path)]
+    (dar/write path ["src" "chaincode.conf"] outputfile)))
