@@ -77,6 +77,7 @@
 ;;--------------------------------------------------------------------------------------
 (defn buildentry [{:keys [path handle]}]
   (let [[sha size payload] (import handle)]
+    (printf "%d\t\t%s\t%s\n" size sha path)
     (fl/protobuf Entries :path path :size size :sha1 sha :data payload)))
 
 ;;--------------------------------------------------------------------------------------
@@ -88,7 +89,12 @@
 (defn buildentries [files]
   (map buildentry files))
 
+(def div (apply str (repeat 120 "-")))
+
 (defn write [rootpath filespec outputfile]
+  (println div)
+  (println "Size\t\tSHA1\t\t\t\t\t\tPath")
+  (println div)
   (let [files (buildfiles rootpath filespec)
         header (fl/protobuf Header :magic "com.obc.deterministic-archive" :version 1)
         entries (buildentries files)
@@ -101,4 +107,6 @@
 
     ;; emit our output
     (with-open [os (io/output-stream outputfile :truncate true)]
-      (fl/protobuf-write os header archive))))
+      (fl/protobuf-write os header archive)))
+
+  (println div))
