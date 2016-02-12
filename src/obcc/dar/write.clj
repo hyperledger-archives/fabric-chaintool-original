@@ -21,6 +21,7 @@
            [java.util.zip GZIPOutputStream])
   (:require [flatland.protobuf.core :as fl]
             [clojure.java.io :as io]
+            [doric.core :as doric]
             [pandect.algo.sha1 :refer :all]
             [obcc.dar.types :refer :all]))
 
@@ -77,8 +78,10 @@
 ;;--------------------------------------------------------------------------------------
 (defn buildentry [{:keys [path handle]}]
   (let [[sha size payload] (import handle)]
-    (printf "%d\t\t%s\t%s\n" size sha path)
-    (fl/protobuf Entries :path path :size size :sha1 sha :data payload)))
+    {:path path
+     :size size
+     :sha sha
+     :protobuf (fl/protobuf Entries :path path :size size :sha1 sha :data payload)}))
 
 ;;--------------------------------------------------------------------------------------
 ;; buildentries - builds a list of protobuf "Entry" objects based on an input list
@@ -89,18 +92,13 @@
 (defn buildentries [files]
   (map buildentry files))
 
-(def div (apply str (repeat 120 "-")))
-
 (defn write [rootpath filespec outputfile]
   (println "Writing CCA to:" (.getAbsolutePath outputfile))
-  (println div)
-  (println "Size\t\tSHA1\t\t\t\t\t\tPath")
-  (println div)
   (let [files (buildfiles rootpath filespec)
         header (fl/protobuf Header :magic "com.obc.deterministic-archive" :version 1)
         entries (buildentries files)
         compression (fl/protobuf Compression :description "gzip")
-        payload (fl/protobuf Payload :compression compression :entries entries) ;; FIXME: need Type enum set
+        payload (fl/protobuf Payload :compression compression :entries (map :protobuf entries)) ;; FIXME: need Type enum set
         archive (fl/protobuf Archive :payload (fl/protobuf-dump payload))]
 
     ;; ensure the path exists
@@ -108,9 +106,10 @@
 
     ;; emit our output
     (with-open [os (io/output-stream outputfile :truncate true)]
-      (fl/protobuf-write os header archive)))
+      (fl/protobuf-write os header archive))
 
-  (println div)
+    (println (doric/table [{:name :size} {:name :sha} {:name :path}] entries)))
+
   (println "Digital Signature: none")
   (println "Final Size:       " (.length outputfile) "bytes")
   (println "Chaincode Hash:    n/a"))
