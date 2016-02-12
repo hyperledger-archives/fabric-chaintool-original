@@ -23,6 +23,7 @@
             [clojure.java.io :as io]
             [doric.core :as doric]
             [pandect.algo.sha1 :refer :all]
+            [pandect.algo.sha256 :refer :all]
             [obcc.dar.types :refer :all]))
 
 (defn findfiles [path]
@@ -108,8 +109,8 @@
     (with-open [os (io/output-stream outputfile :truncate true)]
       (fl/protobuf-write os header archive))
 
-    (println (doric/table [{:name :size} {:name :sha} {:name :path}] entries)))
+    (println (doric/table [{:name :size} {:name :sha :title "SHA1"} {:name :path}] entries)))
 
-  (println "Digital Signature: none")
-  (println "Final Size:       " (.length outputfile) "bytes")
-  (println "Chaincode Hash:    n/a"))
+  (println "Digital Signature:  none")
+  (println "Final Size:        " (.length outputfile) "bytes")
+  (println "Chaincode SHA-256: " (sha256 outputfile)))
