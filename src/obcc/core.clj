@@ -81,7 +81,7 @@
 (defn subcommand-usage [subcommand options-summary]
   (prep-usage [(version)
                ""
-               (str "Description: " (:name subcommand) ": " (:desc subcommand))
+               (str "Description: obcc " (:name subcommand) " - " (:desc subcommand))
                ""
                (str "Usage: obcc " (:name subcommand) " [options]")
                ""
