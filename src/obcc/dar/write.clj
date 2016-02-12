@@ -112,4 +112,5 @@
 
   (println div)
   (println "Digital Signature: none")
+  (println "Final Size:       " (.length outputfile) "bytes")
   (println "Chaincode Hash:    n/a"))
