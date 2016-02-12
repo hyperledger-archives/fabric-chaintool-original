@@ -51,8 +51,7 @@
 
    {:name "package" :desc "Package the chaincode for deployment"
     :handler packagecmd/run
-    :options (option-merge [["-s" "--sign USER" "GPG user to sign package with"]]
-                           common-path-options)}])
+    :options common-path-options}])
 
 (def subcommands (->> subcommand-descriptors (map #(vector (:name %) %)) (into {})))
 
