@@ -95,6 +95,7 @@
 
 (defn write [rootpath filespec outputfile]
   (println "Writing CCA to:" (.getAbsolutePath outputfile))
+  (println "Using path" rootpath (str filespec))
   (let [files (buildfiles rootpath filespec)
         header (fl/protobuf Header :magic "com.obc.deterministic-archive" :version 1)
         entries (buildentries files)
