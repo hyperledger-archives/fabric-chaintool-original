@@ -15,6 +15,7 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 (ns obcc.config.util
+  (:refer-clojure :exclude [load])
   (:require [clojure.java.io :as io]
             [obcc.config.parser :as config]))
 
