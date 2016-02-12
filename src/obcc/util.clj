@@ -19,7 +19,6 @@
             [clojure.string :as string]))
 
 (def app-version (System/getProperty "obcc.version"))
-(def configname "chaincode.conf")
 (def supportpath "build/src/chaincode_support")
 
 ;;-----------------------------------------------------------------

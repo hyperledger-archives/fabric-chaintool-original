@@ -14,12 +14,23 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
-(ns obcc.subcommands.package
-  (:require [obcc.config.util :as config.util]
-            [obcc.dar.write :as dar]
-            [clojure.java.io :as io]
-            [clojure.tools.cli :refer [parse-opts]]))
+(ns obcc.config.util
+  (:require [clojure.java.io :as io]
+            [obcc.config.parser :as config]))
 
-(defn run [options args summary]
-  (let [[path _] (config.util/load-from-options options)]
-    (dar/write path ["src" "chaincode.conf"] (io/file path "build" "chaincode.cca"))))
+(def configname "chaincode.conf")
+
+(defn load [path]
+  (let [file (io/file path configname)]
+    (cond
+
+      (not (.isFile file))
+      (throw (Exception. (str (.getAbsolutePath file) " not found")))
+
+      :else
+      [(config/parser file) nil])))
+
+(defn load-from-options [options]
+  (let [path (:path options)
+        config (load path)]
+    [path config]))

@@ -19,47 +19,79 @@
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
-            [obcc.config.parser :as config]
             [obcc.util :as util]
             [obcc.subcommands.build :as buildcmd]
             [obcc.subcommands.clean :as cleancmd]
             [obcc.subcommands.package :as packagecmd])
   (:gen-class))
 
-(def cli-options
-  ;; An option with a required argument
-  [["-p" "--path PATH" "path to chaincode project" :default "./"]
-   ["-v" "--version"]
-   ["-h" "--help"]])
+(defn option-merge [& args] (into [] (apply concat args)))
+
+;; options common to all modes, top-level as well as subcommands
+(def common-options
+  [["-h" "--help"]])
+
+(def toplevel-options
+  (option-merge [["-v" "--version" "Print the version and exit"]]
+                common-options))
+
+;; these options are common to subcommands that are expected to operate on a chaincode tree
+(def common-path-options
+  (option-merge [["-p" "--path PATH" "path to chaincode project" :default "./"]]
+                common-options))
+
+(def subcommand-descriptors
+  [{:name "build" :desc "Build the chaincode project"
+    :handler  buildcmd/run
+    :options common-path-options}
+
+   {:name "clean" :desc "Clean the chaincode project"
+    :handler cleancmd/run
+    :options common-path-options}
+
+   {:name "package" :desc "Package the chaincode for deployment"
+    :handler packagecmd/run
+    :options (option-merge [["-s" "--sign USER" "GPG user to sign package with"]]
+                           common-path-options)}])
+
+(def subcommands (->> subcommand-descriptors (map #(vector (:name %) %)) (into {})))
 
 (defn exit [status msg & rest]
   (do
     (apply println msg rest)
     (System/exit status)))
 
-(def subcommands
-  {"build",   ["Build the chaincode project",          buildcmd/run],
-   "clean",   ["Clean the chaincode project",          cleancmd/run]
-   "package", ["Package the chaincode for deployment", packagecmd/run]})
-
 (defn version [] (str "obcc version: v" util/app-version))
 
+(defn prep-usage [msg] (->> msg flatten (string/join \newline)))
+
 (defn usage [options-summary]
-  (->> (flatten [(version)
-                 ""
-                 "Usage: obcc [options] action"
-                 ""
-                 "Options:"
-                 options-summary
-                 ""
-                 "Actions:"
-                 (map (fn [[name [desc func]]] (str "  " name " -> " desc)) subcommands)
-                 ""
-                 "Please refer to the manual page for more information."])
-       (string/join \newline)))
+  (prep-usage [(version)
+               ""
+               "Usage: obcc [general-options] action [action-options]"
+               ""
+               "General Options:"
+               options-summary
+               ""
+               "Actions:"
+               (map (fn [[_ {:keys [name desc]}]] (str "  " name ": " desc)) subcommands)
+               ""
+               ]))
+
+(defn subcommand-usage [subcommand options-summary]
+  (prep-usage [(version)
+               ""
+               (str "Description: " (:name subcommand) ": " (:desc subcommand))
+               ""
+               (str "Usage: obcc " (:name subcommand) " [options]")
+               ""
+               "Command Options:"
+               options-summary
+               ""
+               ]))
 
 (defn -main [& args]
-  (let [ {:keys [options arguments errors summary]} (parse-opts args cli-options) ]
+  (let [ {:keys [options arguments errors summary]} (parse-opts args toplevel-options :in-order true) ]
     (cond
 
       (:help options)
@@ -74,21 +106,20 @@
       (= (count arguments) 0)
       (exit 0 (usage summary))
 
-      (not= (count arguments) 1)
-      (exit -1 "Error: bad argument count")
-
       :else
-      (let [path (:path options)
-            file (io/file path util/configname)]
-        (do
-          (cond (not (.isFile file))
-                (exit -1 "Configuration not found at " path)
-                :else
-                (let [config (config/parser file)]
-                  (if-let [[_ func] (subcommands (first arguments))]
-                    (do
-                      (try
-                        (func path config)
-                        (catch Exception e (println "error:" (:stderr (ex-data e)))))
-                      (System/exit 0))
-                    (exit 1 (usage summary))))))))))
+      (if-let [subcommand (subcommands (first arguments))]
+        (let [{:keys [options arguments errors summary]} (parse-opts (rest arguments) (:options subcommand))]
+          (cond
+
+            (:help options)
+            (exit 0 (subcommand-usage subcommand summary))
+
+            (not= errors nil)
+            (exit -1 "Error: " (string/join errors))
+
+            :else
+            (try
+              ((:handler subcommand) options arguments summary)
+              (System/exit 0)
+              (catch Exception e (exit -1 (str e))))))
+        (exit 1 (usage summary))))))
