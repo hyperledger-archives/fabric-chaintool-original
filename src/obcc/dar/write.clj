@@ -92,6 +92,7 @@
 (def div (apply str (repeat 120 "-")))
 
 (defn write [rootpath filespec outputfile]
+  (println "Writing CCA to:" (.getAbsolutePath outputfile))
   (println div)
   (println "Size\t\tSHA1\t\t\t\t\t\tPath")
   (println div)
@@ -109,4 +110,6 @@
     (with-open [os (io/output-stream outputfile :truncate true)]
       (fl/protobuf-write os header archive)))
 
-  (println div))
+  (println div)
+  (println "Digital Signature: none")
+  (println "Chaincode Hash:    n/a"))
