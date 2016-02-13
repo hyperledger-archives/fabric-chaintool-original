@@ -38,7 +38,6 @@
     ;; emit header information after we know the file write was successful
     (println "Wrote CCA to:" (.getAbsolutePath outputfile))
     (println "Using path" path (str filespec))
-    (println "Using compression:" compressiontype )
 
     ;; re-use the ls function to display the contents
     (ls outputfile)))

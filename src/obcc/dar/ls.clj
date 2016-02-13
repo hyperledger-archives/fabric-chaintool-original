@@ -39,5 +39,7 @@
 
         (println (doric/table [{:name :size} {:name :sha1 :title "SHA1"} {:name :path}] (:entries payload)))
         (println "Digital Signature:  none")
-        (println "Final Size:        " (.length file) "bytes")
+        (println "Raw Data Size:     " (->> payload :entries (map :size) (reduce +)) "bytes")
+        (println "Compressed Size:   " (.length file) "bytes")
+        (println "Compression Alg:   " (->> payload :compression :description))
         (println "Chaincode SHA-256: " (sha256 file))))))
