@@ -58,6 +58,7 @@
    {:name "lscca" :desc "List the contents of a CCA file"
     :handler lsccacmd/run
     :arguments "path/to/file.cca"
+    :validate (fn [options arguments] (= (count arguments) 1))
     :options common-options}])
 
 (def subcommands (->> subcommand-descriptors (map #(vector (:name %) %)) (into {})))
@@ -110,7 +111,7 @@
       (exit 0 (version))
 
       (= (count arguments) 0)
-      (exit 0 (usage summary))
+      (exit -1 (usage summary))
 
       :else
       (if-let [subcommand (subcommands (first arguments))]
@@ -123,9 +124,12 @@
             (not= errors nil)
             (exit -1 "Error: " (string/join errors))
 
+            (and (:validate subcommand) (not ((:validate subcommand) options arguments)))
+            (exit -1 (subcommand-usage subcommand summary))
+
             :else
             (try
-              ((:handler subcommand) options arguments summary)
+              ((:handler subcommand) options arguments)
               (System/exit 0)
               (catch Exception e (exit -1 (str e))))))
         (exit 1 (usage summary))))))

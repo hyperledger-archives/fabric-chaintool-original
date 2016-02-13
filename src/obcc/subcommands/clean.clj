@@ -19,7 +19,7 @@
             [clojure.tools.file-utils :as fileutils]
             [clojure.java.io :as io]))
 
-(defn run [options args summary]
+(defn run [options args]
   (let [[path _] (config.util/load-from-options options)]
     (println "Cleaning project found at " path)
     (fileutils/recursive-delete (io/file path "build"))))

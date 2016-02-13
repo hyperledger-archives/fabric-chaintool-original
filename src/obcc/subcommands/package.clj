@@ -25,7 +25,7 @@
     (io/file output)
     (io/file path "build" "chaincode.cca")))
 
-(defn run [options args summary]
+(defn run [options args]
   (let [[path _] (config.util/load-from-options options)
         outputfile (getoutputfile options path)]
     (dar/write path ["src" "chaincode.conf"] outputfile)))

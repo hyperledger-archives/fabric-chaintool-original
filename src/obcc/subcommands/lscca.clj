@@ -18,6 +18,6 @@
   (:require [clojure.java.io :as io]
             [obcc.dar.ls :as dar]))
 
-(defn run [options args summary]
+(defn run [options args]
   (let [file (io/file (first args))]
       (dar/ls file)))

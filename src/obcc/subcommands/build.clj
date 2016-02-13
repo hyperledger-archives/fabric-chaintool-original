@@ -20,7 +20,7 @@
             [obcc.build.protobuf :as pb]
             [obcc.build.golang :as go]))
 
-(defn run [options args summary]
+(defn run [options args]
   (let [[path config] (config.util/load-from-options options)]
     (println "Build using configuration for " path)
     (let [interfaces (intf/compile path config)
