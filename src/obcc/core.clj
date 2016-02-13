@@ -81,7 +81,7 @@
                options-summary
                ""
                "Actions:"
-               (map (fn [[_ {:keys [name desc]}]] (str "  " name ": " desc)) subcommands)
+               (map (fn [[_ {:keys [name desc]}]] (str "  " name " -> " desc)) subcommands)
                ""
                ]))
 
