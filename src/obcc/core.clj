@@ -20,9 +20,10 @@
             [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
             [obcc.util :as util]
-            [obcc.subcommands.build :as buildcmd]
-            [obcc.subcommands.clean :as cleancmd]
-            [obcc.subcommands.package :as packagecmd])
+            [obcc.subcommands.build   :as buildcmd]
+            [obcc.subcommands.clean   :as cleancmd]
+            [obcc.subcommands.package :as packagecmd]
+            [obcc.subcommands.lscca   :as lsccacmd])
   (:gen-class))
 
 (defn option-merge [& args] (into [] (apply concat args)))
@@ -52,7 +53,12 @@
    {:name "package" :desc "Package the chaincode for deployment"
     :handler packagecmd/run
     :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
-                           common-path-options)}])
+                           common-path-options)}
+
+   {:name "lscca" :desc "List the contents of a CCA file"
+    :handler lsccacmd/run
+    :arguments "path/to/file.cca"
+    :options common-options}])
 
 (def subcommands (->> subcommand-descriptors (map #(vector (:name %) %)) (into {})))
 
@@ -83,7 +89,7 @@
                ""
                (str "Description: obcc " (:name subcommand) " - " (:desc subcommand))
                ""
-               (str "Usage: obcc " (:name subcommand) " [options]")
+               (str "Usage: obcc " (:name subcommand) " [options] " (if-let [arguments (:arguments subcommand)] arguments ""))
                ""
                "Command Options:"
                options-summary
