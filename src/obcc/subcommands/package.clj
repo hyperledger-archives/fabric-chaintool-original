@@ -32,11 +32,13 @@
         compressiontype (:compress options)
         outputfile (getoutputfile options path)]
 
-    (println "Writing CCA to:" (.getAbsolutePath outputfile))
+    ;; generate the actual file
+    (dar/write path filespec compressiontype outputfile)
+
+    ;; emit header information after we know the file write was successful
+    (println "Wrote CCA to:" (.getAbsolutePath outputfile))
     (println "Using path" path (str filespec))
     (println "Using compression:" compressiontype )
-
-    (dar/write path filespec compressiontype outputfile)
 
     ;; re-use the ls function to display the contents
     (ls outputfile)))
