@@ -126,6 +126,6 @@ message Archive {
         repeated Entries     entries     = 16;
     }
 
-    optional Signature   signature   = 2;
-    optional bytes       payload     = 3;
+    optional Signature   signature   = 1;
+    optional bytes       payload     = 2;
 }

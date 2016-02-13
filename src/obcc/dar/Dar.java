@@ -766,24 +766,24 @@ public final class Dar {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+     * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
      */
     boolean hasSignature();
     /**
-     * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+     * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
      */
     obcc.dar.Dar.Archive.Signature getSignature();
     /**
-     * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+     * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
      */
     obcc.dar.Dar.Archive.SignatureOrBuilder getSignatureOrBuilder();
 
     /**
-     * <code>optional bytes payload = 3;</code>
+     * <code>optional bytes payload = 2;</code>
      */
     boolean hasPayload();
     /**
-     * <code>optional bytes payload = 3;</code>
+     * <code>optional bytes payload = 2;</code>
      */
     com.google.protobuf.ByteString getPayload();
   }
@@ -839,7 +839,7 @@ public final class Dar {
               }
               break;
             }
-            case 18: {
+            case 10: {
               obcc.dar.Dar.Archive.Signature.Builder subBuilder = null;
               if (((bitField0_ & 0x00000001) == 0x00000001)) {
                 subBuilder = signature_.toBuilder();
@@ -852,7 +852,7 @@ public final class Dar {
               bitField0_ |= 0x00000001;
               break;
             }
-            case 26: {
+            case 18: {
               bitField0_ |= 0x00000002;
               payload_ = input.readBytes();
               break;
@@ -3928,37 +3928,37 @@ public final class Dar {
     }
 
     private int bitField0_;
-    public static final int SIGNATURE_FIELD_NUMBER = 2;
+    public static final int SIGNATURE_FIELD_NUMBER = 1;
     private obcc.dar.Dar.Archive.Signature signature_;
     /**
-     * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+     * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
      */
     public boolean hasSignature() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+     * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
      */
     public obcc.dar.Dar.Archive.Signature getSignature() {
       return signature_;
     }
     /**
-     * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+     * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
      */
     public obcc.dar.Dar.Archive.SignatureOrBuilder getSignatureOrBuilder() {
       return signature_;
     }
 
-    public static final int PAYLOAD_FIELD_NUMBER = 3;
+    public static final int PAYLOAD_FIELD_NUMBER = 2;
     private com.google.protobuf.ByteString payload_;
     /**
-     * <code>optional bytes payload = 3;</code>
+     * <code>optional bytes payload = 2;</code>
      */
     public boolean hasPayload() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional bytes payload = 3;</code>
+     * <code>optional bytes payload = 2;</code>
      */
     public com.google.protobuf.ByteString getPayload() {
       return payload_;
@@ -3982,10 +3982,10 @@ public final class Dar {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeMessage(2, signature_);
+        output.writeMessage(1, signature_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(3, payload_);
+        output.writeBytes(2, payload_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -3998,11 +3998,11 @@ public final class Dar {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, signature_);
+          .computeMessageSize(1, signature_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, payload_);
+          .computeBytesSize(2, payload_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4223,13 +4223,13 @@ public final class Dar {
       private com.google.protobuf.SingleFieldBuilder<
           obcc.dar.Dar.Archive.Signature, obcc.dar.Dar.Archive.Signature.Builder, obcc.dar.Dar.Archive.SignatureOrBuilder> signatureBuilder_;
       /**
-       * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+       * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
        */
       public boolean hasSignature() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+       * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
        */
       public obcc.dar.Dar.Archive.Signature getSignature() {
         if (signatureBuilder_ == null) {
@@ -4239,7 +4239,7 @@ public final class Dar {
         }
       }
       /**
-       * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+       * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
        */
       public Builder setSignature(obcc.dar.Dar.Archive.Signature value) {
         if (signatureBuilder_ == null) {
@@ -4255,7 +4255,7 @@ public final class Dar {
         return this;
       }
       /**
-       * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+       * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
        */
       public Builder setSignature(
           obcc.dar.Dar.Archive.Signature.Builder builderForValue) {
@@ -4269,7 +4269,7 @@ public final class Dar {
         return this;
       }
       /**
-       * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+       * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
        */
       public Builder mergeSignature(obcc.dar.Dar.Archive.Signature value) {
         if (signatureBuilder_ == null) {
@@ -4288,7 +4288,7 @@ public final class Dar {
         return this;
       }
       /**
-       * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+       * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
        */
       public Builder clearSignature() {
         if (signatureBuilder_ == null) {
@@ -4301,7 +4301,7 @@ public final class Dar {
         return this;
       }
       /**
-       * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+       * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
        */
       public obcc.dar.Dar.Archive.Signature.Builder getSignatureBuilder() {
         bitField0_ |= 0x00000001;
@@ -4309,7 +4309,7 @@ public final class Dar {
         return getSignatureFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+       * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
        */
       public obcc.dar.Dar.Archive.SignatureOrBuilder getSignatureOrBuilder() {
         if (signatureBuilder_ != null) {
@@ -4319,7 +4319,7 @@ public final class Dar {
         }
       }
       /**
-       * <code>optional .obcc.dar.Archive.Signature signature = 2;</code>
+       * <code>optional .obcc.dar.Archive.Signature signature = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           obcc.dar.Dar.Archive.Signature, obcc.dar.Dar.Archive.Signature.Builder, obcc.dar.Dar.Archive.SignatureOrBuilder> 
@@ -4337,19 +4337,19 @@ public final class Dar {
 
       private com.google.protobuf.ByteString payload_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>optional bytes payload = 3;</code>
+       * <code>optional bytes payload = 2;</code>
        */
       public boolean hasPayload() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional bytes payload = 3;</code>
+       * <code>optional bytes payload = 2;</code>
        */
       public com.google.protobuf.ByteString getPayload() {
         return payload_;
       }
       /**
-       * <code>optional bytes payload = 3;</code>
+       * <code>optional bytes payload = 2;</code>
        */
       public Builder setPayload(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -4361,7 +4361,7 @@ public final class Dar {
         return this;
       }
       /**
-       * <code>optional bytes payload = 3;</code>
+       * <code>optional bytes payload = 2;</code>
        */
       public Builder clearPayload() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -4423,8 +4423,8 @@ public final class Dar {
       "\n\031resources/proto/dar.proto\022\010obcc.dar\"G\n" +
       "\023CompatibilityHeader\022\r\n\005magic\030\001 \002(\t\022\017\n\007v" +
       "ersion\030\002 \002(\005\022\020\n\010features\030\003 \003(\t\"\204\004\n\007Archi" +
-      "ve\022.\n\tsignature\030\002 \001(\0132\033.obcc.dar.Archive" +
-      ".Signature\022\017\n\007payload\030\003 \001(\014\032y\n\tSignature" +
+      "ve\022.\n\tsignature\030\001 \001(\0132\033.obcc.dar.Archive" +
+      ".Signature\022\017\n\007payload\030\002 \001(\014\032y\n\tSignature" +
       "\022.\n\004type\030\001 \001(\0162 .obcc.dar.Archive.Signat" +
       "ure.Type\022\023\n\013description\030\002 \001(\t\022\014\n\004data\030\003 " +
       "\001(\014\"\031\n\004Type\022\010\n\004NONE\020\001\022\007\n\003RSA\020\002\032\274\002\n\007Paylo" +
