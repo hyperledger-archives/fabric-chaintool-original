@@ -30,3 +30,5 @@
 (def Payload     (fl/protodef Dar$Archive$Payload))
 (def Compression (fl/protodef Dar$Archive$Payload$Compression))
 (def Entries     (fl/protodef Dar$Archive$Payload$Entries))
+
+(def CompatVersion {:magic "com.obc.deterministic-archive" :version 1})

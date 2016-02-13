@@ -24,7 +24,8 @@
             [doric.core :as doric]
             [pandect.algo.sha1 :refer :all]
             [pandect.algo.sha256 :refer :all]
-            [obcc.dar.types :refer :all]))
+            [obcc.dar.types :refer :all]
+            [obcc.dar.ls :refer :all]))
 
 (defn findfiles [path]
   (->> path file-seq (filter #(.isFile %))))
@@ -79,10 +80,7 @@
 ;;--------------------------------------------------------------------------------------
 (defn buildentry [{:keys [path handle]}]
   (let [[sha size payload] (import handle)]
-    {:path path
-     :size size
-     :sha sha
-     :protobuf (fl/protobuf Entries :path path :size size :sha1 sha :data payload)}))
+    (fl/protobuf Entries :path path :size size :sha1 sha :data payload)))
 
 ;;--------------------------------------------------------------------------------------
 ;; buildentries - builds a list of protobuf "Entry" objects based on an input list
@@ -97,10 +95,10 @@
   (println "Writing CCA to:" (.getAbsolutePath outputfile))
   (println "Using path" rootpath (str filespec))
   (let [files (buildfiles rootpath filespec)
-        header (fl/protobuf Header :magic "com.obc.deterministic-archive" :version 1)
+        header (fl/protobuf Header :magic (:magic CompatVersion) :version (:version CompatVersion))
         entries (buildentries files)
         compression (fl/protobuf Compression :description "gzip")
-        payload (fl/protobuf Payload :compression compression :entries (map :protobuf entries)) ;; FIXME: need Type enum set
+        payload (fl/protobuf Payload :compression compression :entries entries) ;; FIXME: need Type enum set
         archive (fl/protobuf Archive :payload (fl/protobuf-dump payload))]
 
     ;; ensure the path exists
@@ -108,10 +106,7 @@
 
     ;; emit our output
     (with-open [os (io/output-stream outputfile :truncate true)]
-      (fl/protobuf-write os header archive))
+      (fl/protobuf-write os header archive)))
 
-    (println (doric/table [{:name :size} {:name :sha :title "SHA1"} {:name :path}] entries)))
-
-  (println "Digital Signature:  none")
-  (println "Final Size:        " (.length outputfile) "bytes")
-  (println "Chaincode SHA-256: " (sha256 outputfile)))
+  ;; re-use the ls function to display the contents
+  (ls outputfile))
