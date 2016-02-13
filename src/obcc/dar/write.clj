@@ -44,6 +44,9 @@
         path (subs fqpath basepathlen)]
     {:handle file :path path}))
 
+;;--------------------------------------------------------------------------------------
+;; compression support
+;;--------------------------------------------------------------------------------------
 (def compressors
   {"none" #(ProxyOutputStream. %)
    "gzip" #(GZIPOutputStream. %)
