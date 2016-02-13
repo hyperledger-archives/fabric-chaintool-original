@@ -17,10 +17,11 @@
 (ns obcc.dar.write
   (:refer-clojure :exclude [import])
   (:import [org.apache.commons.io.input TeeInputStream]
-           [org.apache.commons.io.output ByteArrayOutputStream]
+           [org.apache.commons.io.output ByteArrayOutputStream ProxyOutputStream]
            [java.util.zip GZIPOutputStream])
   (:require [flatland.protobuf.core :as fl]
             [clojure.java.io :as io]
+            [clojure.string :as string]
             [doric.core :as doric]
             [pandect.algo.sha1 :refer :all]
             [pandect.algo.sha256 :refer :all]
@@ -43,6 +44,13 @@
         path (subs fqpath basepathlen)]
     {:handle file :path path}))
 
+(def compressors
+  {"none" #(ProxyOutputStream. %)
+   "gzip" #(GZIPOutputStream. %)
+   })
+
+(defn compressor [type os] ((compressors type) os))
+
 ;;--------------------------------------------------------------------------------------
 ;; import - takes a file handle and returns a tuple containing [sha1 size data]
 ;;
@@ -50,11 +58,11 @@
 ;; size: the raw uncompressed size of the file as it existed on the filesystem
 ;; data: a byte-array containing the compressed binary data imported from the filesystem
 ;;--------------------------------------------------------------------------------------
-(defn import [file]
+(defn import [file compressiontype]
   (let [os (ByteArrayOutputStream.)
         [sha size] (with-open [is (io/input-stream file) ;; FIXME - validate maximum file size supported
-                               gzipper (GZIPOutputStream. os)
-                               tee (TeeInputStream. is gzipper)]
+                               compressor (compressor compressiontype os)
+                               tee (TeeInputStream. is compressor)]
                      [(sha1 tee) (.length file)])] ;; FIXME - prefer to get the length from the stream
     [sha size (.toByteArray os)]))
 
@@ -78,8 +86,8 @@
 ;;--------------------------------------------------------------------------------------
 ;; buildentry - builds a protobuf "Entry" object based on the tuple as emitted by (convertfile)
 ;;--------------------------------------------------------------------------------------
-(defn buildentry [{:keys [path handle]}]
-  (let [[sha size payload] (import handle)]
+(defn buildentry [{:keys [path handle]} compressiontype]
+  (let [[sha size payload] (import handle compressiontype)]
     (fl/protobuf Entries :path path :size size :sha1 sha :data payload)))
 
 ;;--------------------------------------------------------------------------------------
@@ -88,25 +96,34 @@
 ;; it is important that the input list be pre-sorted in a deterministic manner if
 ;; the serialized output is expected to be deterministic as well.
 ;;--------------------------------------------------------------------------------------
-(defn buildentries [files]
-  (map buildentry files))
+(defn buildentries [files compressiontype]
+  (map #(buildentry % compressiontype) files))
 
-(defn write [rootpath filespec outputfile]
-  (println "Writing CCA to:" (.getAbsolutePath outputfile))
-  (println "Using path" rootpath (str filespec))
-  (let [files (buildfiles rootpath filespec)
-        header (fl/protobuf Header :magic (:magic CompatVersion) :version (:version CompatVersion))
-        entries (buildentries files)
-        compression (fl/protobuf Compression :description "gzip")
-        payload (fl/protobuf Payload :compression compression :entries entries) ;; FIXME: need Type enum set
-        archive (fl/protobuf Archive :payload (fl/protobuf-dump payload))]
+(defn setcompression [type]
+  (if (CompressionTypes type)
+    (fl/protobuf Compression :type (string/upper-case type) :description type)))
 
-    ;; ensure the path exists
-    (io/make-parents outputfile)
+(defn write [rootpath filespec compressiontype outputfile]
+  (if-let [compression (setcompression compressiontype)]
+    (do
+      (println "Writing CCA to:" (.getAbsolutePath outputfile))
+      (println "Using path" rootpath (str filespec))
+      (let [files (buildfiles rootpath filespec)
+            header (fl/protobuf Header :magic (:magic CompatVersion) :version (:version CompatVersion))
+            entries (buildentries files compressiontype)
+            payload (fl/protobuf Payload :compression compression :entries entries)
+            archive (fl/protobuf Archive :payload (fl/protobuf-dump payload))]
 
-    ;; emit our output
-    (with-open [os (io/output-stream outputfile :truncate true)]
-      (fl/protobuf-write os header archive)))
+        ;; ensure the path exists
+        (io/make-parents outputfile)
 
-  ;; re-use the ls function to display the contents
-  (ls outputfile))
+        ;; emit our output
+        (with-open [os (io/output-stream outputfile :truncate true)]
+          (fl/protobuf-write os header archive)))
+
+      ;; re-use the ls function to display the contents
+      (ls outputfile))
+
+    ;; else
+    (throw (Exception. (str "Unknown compression type: \"" compressiontype "\"")))
+    ))

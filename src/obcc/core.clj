@@ -52,7 +52,8 @@
 
    {:name "package" :desc "Package the chaincode into a CCA file for deployment"
     :handler packagecmd/run
-    :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
+    :options (option-merge [["-o" "--output NAME" "path to the output destination"]
+                            ["-c" "--compress NAME" "compression algorithm to use" :default "gzip"]]
                            common-path-options)}
 
    {:name "lscca" :desc "List the contents of a CCA file"

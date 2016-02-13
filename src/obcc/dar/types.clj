@@ -21,6 +21,7 @@
             Dar$Archive$Signature
             Dar$Archive$Payload
             Dar$Archive$Payload$Compression
+            Dar$Archive$Payload$Compression$Type
             Dar$Archive$Payload$Entries])
   (:require [flatland.protobuf.core :as fl]))
 
@@ -30,5 +31,9 @@
 (def Payload     (fl/protodef Dar$Archive$Payload))
 (def Compression (fl/protodef Dar$Archive$Payload$Compression))
 (def Entries     (fl/protodef Dar$Archive$Payload$Entries))
+
+(def CompressionTypes
+  (into {} [["none" Dar$Archive$Payload$Compression$Type/NONE]
+            ["gzip" Dar$Archive$Payload$Compression$Type/GZIP]]))
 
 (def CompatVersion {:magic "com.obc.deterministic-archive" :version 1})

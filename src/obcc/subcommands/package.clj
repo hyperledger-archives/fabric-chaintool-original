@@ -28,4 +28,4 @@
 (defn run [options args]
   (let [[path _] (config.util/load-from-options options)
         outputfile (getoutputfile options path)]
-    (dar/write path ["src" "chaincode.conf"] outputfile)))
+    (dar/write path ["src" "chaincode.conf"] (:compress options) outputfile)))
