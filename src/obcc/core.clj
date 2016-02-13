@@ -50,7 +50,7 @@
     :handler cleancmd/run
     :options common-path-options}
 
-   {:name "package" :desc "Package the chaincode for deployment"
+   {:name "package" :desc "Package the chaincode into a CCA file for deployment"
     :handler packagecmd/run
     :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
                            common-path-options)}
@@ -83,6 +83,7 @@
                "Actions:"
                (map (fn [[_ {:keys [name desc]}]] (str "  " name " -> " desc)) subcommands)
                ""
+               "(run \"obcc <action> -h\" for action specific help)"
                ]))
 
 (defn subcommand-usage [subcommand options-summary]
