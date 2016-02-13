@@ -99,12 +99,16 @@
 (defn buildentries [files compressiontype]
   (map #(buildentry % compressiontype) files))
 
-(defn setcompression [type]
-  (if (CompressionTypes type)
+;;--------------------------------------------------------------------------------------
+;; buildcompression - builds a protobuf "Compression" object based on the requested type
+;; after validating that the type is a supported option.
+;;--------------------------------------------------------------------------------------
+(defn buildcompression [type]
+  (if (compressors type)
     (fl/protobuf Compression :type (string/upper-case type) :description type)))
 
 (defn write [rootpath filespec compressiontype outputfile]
-  (if-let [compression (setcompression compressiontype)]
+  (if-let [compression (buildcompression compressiontype)]
     (do
       (println "Writing CCA to:" (.getAbsolutePath outputfile))
       (println "Using path" rootpath (str filespec))
