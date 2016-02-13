@@ -17,6 +17,7 @@
 (ns obcc.subcommands.package
   (:require [obcc.config.util :as config.util]
             [obcc.dar.write :as dar]
+            [obcc.dar.ls :refer :all]
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]))
 
@@ -27,5 +28,15 @@
 
 (defn run [options args]
   (let [[path _] (config.util/load-from-options options)
+        filespec ["src" "chaincode.conf"]
+        compressiontype (:compress options)
         outputfile (getoutputfile options path)]
-    (dar/write path ["src" "chaincode.conf"] (:compress options) outputfile)))
+
+    (println "Writing CCA to:" (.getAbsolutePath outputfile))
+    (println "Using path" path (str filespec))
+    (println "Using compression:" compressiontype )
+
+    (dar/write path filespec compressiontype outputfile)
+
+    ;; re-use the ls function to display the contents
+    (ls outputfile)))

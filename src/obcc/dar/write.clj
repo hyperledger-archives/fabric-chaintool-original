@@ -25,8 +25,7 @@
             [doric.core :as doric]
             [pandect.algo.sha1 :refer :all]
             [pandect.algo.sha256 :refer :all]
-            [obcc.dar.types :refer :all]
-            [obcc.dar.ls :refer :all]))
+            [obcc.dar.types :refer :all]))
 
 (defn findfiles [path]
   (->> path file-seq (filter #(.isFile %))))
@@ -112,24 +111,18 @@
 
 (defn write [rootpath filespec compressiontype outputfile]
   (if-let [compression (buildcompression compressiontype)]
-    (do
-      (println "Writing CCA to:" (.getAbsolutePath outputfile))
-      (println "Using path" rootpath (str filespec))
-      (let [files (buildfiles rootpath filespec)
-            header (fl/protobuf Header :magic (:magic CompatVersion) :version (:version CompatVersion))
-            entries (buildentries files compressiontype)
-            payload (fl/protobuf Payload :compression compression :entries entries)
-            archive (fl/protobuf Archive :payload (fl/protobuf-dump payload))]
+    (let [files (buildfiles rootpath filespec)
+          header (fl/protobuf Header :magic (:magic CompatVersion) :version (:version CompatVersion))
+          entries (buildentries files compressiontype)
+          payload (fl/protobuf Payload :compression compression :entries entries)
+          archive (fl/protobuf Archive :payload (fl/protobuf-dump payload))]
 
-        ;; ensure the path exists
-        (io/make-parents outputfile)
+      ;; ensure the path exists
+      (io/make-parents outputfile)
 
-        ;; emit our output
-        (with-open [os (io/output-stream outputfile :truncate true)]
-          (fl/protobuf-write os header archive)))
-
-      ;; re-use the ls function to display the contents
-      (ls outputfile))
+      ;; emit our output
+      (with-open [os (io/output-stream outputfile :truncate true)]
+        (fl/protobuf-write os header archive)))
 
     ;; else
     (throw (Exception. (str "Unknown compression type: \"" compressiontype "\"")))
