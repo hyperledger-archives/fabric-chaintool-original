@@ -29,7 +29,7 @@
       (throw (Exception. (str (.getAbsolutePath file) " not found")))
 
       :else
-      [(config/parser file) nil])))
+      (config/parser file))))
 
 (defn load-from-options [options]
   (let [path (:path options)
