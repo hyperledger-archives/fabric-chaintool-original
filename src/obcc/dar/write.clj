@@ -19,6 +19,7 @@
   (:import [org.apache.commons.io.input TeeInputStream]
            [org.apache.commons.io.output ByteArrayOutputStream ProxyOutputStream]
            [org.apache.commons.compress.compressors.bzip2 BZip2CompressorOutputStream]
+           [org.apache.commons.compress.compressors.xz XZCompressorOutputStream]
            [java.util.zip GZIPOutputStream]
            [lzma.streams LzmaOutputStream$Builder])
   (:require [flatland.protobuf.core :as fl]
@@ -53,6 +54,7 @@
    "gzip" #(GZIPOutputStream. %)
    "lzma" #(-> (LzmaOutputStream$Builder. %) .build)
    "bzip2" #(BZip2CompressorOutputStream. %)
+   "xz" #(XZCompressorOutputStream. % 6)
    })
 
 (defn compressor [type os] ((compressors type) os))

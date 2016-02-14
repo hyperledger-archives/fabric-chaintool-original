@@ -111,6 +111,7 @@ message Archive {
                 GZIP  = 2;
                 LZMA  = 3;
                 BZIP2 = 4;
+                XZ    = 5;
             }
 
             optional Type   type        = 1 [default = NONE];
