@@ -14,9 +14,9 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
+
 (ns obcc.util
-  (:require [clojure.java.io :as io]
-            [clojure.string :as string]))
+  (:require [clojure.string :as string]))
 
 (def app-version (System/getProperty "obcc.version"))
 (def supportpath "build/src/chaincode_support")

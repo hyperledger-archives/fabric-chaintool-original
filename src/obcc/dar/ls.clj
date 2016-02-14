@@ -14,13 +14,13 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
+
 (ns obcc.dar.ls
-  (:require [flatland.protobuf.core :as fl]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [doric.core :as doric]
-            [pandect.algo.sha1 :refer :all]
-            [pandect.algo.sha256 :refer :all]
-            [obcc.dar.types :refer :all]))
+            [flatland.protobuf.core :as fl]
+            [obcc.dar.types :refer :all]
+            [pandect.algo.sha256 :refer :all]))
 
 (defn read-protobuf [t is] (->> is (fl/protobuf-seq t) first))
 

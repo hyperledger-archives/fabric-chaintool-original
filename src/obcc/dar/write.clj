@@ -14,21 +14,22 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
+
 (ns obcc.dar.write
-  (:refer-clojure :exclude [import])
-  (:import [org.apache.commons.io.input TeeInputStream]
-           [org.apache.commons.io.output ByteArrayOutputStream ProxyOutputStream]
-           [org.apache.commons.compress.compressors.bzip2 BZip2CompressorOutputStream]
-           [org.apache.commons.compress.compressors.xz XZCompressorOutputStream]
-           [org.apache.commons.compress.compressors.gzip GzipCompressorOutputStream GzipParameters]
-           [lzma.streams LzmaOutputStream$Builder])
-  (:require [flatland.protobuf.core :as fl]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.string :as string]
-            [doric.core :as doric]
-            [pandect.algo.sha1 :refer :all]
-            [pandect.algo.sha256 :refer :all]
-            [obcc.dar.types :refer :all]))
+            [flatland.protobuf.core :as fl]
+            [obcc.dar.types :refer :all]
+            [pandect.algo.sha1 :refer :all])
+  (:import (lzma.streams LzmaOutputStream$Builder)
+           (org.apache.commons.compress.compressors.bzip2 BZip2CompressorOutputStream)
+           (org.apache.commons.compress.compressors.gzip GzipCompressorOutputStream
+                                                         GzipParameters)
+           (org.apache.commons.compress.compressors.xz XZCompressorOutputStream)
+           (org.apache.commons.io.input TeeInputStream)
+           (org.apache.commons.io.output ByteArrayOutputStream
+                                         ProxyOutputStream))
+  (:refer-clojure :exclude [import]))
 
 (defn findfiles [path]
   (->> path file-seq (filter #(.isFile %))))

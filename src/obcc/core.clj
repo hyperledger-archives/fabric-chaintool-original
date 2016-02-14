@@ -14,16 +14,15 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
+
 (ns obcc.core
-  (:require [instaparse.core :as insta]
-            [clojure.java.io :as io]
-            [clojure.string :as string]
+  (:require [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
-            [obcc.util :as util]
-            [obcc.subcommands.build   :as buildcmd]
-            [obcc.subcommands.clean   :as cleancmd]
+            [obcc.subcommands.build :as buildcmd]
+            [obcc.subcommands.clean :as cleancmd]
+            [obcc.subcommands.lscca :as lsccacmd]
             [obcc.subcommands.package :as packagecmd]
-            [obcc.subcommands.lscca   :as lsccacmd])
+            [obcc.util :as util])
   (:gen-class))
 
 (defn option-merge [& args] (vec (apply concat args)))

@@ -14,12 +14,12 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
+
 (ns obcc.config.parser
-  (:refer-clojure :exclude [find])
-  (:require [instaparse.core :as insta]
-            [clojure.java.io :as io]
-            [clojure.string :as str]
-            [clojure.zip :as zip]))
+  (:require [clojure.java.io :as io]
+            [clojure.zip :as zip]
+            [instaparse.core :as insta])
+  (:refer-clojure :exclude [find]))
 
 (def skipper (insta/parser (io/resource "parsers/config/skip.bnf")))
 

@@ -14,18 +14,16 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
+
 (ns obcc.build.interface
-  (:refer-clojure :exclude [compile])
-  (:import [org.stringtemplate.v4 STGroupFile ST])
-  (:import [java.util ArrayList])
   (:require [clojure.java.io :as io]
-            [clojure.zip :as zip]
-            [clojure.walk :as walk]
-            [clojure.string :as string]
             [clojure.set :as set]
+            [clojure.walk :as walk]
+            [clojure.zip :as zip]
             [instaparse.core :as insta]
             [obcc.ast :as ast]
-            [obcc.config.parser :as config]))
+            [obcc.config.parser :as config])
+  (:refer-clojure :exclude [compile]))
 
 (def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf")
                            :auto-whitespace (insta/parser (io/resource "parsers/interface/skip.bnf"))))

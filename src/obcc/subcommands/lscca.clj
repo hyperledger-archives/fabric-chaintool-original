@@ -14,6 +14,7 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
+
 (ns obcc.subcommands.lscca
   (:require [clojure.java.io :as io]
             [obcc.dar.ls :as dar]))

@@ -14,18 +14,14 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
+
 (ns obcc.build.protobuf
-  (:refer-clojure :exclude [compile])
-  (:import [org.stringtemplate.v4 STGroupFile ST])
-  (:import [java.util ArrayList])
   (:require [clojure.java.io :as io]
-            [clojure.zip :as zip]
-            [clojure.string :as string]
-            [instaparse.core :as insta]
-            [obcc.util :as util]
-            [obcc.ast :as ast]
-            [obcc.config.parser :as config]
-            [obcc.build.interface :as intf]))
+            [obcc.build.interface :as intf]
+            [obcc.util :as util])
+  (:import (java.util ArrayList)
+           (org.stringtemplate.v4 STGroupFile))
+  (:refer-clojure :exclude [compile]))
 
 ;; types to map to java objects that string template expects.
 ;;

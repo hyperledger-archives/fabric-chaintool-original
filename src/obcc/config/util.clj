@@ -14,10 +14,11 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
+
 (ns obcc.config.util
-  (:refer-clojure :exclude [load])
   (:require [clojure.java.io :as io]
-            [obcc.config.parser :as config]))
+            [obcc.config.parser :as config])
+  (:refer-clojure :exclude [load]))
 
 (def configname "chaincode.conf")
 
