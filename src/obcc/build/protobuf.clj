@@ -32,8 +32,8 @@
 ;; scalar types should just be passed naked.  user types should be fully qualified
 (defn typeconvert [namespace [type name]]
   (if (= type :scalar)
-      name
-      (util/qualifyname namespace name)))
+    name
+    (util/qualifyname namespace name)))
 
 ;;-----------------------------------------------------------------
 ;; buildX - build our ST friendly objects from the AST

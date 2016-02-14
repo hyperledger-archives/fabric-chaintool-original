@@ -55,8 +55,7 @@
    "gzip" #(let [params (GzipParameters.)] (.setCompressionLevel params 9) (GzipCompressorOutputStream. % params))
    "lzma" #(-> (LzmaOutputStream$Builder. %) .build)
    "bzip2" #(BZip2CompressorOutputStream. %)
-   "xz" #(XZCompressorOutputStream. % 6)
-   })
+   "xz" #(XZCompressorOutputStream. % 6)})
 
 (defn compressor [type os] ((compressors type) os))
 
@@ -132,5 +131,4 @@
         (fl/protobuf-write os header archive)))
 
     ;; else
-    (throw (Exception. (str "Unknown compression type: \"" compressiontype "\"")))
-    ))
+    (throw (Exception. (str "Unknown compression type: \"" compressiontype "\"")))))

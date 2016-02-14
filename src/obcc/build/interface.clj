@@ -85,7 +85,7 @@
 (defn getmessage [ast]
   (let [name (->> ast zip/right zip/node)
         fields (getentries (->> ast zip/right zip/right))]
-      (vector name fields)))
+    (vector name fields)))
 
 (defn getmessages [interface]
   (into {} (loop [loc interface msgs '()]
@@ -105,7 +105,6 @@
   (let [name (->> ast zip/down zip/node)
         functions (getentries (->> ast zip/down zip/right))]
     (vector name functions)))
-
 
 (defn getgeneric [ast term]
   (if-let [results (ast/find term ast)]
@@ -156,7 +155,6 @@
 
       :else
       (assoc interfaces "project" (-> ast (zip/append-child inittxn) zip/root zip/vector-zip)))))
-
 
 ;;-----------------------------------------------------------------
 ;; compile all applicable interfaces into a map of ASTs keyed by interface name

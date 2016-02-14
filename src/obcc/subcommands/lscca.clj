@@ -21,4 +21,4 @@
 
 (defn run [options args]
   (let [file (io/file (first args))]
-      (dar/ls file)))
+    (dar/ls file)))

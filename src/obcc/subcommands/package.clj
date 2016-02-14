@@ -27,7 +27,7 @@
 (defn composename [config]
   (let [name (findfirst :name config)
         version (findfirst :version config)]
-      (str name "-" version)))
+    (str name "-" version)))
 
 (defn getoutputfile [options path config]
   (if-let [output (:output options)]

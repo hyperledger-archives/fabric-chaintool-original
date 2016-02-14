@@ -83,8 +83,7 @@
                "Actions:"
                (map (fn [[_ {:keys [name desc]}]] (str "  " name " -> " desc)) subcommands)
                ""
-               "(run \"obcc <action> -h\" for action specific help)"
-               ]))
+               "(run \"obcc <action> -h\" for action specific help)"]))
 
 (defn subcommand-usage [subcommand options-summary]
   (prep-usage [(version)
@@ -95,11 +94,10 @@
                ""
                "Command Options:"
                options-summary
-               ""
-               ]))
+               ""]))
 
 (defn -main [& args]
-  (let [ {:keys [options arguments errors summary]} (parse-opts args toplevel-options :in-order true) ]
+  (let [{:keys [options arguments errors summary]} (parse-opts args toplevel-options :in-order true)]
     (cond
 
       (:help options)

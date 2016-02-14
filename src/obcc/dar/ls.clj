@@ -45,5 +45,4 @@
         (println "Chaincode SHA-256: " (sha256 file)))
 
       ;; else
-      (throw (Exception. (str "Error: " file " does not appear to be a valid archive")))
-      )))
+      (throw (Exception. (str "Error: " file " does not appear to be a valid archive"))))))
