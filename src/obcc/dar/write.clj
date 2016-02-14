@@ -18,7 +18,8 @@
   (:refer-clojure :exclude [import])
   (:import [org.apache.commons.io.input TeeInputStream]
            [org.apache.commons.io.output ByteArrayOutputStream ProxyOutputStream]
-           [java.util.zip GZIPOutputStream])
+           [java.util.zip GZIPOutputStream]
+           [lzma.streams LzmaOutputStream$Builder])
   (:require [flatland.protobuf.core :as fl]
             [clojure.java.io :as io]
             [clojure.string :as string]
@@ -49,6 +50,7 @@
 (def compressors
   {"none" #(ProxyOutputStream. %)
    "gzip" #(GZIPOutputStream. %)
+   "lzma" #(-> (LzmaOutputStream$Builder. %) .useMaximalDictionarySize (.useEndMarkerMode true) .useBT4MatchFinder .build)
    })
 
 (defn compressor [type os] ((compressors type) os))

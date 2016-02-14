@@ -1926,6 +1926,10 @@ public final class Dar {
            * <code>GZIP = 2;</code>
            */
           GZIP(1, 2),
+          /**
+           * <code>LZMA = 3;</code>
+           */
+          LZMA(2, 3),
           ;
 
           /**
@@ -1936,6 +1940,10 @@ public final class Dar {
            * <code>GZIP = 2;</code>
            */
           public static final int GZIP_VALUE = 2;
+          /**
+           * <code>LZMA = 3;</code>
+           */
+          public static final int LZMA_VALUE = 3;
 
 
           public final int getNumber() { return value; }
@@ -1944,6 +1952,7 @@ public final class Dar {
             switch (value) {
               case 1: return NONE;
               case 2: return GZIP;
+              case 3: return LZMA;
               default: return null;
             }
           }
@@ -4422,20 +4431,20 @@ public final class Dar {
     java.lang.String[] descriptorData = {
       "\n\031resources/proto/dar.proto\022\010obcc.dar\"G\n" +
       "\023CompatibilityHeader\022\r\n\005magic\030\001 \002(\t\022\017\n\007v" +
-      "ersion\030\002 \002(\005\022\020\n\010features\030\003 \003(\t\"\204\004\n\007Archi" +
+      "ersion\030\002 \002(\005\022\020\n\010features\030\003 \003(\t\"\217\004\n\007Archi" +
       "ve\022.\n\tsignature\030\001 \001(\0132\033.obcc.dar.Archive" +
       ".Signature\022\017\n\007payload\030\002 \001(\014\032y\n\tSignature" +
       "\022.\n\004type\030\001 \001(\0162 .obcc.dar.Archive.Signat" +
       "ure.Type\022\023\n\013description\030\002 \001(\t\022\014\n\004data\030\003 " +
-      "\001(\014\"\031\n\004Type\022\010\n\004NONE\020\001\022\007\n\003RSA\020\002\032\274\002\n\007Paylo" +
+      "\001(\014\"\031\n\004Type\022\010\n\004NONE\020\001\022\007\n\003RSA\020\002\032\307\002\n\007Paylo" +
       "ad\022:\n\013compression\030\001 \001(\0132%.obcc.dar.Archi" +
       "ve.Payload.Compression\0222\n\007entries\030\020 \003(\0132",
-      "!.obcc.dar.Archive.Payload.Entries\032~\n\013Co" +
-      "mpression\022>\n\004type\030\001 \001(\0162*.obcc.dar.Archi" +
-      "ve.Payload.Compression.Type:\004NONE\022\023\n\013des" +
-      "cription\030\002 \001(\t\"\032\n\004Type\022\010\n\004NONE\020\001\022\010\n\004GZIP" +
-      "\020\002\032A\n\007Entries\022\014\n\004path\030\001 \001(\t\022\014\n\004size\030\002 \001(" +
-      "\004\022\014\n\004sha1\030\003 \001(\t\022\014\n\004data\030\020 \001(\014"
+      "!.obcc.dar.Archive.Payload.Entries\032\210\001\n\013C" +
+      "ompression\022>\n\004type\030\001 \001(\0162*.obcc.dar.Arch" +
+      "ive.Payload.Compression.Type:\004NONE\022\023\n\013de" +
+      "scription\030\002 \001(\t\"$\n\004Type\022\010\n\004NONE\020\001\022\010\n\004GZI" +
+      "P\020\002\022\010\n\004LZMA\020\003\032A\n\007Entries\022\014\n\004path\030\001 \001(\t\022\014" +
+      "\n\004size\030\002 \001(\004\022\014\n\004sha1\030\003 \001(\t\022\014\n\004data\030\020 \001(\014"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

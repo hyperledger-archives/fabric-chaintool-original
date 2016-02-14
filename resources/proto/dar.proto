@@ -109,6 +109,7 @@ message Archive {
             enum Type {
                 NONE = 1;
                 GZIP = 2;
+                LZMA = 3;
             }
 
             optional Type   type        = 1 [default = NONE];
