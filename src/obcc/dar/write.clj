@@ -50,7 +50,7 @@
 (def compressors
   {"none" #(ProxyOutputStream. %)
    "gzip" #(GZIPOutputStream. %)
-   "lzma" #(-> (LzmaOutputStream$Builder. %) .useMaximalDictionarySize (.useEndMarkerMode true) .useBT4MatchFinder .build)
+   "lzma" #(-> (LzmaOutputStream$Builder. %) .build)
    })
 
 (defn compressor [type os] ((compressors type) os))
