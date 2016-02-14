@@ -107,9 +107,10 @@ message Archive {
     message Payload {
         message Compression {
             enum Type {
-                NONE = 1;
-                GZIP = 2;
-                LZMA = 3;
+                NONE  = 1;
+                GZIP  = 2;
+                LZMA  = 3;
+                BZIP2 = 4;
             }
 
             optional Type   type        = 1 [default = NONE];

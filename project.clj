@@ -22,6 +22,7 @@
                  [ordered-collections "0.4.0"]
                  [gloss "0.2.1"]
                  [commons-io/commons-io "2.4"]
+                 [org.apache.commons/commons-compress "1.2"]
                  [com.github.jponge/lzma-java "1.2"]
                  [pandect "0.5.4"]
                  [doric "0.9.0"]]
