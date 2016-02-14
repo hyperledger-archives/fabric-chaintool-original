@@ -41,7 +41,7 @@
 ;;-----------------------------------------------------------------
 
 (defn buildfunction [{:keys [rettype functionName param index]}]
-  (vector functionName (->Function (if (not= rettype "void") rettype nil) functionName param index)))
+  (vector functionName (->Function (when (not= rettype "void") rettype) functionName param index)))
 
 (defn buildfunctions [functions]
   (into {} (for [[k v] functions]
@@ -79,7 +79,7 @@
   (let [cwd (System/getProperty "user.dir")
         fqpath (str cwd "/" path)
         gopath (str fqpath "/build/deps" ":" fqpath "/build" ":" fqpath ":" (System/getenv "GOPATH"))
-        _args (into [] (concat ["go"] args [:env {"GOPATH" gopath}]))]
+        _args (vec (concat ["go"] args [:env {"GOPATH" gopath}]))]
     (apply println _args)
     (let [result (apply sh/proc _args)]
       (sh/done result)

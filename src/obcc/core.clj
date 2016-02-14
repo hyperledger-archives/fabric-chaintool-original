@@ -26,7 +26,7 @@
             [obcc.subcommands.lscca   :as lsccacmd])
   (:gen-class))
 
-(defn option-merge [& args] (into [] (apply concat args)))
+(defn option-merge [& args] (vec (apply concat args)))
 
 ;; options common to all modes, top-level as well as subcommands
 (def common-options
@@ -112,7 +112,7 @@
       (:version options)
       (exit 0 (version))
 
-      (= (count arguments) 0)
+      (zero? (count arguments))
       (exit -1 (usage summary))
 
       :else

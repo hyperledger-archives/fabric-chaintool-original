@@ -97,8 +97,8 @@
                msgs
 
                :else
-               (let [node (->> loc zip/node)]
-                 (recur (->> loc zip/next)
+               (let [node (zip/node loc)]
+                 (recur (zip/next loc)
                         (if (= node :message)
                           (cons (getmessage loc) msgs)
                           msgs)))))))
@@ -115,7 +115,7 @@
 
 (defn gettransactions [ast] (getgeneric ast :transactions))
 (defn getqueries [ast] (getgeneric ast :queries))
-(defn getallfunctions [ast] (->> (vector (gettransactions ast) (getqueries ast)) (into {})))
+(defn getallfunctions [ast] (into {} (vector (gettransactions ast) (getqueries ast))))
 
 ;;-----------------------------------------------------------------
 ;; takes an interface name, maps it to a file, and if present, compiles

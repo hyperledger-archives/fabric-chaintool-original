@@ -27,15 +27,15 @@
 
 (defn parser [file] (->> file slurp grammar zip/vector-zip))
 
-(defn isnode? [node] (if (and (vector? node) (keyword? (first node))) :true nil))
-(defn nodename [node] (if (isnode? node) (first node) nil))
+(defn isnode? [node] (when (and (vector? node) (keyword? (first node))) :true))
+(defn nodename [node] (when (isnode? node) (first node)))
 
 (defn fqp [_loc]
   (loop [loc _loc
          path ()]
 
     (cond
-      (= loc nil)
+      (nil? loc)
       (vec path)
 
       :else

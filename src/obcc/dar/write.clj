@@ -42,7 +42,7 @@
 ;;--------------------------------------------------------------------------------------
 (defn convertfile [basepath file]
   (let [basepathlen (->> basepath io/file .getAbsolutePath count inc)
-        fqpath (->> file .getAbsolutePath)
+        fqpath (.getAbsolutePath file)
         path (subs fqpath basepathlen)]
     {:handle file :path path}))
 

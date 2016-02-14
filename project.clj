@@ -6,7 +6,8 @@
   :min-lein-version "2.0.0"
   :javac-options ["-target" "1.7" "-source" "1.7"]
   :java-source-paths ["src"]
-  :plugins [[lein-bin "0.3.5"]]
+  :plugins [[lein-bin "0.3.5"]
+            [lein-kibit "0.1.2"]]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.cli "0.3.3"]
                  [org.clojure/algo.generic "0.1.2"]
