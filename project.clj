@@ -1,4 +1,4 @@
-(defproject obcc "0.2"
+(defproject obcc "0.3-SNAPSHOT"
   :description "openblockchain compiler"
   :url "https://github.com/openblockchain/obcc"
   :license {:name "Apache License"
