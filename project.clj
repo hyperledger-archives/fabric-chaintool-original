@@ -4,6 +4,7 @@
   :license {:name "Apache License"
             :url "http://www.apache.org/licenses/LICENSE-2.0.txt"}
   :min-lein-version "2.0.0"
+  :lein-release {:deploy-via :shell :shell ["true"]}
   :javac-options ["-target" "1.7" "-source" "1.7"]
   :java-source-paths ["src"]
   :plugins [[lein-bin "0.3.5"]]
