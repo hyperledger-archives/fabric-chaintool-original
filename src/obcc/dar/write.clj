@@ -20,13 +20,9 @@
             [clojure.string :as string]
             [flatland.protobuf.core :as fl]
             [obcc.dar.types :refer :all]
+            [obcc.dar.codecs :as codecs]
             [pandect.algo.sha1 :refer :all])
-  (:import (lzma.streams LzmaOutputStream$Builder)
-           (org.apache.commons.compress.compressors.bzip2 BZip2CompressorOutputStream)
-           (org.apache.commons.compress.compressors.gzip GzipCompressorOutputStream
-                                                         GzipParameters)
-           (org.apache.commons.compress.compressors.xz XZCompressorOutputStream)
-           (org.apache.commons.io.input TeeInputStream)
+  (:import (org.apache.commons.io.input TeeInputStream)
            (org.apache.commons.io.output ByteArrayOutputStream
                                          ProxyOutputStream))
   (:refer-clojure :exclude [import]))
@@ -48,18 +44,6 @@
     {:handle file :path path}))
 
 ;;--------------------------------------------------------------------------------------
-;; compression support
-;;--------------------------------------------------------------------------------------
-(def compressors
-  {"none" #(ProxyOutputStream. %)
-   "gzip" #(let [params (GzipParameters.)] (.setCompressionLevel params 9) (GzipCompressorOutputStream. % params))
-   "lzma" #(-> (LzmaOutputStream$Builder. %) .build)
-   "bzip2" #(BZip2CompressorOutputStream. %)
-   "xz" #(XZCompressorOutputStream. % 6)})
-
-(defn compressor [type os] ((compressors type) os))
-
-;;--------------------------------------------------------------------------------------
 ;; import - takes a file handle and returns a tuple containing [sha1 size data]
 ;;
 ;; sha1: a string containing the computed sha1 of the raw uncompressed file contents
@@ -69,7 +53,7 @@
 (defn import [file compressiontype]
   (let [os (ByteArrayOutputStream.)
         [sha size] (with-open [is (io/input-stream file) ;; FIXME - validate maximum file size supported
-                               compressor (compressor compressiontype os)
+                               compressor (codecs/compressor compressiontype os)
                                tee (TeeInputStream. is compressor)]
                      [(sha1 tee) (.length file)])] ;; FIXME - prefer to get the length from the stream
     [sha size (.toByteArray os)]))
@@ -112,7 +96,7 @@
 ;; after validating that the type is a supported option.
 ;;--------------------------------------------------------------------------------------
 (defn buildcompression [type]
-  (if (compressors type)
+  (if (codecs/codec-types type)
     (fl/protobuf Compression :type (string/upper-case type) :description type)))
 
 (defn write [rootpath filespec compressiontype outputfile]
