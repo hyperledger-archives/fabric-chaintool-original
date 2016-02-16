@@ -24,25 +24,25 @@
 
 (defn read-protobuf [t is] (->> is (fl/protobuf-seq t) first))
 
-(defn verify-compatibility [header] (let [compat (select-keys header [:magic :version])] (= compat CompatVersion)))
+(defn read-header [is] (read-protobuf Header is))
+(defn read-archive [is] (read-protobuf Archive is))
 
-(defn read-header [is]
-  (when-let [header (read-protobuf Header is)]
-    (when (verify-compatibility header)
-      header)))
+(defn verify-header [is]
+  (if-let [header (read-header is)]
+    (let [compat (select-keys header [:magic :version])]
+      (if-not (= compat CompatVersion)
+        (throw (Exception. (str "Incompatible header detected (expected: " CompatVersion " got: " compat ")")))))
+    (throw (Exception. (str "Failed to read archive header")))))
 
 (defn ls [file]
   (with-open [is (io/input-stream file)]
-    (if-let [header (read-header is)]
-      (let [archive (read-protobuf Archive is)
-            payload (->> archive :payload .newInput (fl/protobuf-load-stream Payload))]
+    (verify-header is)
+    (let [archive (read-archive is)
+          payload (->> archive :payload .newInput (fl/protobuf-load-stream Payload))]
 
-        (println (doric/table [{:name :size} {:name :sha1 :title "SHA1"} {:name :path}] (:entries payload)))
-        (println "Digital Signature:  none")
-        (println "Raw Data Size:     " (->> payload :entries (map :size) (reduce +)) "bytes")
-        (println "Archive Size:      " (.length file) "bytes")
-        (println "Compression Alg:   " (->> payload :compression :description))
-        (println "Chaincode SHA-256: " (sha256 file)))
-
-      ;; else
-      (throw (Exception. (str "Error: " file " does not appear to be a valid archive"))))))
+      (println (doric/table [{:name :size} {:name :sha1 :title "SHA1"} {:name :path}] (:entries payload)))
+      (println "Digital Signature:  none")
+      (println "Raw Data Size:     " (->> payload :entries (map :size) (reduce +)) "bytes")
+      (println "Archive Size:      " (.length file) "bytes")
+      (println "Compression Alg:   " (->> payload :compression :description))
+      (println "Chaincode SHA-256: " (sha256 file)))))
