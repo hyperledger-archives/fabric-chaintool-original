@@ -27,8 +27,8 @@
 (defn verify-compatibility [header] (let [compat (select-keys header [:magic :version])] (= compat CompatVersion)))
 
 (defn read-header [is]
-  (if-let [header (read-protobuf Header is)]
-    (if (verify-compatibility header)
+  (when-let [header (read-protobuf Header is)]
+    (when (verify-compatibility header)
       header)))
 
 (defn ls [file]
