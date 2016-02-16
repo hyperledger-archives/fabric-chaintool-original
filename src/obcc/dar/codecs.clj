@@ -19,6 +19,7 @@
   (:import (lzma.streams LzmaOutputStream$Builder)
            (org.apache.commons.compress.compressors.bzip2 BZip2CompressorOutputStream)
            (org.apache.commons.compress.compressors.gzip GzipCompressorOutputStream
+                                                         GzipCompressorInputStream
                                                          GzipParameters)
            (org.apache.commons.compress.compressors.xz XZCompressorOutputStream)
            (org.apache.commons.io.output ProxyOutputStream)))
@@ -31,7 +32,8 @@
     :output #(ProxyOutputStream. %)}
 
    {:name "gzip"
-    :output #(let [params (GzipParameters.)] (.setCompressionLevel params 9) (GzipCompressorOutputStream. % params))}
+    :output #(let [params (GzipParameters.)] (.setCompressionLevel params 9) (GzipCompressorOutputStream. % params))
+    :input #(GzipCompressorInputStream. %)}
 
    {:name "lzma"
     :output #(-> (LzmaOutputStream$Builder. %) .build)}

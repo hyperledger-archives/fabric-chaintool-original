@@ -20,7 +20,11 @@
             [doric.core :as doric]
             [flatland.protobuf.core :as fl]
             [obcc.dar.types :refer :all]
-            [pandect.algo.sha256 :refer :all]))
+            [obcc.dar.codecs :as codecs]
+            [obcc.config.parser :as config.parser]
+            [obcc.config.util :as config.util]
+            [pandect.algo.sha256 :refer :all]
+            [pandect.algo.sha1 :refer :all]))
 
 (defn read-protobuf [t is] (->> is (fl/protobuf-seq t) first))
 
@@ -34,15 +38,34 @@
         (throw (Exception. (str "Incompatible header detected (expected: " CompatVersion " got: " compat ")")))))
     (throw (Exception. (str "Failed to read archive header")))))
 
+(defn open-entry [type entry]
+  (let [is (->> entry :data .newInput)]
+    (codecs/decompressor type is)))
+
+(defn read-entry [type entry]
+  (let [is (open-entry type entry)
+        data (slurp is)
+        sha (sha1 data)]
+    (if (not= sha (:sha1 entry))
+        (throw (Exception. (str (:path entry) ": hash verification failure")))
+        data)))
+
+(defn platform-version [config]
+  (str (config.util/findfirst config [:platform :name]) " version " (config.util/findfirst config [:platform :version])))
+
 (defn ls [file]
   (with-open [is (io/input-stream file)]
     (verify-header is)
     (let [archive (read-archive is)
-          payload (->> archive :payload .newInput (fl/protobuf-load-stream Payload))]
+          payload (->> archive :payload .newInput (fl/protobuf-load-stream Payload))
+          compression (:compression payload)
+          entries (->> (:entries payload) (map #(vector (:path %) %)) (into {}))
+          config  (->> (entries config.util/configname) (read-entry (:description compression)) (config.parser/from-string))]
 
       (println (doric/table [{:name :size} {:name :sha1 :title "SHA1"} {:name :path}] (:entries payload)))
+      (println "Platform:          " (platform-version config))
       (println "Digital Signature:  none")
       (println "Raw Data Size:     " (->> payload :entries (map :size) (reduce +)) "bytes")
       (println "Archive Size:      " (.length file) "bytes")
-      (println "Compression Alg:   " (->> payload :compression :description))
+      (println "Compression Alg:   " (:description compression))
       (println "Chaincode SHA-256: " (sha256 file)))))
