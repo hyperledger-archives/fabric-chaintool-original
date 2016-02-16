@@ -17,8 +17,9 @@
 
 (ns obcc.config.util
   (:require [clojure.java.io :as io]
+            [clojure.zip :as zip]
             [obcc.config.parser :as config])
-  (:refer-clojure :exclude [load]))
+  (:refer-clojure :exclude [load find]))
 
 (def configname "chaincode.conf")
 
@@ -36,3 +37,34 @@
   (let [path (:path options)
         config (load path)]
     [path config]))
+
+(defn isnode? [node] (when (and (vector? node) (keyword? (first node))) :true))
+(defn nodename [node] (when (isnode? node) (first node)))
+
+(defn fqp [_loc]
+  (loop [loc _loc
+         path ()]
+
+    (cond
+      (nil? loc)
+      (vec path)
+
+      :else
+      (recur (zip/up loc) (->> loc zip/node nodename (conj path))))))
+
+(defn buildpath [pathspec] (->> pathspec (concat [:configuration]) vec))
+
+(defn find [config & pathspec]
+  (let [fqpathspec (buildpath pathspec)]
+    (loop [loc config]
+      (cond
+        (zip/end? loc)
+        nil
+
+        (= (fqp loc) fqpathspec)
+        (->> loc zip/node rest vec)
+
+        :else
+        (recur (zip/next loc))))))
+
+(defn findfirst [config & pathspec] (first (apply #(find config %) pathspec)))

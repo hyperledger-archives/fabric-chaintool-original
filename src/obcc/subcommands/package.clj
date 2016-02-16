@@ -15,18 +15,15 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 (ns obcc.subcommands.package
-  (:require [obcc.config.util :as config.util]
-            [obcc.config.parser :as config]
+  (:require [obcc.config.util :as config]
             [obcc.dar.write :as dar]
             [obcc.dar.ls :refer :all]
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]))
 
-(defn findfirst [spec config] (first (config/find [:configuration spec] config)))
-
 (defn composename [config]
-  (let [name (findfirst :name config)
-        version (findfirst :version config)]
+  (let [name (config/findfirst config :name)
+        version (config/findfirst config :version)]
     (str name "-" version)))
 
 (defn getoutputfile [options path config]
@@ -35,7 +32,7 @@
     (io/file path "build" (str (composename config) ".cca"))))
 
 (defn run [options args]
-  (let [[path config] (config.util/load-from-options options)
+  (let [[path config] (config/load-from-options options)
         filespec ["src" "chaincode.conf"]
         compressiontype (:compress options)
         outputfile (getoutputfile options path config)]
