@@ -61,12 +61,14 @@
     :validate (fn [options arguments] (= (count arguments) 1))
     :options common-options}])
 
-(def subcommands (->> subcommand-descriptors (map #(vector (:name %) %)) (into {})))
+;; N.B. the resulting map values are vectors each with a single map as an element
+;;
+(def subcommands (group-by :name subcommand-descriptors))
 
 (defn exit [status msg & rest]
   (do
     (apply println msg rest)
-    (System/exit status)))
+    status))
 
 (defn version [] (str "obcc version: v" util/app-version))
 
@@ -81,7 +83,7 @@
                options-summary
                ""
                "Actions:"
-               (map (fn [[_ {:keys [name desc]}]] (str "  " name " -> " desc)) subcommands)
+               (map (fn[[ _ [{:keys [name desc]}] ]] (str "  " name " -> " desc)) subcommands)
                ""
                "(run \"obcc <action> -h\" for action specific help)"]))
 
@@ -96,7 +98,7 @@
                options-summary
                ""]))
 
-(defn -main [& args]
+(defn -app [& args]
   (let [{:keys [options arguments errors summary]} (parse-opts args toplevel-options :in-order true)]
     (cond
 
@@ -113,7 +115,7 @@
       (exit -1 (usage summary))
 
       :else
-      (if-let [subcommand (subcommands (first arguments))]
+      (if-let [ [subcommand] (subcommands (first arguments))]
         (let [{:keys [options arguments errors summary]} (parse-opts (rest arguments) (:options subcommand))]
           (cond
 
@@ -129,6 +131,11 @@
             :else
             (try
               ((:handler subcommand) options arguments)
-              (System/exit 0)
+              (exit 0 "")
               (catch Exception e (exit -1 (str e))))))
+
+        ;; unrecognized subcommand
         (exit 1 (usage summary))))))
+
+(defn -main [& args]
+  (System/exit (apply -app args)))
