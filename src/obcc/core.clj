@@ -117,7 +117,6 @@
       :else
       (if-let [ [subcommand] (subcommands (first arguments))]
         (let [{:keys [options arguments errors summary]} (parse-opts (rest arguments) (:options subcommand))]
-          (println subcommand)
           (cond
 
             (:help options)
