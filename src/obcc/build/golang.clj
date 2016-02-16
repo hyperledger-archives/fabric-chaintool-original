@@ -1,18 +1,30 @@
+;; Licensed to the Apache Software Foundation (ASF) under one
+;; or more contributor license agreements.  See the NOTICE file
+;; distributed with this work for additional information
+;; regarding copyright ownership.  The ASF licenses this file
+;; to you under the Apache License, Version 2.0 (the
+;; "License"); you may not use this file except in compliance
+;; with the License.  You may obtain a copy of the License at
+;;
+;;   http://www.apache.org/licenses/LICENSE-2.0
+;;
+;; Unless required by applicable law or agreed to in writing,
+;; software distributed under the License is distributed on an
+;; "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+;; KIND, either express or implied.  See the License for the
+;; specific language governing permissions and limitations
+;; under the License.
+
 (ns obcc.build.golang
-  (:refer-clojure :exclude [find compile])
-  (:import [org.stringtemplate.v4 STGroupFile ST])
-  (:import [java.util ArrayList])
-  (:require [clojure.java.io :as io]
-            [clojure.zip :as zip]
-            [clojure.string :as string]
-            [clojure.algo.generic.functor :as algo]
+  (:require [clojure.algo.generic.functor :as algo]
+            [clojure.java.io :as io]
             [me.raynes.conch :as conch]
             [me.raynes.conch.low-level :as sh]
-            [instaparse.core :as insta]
-            [obcc.util :as util]
-            [obcc.ast :as ast]
-            [obcc.config.parser :as config]
-            [obcc.build.interface :as intf]))
+            [obcc.build.interface :as intf]
+            [obcc.util :as util])
+  (:import (java.util ArrayList)
+           (org.stringtemplate.v4 STGroupFile))
+  (:refer-clojure :exclude [compile find]))
 
 ;; types to map to java objects that string template expects.
 ;;
@@ -25,7 +37,7 @@
 ;;-----------------------------------------------------------------
 
 (defn buildfunction [{:keys [rettype functionName param index]}]
-  (vector functionName (->Function (if (not= rettype "void") rettype nil) functionName param index)))
+  (vector functionName (->Function (when (not= rettype "void") rettype) functionName param index)))
 
 (defn buildfunctions [functions]
   (into {} (for [[k v] functions]
@@ -63,7 +75,7 @@
   (let [cwd (System/getProperty "user.dir")
         fqpath (str cwd "/" path)
         gopath (str fqpath "/build/deps" ":" fqpath "/build" ":" fqpath ":" (System/getenv "GOPATH"))
-        _args (into [] (concat ["go"] args [:env {"GOPATH" gopath}]))]
+        _args (vec (concat ["go"] args [:env {"GOPATH" gopath}]))]
     (apply println _args)
     (let [result (apply sh/proc _args)]
       (sh/done result)

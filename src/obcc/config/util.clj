@@ -15,40 +15,24 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns obcc.config.parser
+(ns obcc.config.util
   (:require [clojure.java.io :as io]
-            [clojure.zip :as zip]
-            [instaparse.core :as insta])
-  (:refer-clojure :exclude [find]))
+            [obcc.config.parser :as config])
+  (:refer-clojure :exclude [load]))
 
-(def skipper (insta/parser (io/resource "parsers/config/skip.bnf")))
+(def configname "chaincode.conf")
 
-(def grammar (insta/parser (io/resource "parsers/config/grammar.bnf") :auto-whitespace skipper))
-
-(defn parser [file] (->> file slurp grammar zip/vector-zip))
-
-(defn isnode? [node] (when (and (vector? node) (keyword? (first node))) :true))
-(defn nodename [node] (when (isnode? node) (first node)))
-
-(defn fqp [_loc]
-  (loop [loc _loc
-         path ()]
-
+(defn load [path]
+  (let [file (io/file path configname)]
     (cond
-      (nil? loc)
-      (vec path)
+
+      (not (.isFile file))
+      (throw (Exception. (str (.getAbsolutePath file) " not found")))
 
       :else
-      (recur (zip/up loc) (->> loc zip/node nodename (conj path))))))
+      (config/parser file))))
 
-(defn find [path tree]
-  (loop [loc tree]
-    (cond
-      (zip/end? loc)
-      nil
-
-      (= (fqp loc) path)
-      (->> loc zip/node rest vec)
-
-      :else
-      (recur (zip/next loc)))))
+(defn load-from-options [options]
+  (let [path (:path options)
+        config (load path)]
+    [path config]))

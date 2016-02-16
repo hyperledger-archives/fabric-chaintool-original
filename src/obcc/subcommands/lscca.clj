@@ -14,18 +14,11 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
-(ns obcc.subcommands.build
-  (:require [obcc.config.util :as config.util]
-            [obcc.build.interface :as intf]
-            [obcc.build.protobuf :as pb]
-            [obcc.build.golang :as go]))
+
+(ns obcc.subcommands.lscca
+  (:require [clojure.java.io :as io]
+            [obcc.dar.ls :as dar]))
 
 (defn run [options args]
-  (let [[path config] (config.util/load-from-options options)]
-    (println "Build using configuration for " path)
-    (let [interfaces (intf/compile path config)
-          namespaces {} ;; FIXME
-          protofile (pb/compile path interfaces namespaces)]
-
-      ;; generate golang shim output
-      (go/compile path config interfaces namespaces protofile))))
+  (let [file (io/file (first args))]
+    (dar/ls file)))

@@ -1,15 +1,29 @@
+;; Licensed to the Apache Software Foundation (ASF) under one
+;; or more contributor license agreements.  See the NOTICE file
+;; distributed with this work for additional information
+;; regarding copyright ownership.  The ASF licenses this file
+;; to you under the Apache License, Version 2.0 (the
+;; "License"); you may not use this file except in compliance
+;; with the License.  You may obtain a copy of the License at
+;;
+;;   http://www.apache.org/licenses/LICENSE-2.0
+;;
+;; Unless required by applicable law or agreed to in writing,
+;; software distributed under the License is distributed on an
+;; "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+;; KIND, either express or implied.  See the License for the
+;; specific language governing permissions and limitations
+;; under the License.
+
 (ns obcc.build.interface
-  (:refer-clojure :exclude [compile])
-  (:import [org.stringtemplate.v4 STGroupFile ST])
-  (:import [java.util ArrayList])
   (:require [clojure.java.io :as io]
-            [clojure.zip :as zip]
-            [clojure.walk :as walk]
-            [clojure.string :as string]
             [clojure.set :as set]
+            [clojure.walk :as walk]
+            [clojure.zip :as zip]
             [instaparse.core :as insta]
             [obcc.ast :as ast]
-            [obcc.config.parser :as config]))
+            [obcc.config.parser :as config])
+  (:refer-clojure :exclude [compile]))
 
 (def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf")
                            :auto-whitespace (insta/parser (io/resource "parsers/interface/skip.bnf"))))
@@ -71,7 +85,7 @@
 (defn getmessage [ast]
   (let [name (->> ast zip/right zip/node)
         fields (getentries (->> ast zip/right zip/right))]
-      (vector name fields)))
+    (vector name fields)))
 
 (defn getmessages [interface]
   (into {} (loop [loc interface msgs '()]
@@ -81,8 +95,8 @@
                msgs
 
                :else
-               (let [node (->> loc zip/node)]
-                 (recur (->> loc zip/next)
+               (let [node (zip/node loc)]
+                 (recur (zip/next loc)
                         (if (= node :message)
                           (cons (getmessage loc) msgs)
                           msgs)))))))
@@ -92,14 +106,13 @@
         functions (getentries (->> ast zip/down zip/right))]
     (vector name functions)))
 
-
 (defn getgeneric [ast term]
   (if-let [results (ast/find term ast)]
     (getfunctions results)))
 
 (defn gettransactions [ast] (getgeneric ast :transactions))
 (defn getqueries [ast] (getgeneric ast :queries))
-(defn getallfunctions [ast] (->> (vector (gettransactions ast) (getqueries ast)) (into {})))
+(defn getallfunctions [ast] (into {} (vector (gettransactions ast) (getqueries ast))))
 
 ;;-----------------------------------------------------------------
 ;; takes an interface name, maps it to a file, and if present, compiles
@@ -142,7 +155,6 @@
 
       :else
       (assoc interfaces "project" (-> ast (zip/append-child inittxn) zip/root zip/vector-zip)))))
-
 
 ;;-----------------------------------------------------------------
 ;; compile all applicable interfaces into a map of ASTs keyed by interface name

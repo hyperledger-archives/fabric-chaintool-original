@@ -14,18 +14,21 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
-(ns obcc.subcommands.build
-  (:require [obcc.config.util :as config.util]
-            [obcc.build.interface :as intf]
-            [obcc.build.protobuf :as pb]
-            [obcc.build.golang :as go]))
+(ns obcc.dar.types
+  (:import [obcc.dar
+            Dar$CompatibilityHeader
+            Dar$Archive
+            Dar$Archive$Signature
+            Dar$Archive$Payload
+            Dar$Archive$Payload$Compression
+            Dar$Archive$Payload$Entries])
+  (:require [flatland.protobuf.core :as fl]))
 
-(defn run [options args]
-  (let [[path config] (config.util/load-from-options options)]
-    (println "Build using configuration for " path)
-    (let [interfaces (intf/compile path config)
-          namespaces {} ;; FIXME
-          protofile (pb/compile path interfaces namespaces)]
+(def Header      (fl/protodef Dar$CompatibilityHeader))
+(def Archive     (fl/protodef Dar$Archive))
+(def Signature   (fl/protodef Dar$Archive$Signature))
+(def Payload     (fl/protodef Dar$Archive$Payload))
+(def Compression (fl/protodef Dar$Archive$Payload$Compression))
+(def Entries     (fl/protodef Dar$Archive$Payload$Entries))
 
-      ;; generate golang shim output
-      (go/compile path config interfaces namespaces protofile))))
+(def CompatVersion {:magic "com.obc.deterministic-archive" :version 1})

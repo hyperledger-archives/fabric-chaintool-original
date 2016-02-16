@@ -37,7 +37,7 @@ func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *chaincode_suppo
 	var err error
 
 	// Write the state to the ledger
-	err = stub.PutState("ProxyAddress", []byte(param.GetAddress()))
+	err = stub.PutState("ProxyAddress", []byte(param.Address))
 	if err != nil {
 		return err
 	}
