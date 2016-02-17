@@ -35,12 +35,12 @@
 ;; "project.cci" and translating "self" to the name of the project
 ;;-----------------------------------------------------------------
 (defn getprovides [config]
-  (let [name (config/findfirst config :name)
-        entries (config/find config :provides)]
+  (let [name (config/findfirst config [:name])
+        entries (config/find config [:provides])]
     (->> entries flatten (remove nil?) (walk/postwalk-replace {"self" name}) (cons "project") (into #{}))))
 
 (defn getconsumes [config]
-  (->> (config/find config :consumes) (remove nil?) (into #{})))
+  (->> (config/find config [:consumes]) (remove nil?) (into #{})))
 
 ;;-----------------------------------------------------------------
 ;; aggregate all of the interfaces declared in the config

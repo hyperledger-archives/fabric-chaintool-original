@@ -22,8 +22,8 @@
             [clojure.tools.cli :refer [parse-opts]]))
 
 (defn composename [config]
-  (let [name (config/findfirst config :name)
-        version (config/findfirst config :version)]
+  (let [name (config/findfirst config [:name])
+        version (config/findfirst config [:version])]
     (str name "-" version)))
 
 (defn getoutputfile [options path config]

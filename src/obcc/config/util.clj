@@ -54,7 +54,7 @@
 
 (defn buildpath [pathspec] (->> pathspec (concat [:configuration]) vec))
 
-(defn find [config & pathspec]
+(defn find [config pathspec]
   (let [fqpathspec (buildpath pathspec)]
     (loop [loc config]
       (cond
@@ -67,4 +67,4 @@
         :else
         (recur (zip/next loc))))))
 
-(defn findfirst [config & pathspec] (first (apply #(find config %) pathspec)))
+(defn findfirst [config pathspec] (first (find config pathspec)))
