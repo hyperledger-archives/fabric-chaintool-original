@@ -17,32 +17,40 @@
 
 (ns obcc.dar.codecs
   (:import (lzma.streams LzmaOutputStream$Builder)
-           (org.apache.commons.compress.compressors.bzip2 BZip2CompressorOutputStream)
+           (org.apache.commons.compress.compressors.lzma LZMACompressorInputStream)
+           (org.apache.commons.compress.compressors.bzip2 BZip2CompressorOutputStream
+                                                          BZip2CompressorInputStream)
            (org.apache.commons.compress.compressors.gzip GzipCompressorOutputStream
                                                          GzipCompressorInputStream
                                                          GzipParameters)
-           (org.apache.commons.compress.compressors.xz XZCompressorOutputStream)
-           (org.apache.commons.io.output ProxyOutputStream)))
+           (org.apache.commons.compress.compressors.xz XZCompressorOutputStream
+                                                       XZCompressorInputStream)
+           (org.apache.commons.io.output ProxyOutputStream)
+           (org.apache.commons.io.input ProxyInputStream)))
 
 ;;--------------------------------------------------------------------------------------
 ;; compression support
 ;;--------------------------------------------------------------------------------------
 (def codec-descriptors
   [{:name "none"
-    :output #(ProxyOutputStream. %)}
+    :output #(ProxyOutputStream. %)
+    :input #(ProxyInputStream. %)}
 
    {:name "gzip"
     :output #(let [params (GzipParameters.)] (.setCompressionLevel params 9) (GzipCompressorOutputStream. % params))
     :input #(GzipCompressorInputStream. %)}
 
    {:name "lzma"
-    :output #(-> (LzmaOutputStream$Builder. %) .build)}
+    :output #(-> (LzmaOutputStream$Builder. %) .build)
+    :input #(-> (LZMACompressorInputStream. %))}
 
    {:name "bzip2"
-    :output #(BZip2CompressorOutputStream. %)}
+    :output #(BZip2CompressorOutputStream. %)
+    :input #(BZip2CompressorInputStream. %)}
 
    {:name "xz"
-    :output #(XZCompressorOutputStream. % 6)}])
+    :output #(XZCompressorOutputStream. % 6)
+    :input #(XZCompressorInputStream. %)}])
 
 (def codec-types (->> codec-descriptors (map #(vector (:name %) %)) (into {})))
 
