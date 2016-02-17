@@ -24,4 +24,6 @@
 
 (def grammar (insta/parser (io/resource "parsers/config/grammar.bnf") :auto-whitespace skipper))
 
-(defn parser [file] (->> file slurp grammar zip/vector-zip))
+(defn from-string [data] (->> data grammar zip/vector-zip))
+
+(defn from-file [file] (->> file slurp from-string))

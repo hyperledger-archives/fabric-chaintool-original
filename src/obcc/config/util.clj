@@ -18,7 +18,7 @@
 (ns obcc.config.util
   (:require [clojure.java.io :as io]
             [clojure.zip :as zip]
-            [obcc.config.parser :as config])
+            [obcc.config.parser :as config.parser])
   (:refer-clojure :exclude [load find]))
 
 (def configname "chaincode.conf")
@@ -31,7 +31,7 @@
       (throw (Exception. (str (.getAbsolutePath file) " not found")))
 
       :else
-      (config/parser file))))
+      (config.parser/from-file file))))
 
 (defn load-from-options [options]
   (let [path (:path options)
