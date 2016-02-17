@@ -19,7 +19,6 @@
   (:require [clojure.java.io :as io]
             [doric.core :as doric]
             [obcc.dar.read :as dar]
-            [obcc.config.parser :as config.parser]
             [obcc.config.util :as config.util]
             [pandect.algo.sha256 :refer :all]))
 
@@ -27,18 +26,13 @@
   (str (config.util/findfirst config [:platform :name]) " version " (config.util/findfirst config [:platform :version])))
 
 (defn ls [file]
-  (with-open [archive-stream (io/input-stream file)]
-    (let [{:keys [payload index]} (dar/read archive-stream)
-          entries (:entries payload)
-          config-entry (index config.util/configname)]
+  (let [{:keys [payload config]} (with-open [is (io/input-stream file)] (dar/read is))
+        entries (:entries payload)]
 
-      (with-open [config-stream (dar/entry-stream config-entry)]
-        (let [config (->> config-stream slurp config.parser/from-string)]
-
-          (println (doric/table [{:name :size} {:name :sha1 :title "SHA1"} {:name :path}] entries))
-          (println "Platform:          " (platform-version config))
-          (println "Digital Signature:  none")
-          (println "Raw Data Size:     " (->> entries (map :size) (reduce +)) "bytes")
-          (println "Archive Size:      " (.length file) "bytes")
-          (println "Compression Alg:   " (get-in payload [:compression :description]))
-          (println "Chaincode SHA-256: " (sha256 file)))))))
+    (println (doric/table [{:name :size} {:name :sha1 :title "SHA1"} {:name :path}] entries))
+    (println "Platform:          " (platform-version config))
+    (println "Digital Signature:  none")
+    (println "Raw Data Size:     " (->> entries (map :size) (reduce +)) "bytes")
+    (println "Archive Size:      " (.length file) "bytes")
+    (println "Compression Alg:   " (get-in payload [:compression :description]))
+    (println "Chaincode SHA-256: " (sha256 file))))

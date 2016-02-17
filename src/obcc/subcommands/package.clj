@@ -21,15 +21,10 @@
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]))
 
-(defn composename [config]
-  (let [name (config/findfirst config [:name])
-        version (config/findfirst config [:version])]
-    (str name "-" version)))
-
 (defn getoutputfile [options path config]
   (if-let [output (:output options)]
     (io/file output)
-    (io/file path "build" (str (composename config) ".cca"))))
+    (io/file path "build" (str (config/compositename config) ".cca"))))
 
 (defn run [options args]
   (let [[path config] (config/load-from-options options)

@@ -19,6 +19,8 @@
   (:require [flatland.protobuf.core :as fl]
             [obcc.dar.types :refer :all]
             [obcc.dar.codecs :as codecs]
+            [obcc.config.parser :as config.parser]
+            [obcc.config.util :as config.util]
             [pandect.algo.sha1 :refer :all])
   (:refer-clojure :exclude [read]))
 
@@ -61,13 +63,16 @@
   (let [compression (:compression payload)]
     (->> (:entries payload) (map #(vector (:path %) (import-entry compression %))) (into {}))))
 
+(defn entry-stream [entry]
+  (let [factory (:input-stream-factory entry)]
+    (factory)))
+
 (defn read [is]
   (let [features (import-header is)
         archive (import-archive is)
         payload (import-payload archive)
         index (synth-index payload)]
-    {:features features :payload payload :index index}))
 
-(defn entry-stream [entry]
-  (let [factory (:input-stream-factory entry)]
-      (factory)))
+    (with-open [config-stream (->> config.util/configname index entry-stream)]
+      (let [config (->> config-stream slurp config.parser/from-string)]
+        {:features features :payload payload :index index :config config}))))

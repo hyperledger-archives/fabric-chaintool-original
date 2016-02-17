@@ -22,7 +22,8 @@
             [obcc.subcommands.clean :as cleancmd]
             [obcc.subcommands.lscca :as lsccacmd]
             [obcc.subcommands.package :as packagecmd]
-            [obcc.util :as util])
+            [obcc.subcommands.unpack :as unpackcmd]
+[obcc.util :as util])
   (:gen-class))
 
 (defn option-merge [& args] (vec (apply concat args)))
@@ -53,6 +54,13 @@
     :handler packagecmd/run
     :options (option-merge [["-o" "--output NAME" "path to the output destination"]
                             ["-c" "--compress NAME" "compression algorithm to use" :default "gzip"]]
+                           common-path-options)}
+
+   {:name "unpack" :desc "Unpackage a CCA file"
+    :handler unpackcmd/run
+    :arguments "path/to/file.cca"
+    :validate (fn [options arguments] (= (count arguments) 1))
+    :options (option-merge [["-d" "--directory NAME" "path to the output destination"]]
                            common-path-options)}
 
    {:name "lscca" :desc "List the contents of a CCA file"

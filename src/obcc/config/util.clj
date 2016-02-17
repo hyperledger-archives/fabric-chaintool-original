@@ -68,3 +68,8 @@
         (recur (zip/next loc))))))
 
 (defn findfirst [config pathspec] (first (find config pathspec)))
+
+(defn compositename [config]
+  (let [name (findfirst config [:name])
+        version (findfirst config [:version])]
+    (str name "-" version)))
