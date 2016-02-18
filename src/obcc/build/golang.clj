@@ -71,11 +71,13 @@
     (println "protoc")
     (println (:stderr (protoc "--go_out=./" (str proto) {:verbose true})))))
 
-(defn go [path & args]
-  (let [cwd (System/getProperty "user.dir")
-        fqpath (str cwd "/" path)
+(def cwd (System/getProperty "user.dir"))
+(defn fqpath [path] (->> (io/file cwd path) .getAbsolutePath))
+
+(defn go [path env & args]
+  (let [fqpath (fqpath path)
         gopath (str fqpath "/build/deps" ":" fqpath "/build" ":" fqpath ":" (System/getenv "GOPATH"))
-        _args (vec (concat ["go"] args [:env {"GOPATH" gopath}]))]
+        _args (vec (concat ["go"] args [:env (merge {"GOPATH" gopath} env)]))]
     (apply println _args)
     (let [result (apply sh/proc _args)]
       (sh/done result)
@@ -103,8 +105,12 @@
     ;; generate protobuf output
     (protoc protofile)
 
-    ;; test-compile our chaincode
-    (go path "get" "-d" "-v" "chaincode")
-    (go path "build" "chaincode")
+    ;; install dependencies
+    (go path {} "get" "-d" "-v" "chaincode")
+
+    ;; build the actual code
+    (let [gobin (io/file (fqpath path) "build/bin")]
+      (io/make-parents (io/file gobin ".dummy"))
+      (go path {"GOBIN" (.getAbsolutePath gobin)} "build" "chaincode"))
 
     (println "Compilation complete")))
