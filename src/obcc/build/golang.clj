@@ -87,7 +87,7 @@
 ;; compile - generates golang shim code and writes it to
 ;; the default location in the build area
 ;;-----------------------------------------------------------------
-(defn compile [path config interfaces namespaces protofile]
+(defn compile [path config interfaces namespaces protofile output]
   (let [shim (generateshim config interfaces namespaces)
         shimpath (io/file path util/supportpath "shim.go")]
 
@@ -111,6 +111,7 @@
     ;; build the actual code
     (let [gobin (io/file (fqpath path) "build/bin")]
       (io/make-parents (io/file gobin ".dummy"))
-      (go path {"GOBIN" (.getAbsolutePath gobin)} "build" "chaincode"))
+      (io/make-parents output)
+      (go path {"GOBIN" (.getAbsolutePath gobin)} "build" "-o" (.getAbsolutePath output) "chaincode"))
 
     (println "Compilation complete")))

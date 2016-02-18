@@ -44,7 +44,8 @@
 (def subcommand-descriptors
   [{:name "build" :desc "Build the chaincode project"
     :handler  buildcmd/run
-    :options common-path-options}
+    :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
+                           common-path-options)}
 
    {:name "clean" :desc "Clean the chaincode project"
     :handler cleancmd/run
