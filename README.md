@@ -1,8 +1,6 @@
-# obcc - openblockchain compiler
+# obcc - openblockchain compiler (Work In Progress)
 
-obcc is a part of the chaincode toolchain.  It is used to help manage various
-phases of chaincode development, such as compilation, test, packaging, and
-deployment.
+obcc is a propsal for a toolchain to assist in various phases of chaincode development, such as compilation, test, packaging, and deployment.
 
 ## Installation
 
