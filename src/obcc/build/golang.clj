@@ -72,7 +72,7 @@
     (println (:stderr (protoc "--go_out=./" (str proto) {:verbose true})))))
 
 (def cwd (System/getProperty "user.dir"))
-(defn fqpath [path] (->> (io/file cwd path) .getAbsolutePath))
+(defn fqpath [path] (.getAbsolutePath (io/file cwd path)))
 
 (defn go [path env & args]
   (let [fqpath (fqpath path)
