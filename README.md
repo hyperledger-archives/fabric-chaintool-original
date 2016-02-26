@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ghaskins/obcc.svg?branch=master)](https://travis-ci.org/ghaskins/obcc)
+
 # obcc - openblockchain compiler (Work In Progress)
 
 obcc is a propsal for a toolchain to assist in various phases of chaincode development, such as compilation, test, packaging, and deployment.
