@@ -101,7 +101,7 @@
                ""
                (str "Description: obcc " (:name subcommand) " - " (:desc subcommand))
                ""
-               (str "Usage: obcc " (:name subcommand) " [options] " (if-let [arguments (:arguments subcommand)] arguments ""))
+               (str "Usage: obcc " (:name subcommand) " [options] " (when-let [arguments (:arguments subcommand)] arguments))
                ""
                "Command Options:"
                options-summary
