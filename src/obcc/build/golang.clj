@@ -72,13 +72,14 @@
     (println (:stderr (protoc (str "--go_out=" path) (str "--proto_path=" path) (str proto) {:verbose true})))))
 
 (def cwd (System/getProperty "user.dir"))
-(defn fqpath [path] (.getAbsolutePath (io/file cwd path)))
+(defn fqpath [path] (.getAbsolutePath (io/file path)))
 
 (defn go [path env & args]
+  (println "[GO] go" (apply print-str args))
   (let [fqpath (fqpath path)
         gopath (str fqpath "/build/deps" ":" fqpath "/build" ":" fqpath ":" (System/getenv "GOPATH"))
         _args (vec (concat ["go"] args [:env (merge {"GOPATH" gopath} env)]))]
-    (apply println _args)
+    (println "\tUsing GOPATH" gopath)
     (let [result (apply sh/proc _args)]
       (sh/done result)
       (println (sh/stream-to-string result :err)))))
