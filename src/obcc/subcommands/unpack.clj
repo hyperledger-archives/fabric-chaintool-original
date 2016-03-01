@@ -17,7 +17,8 @@
 
 (ns obcc.subcommands.unpack
   (:require [obcc.config.util :as config]
-            [obcc.dar.read :as dar]
+            [obcc.dar.read :as dar.read]
+            [obcc.dar.unpack :as dar.unpack]
             [clojure.java.io :as io]))
 
 (defn getoutputdir [options config]
@@ -27,20 +28,9 @@
 
 (defn run [options args]
   (let [file (io/file (first args))
-        {:keys [payload index config]} (with-open [is (io/input-stream file)] (dar/read is))
+        {:keys [index config]} (with-open [is (io/input-stream file)] (dar.read/read is))
         outputdir (getoutputdir options config)]
-
-    (when (.exists outputdir)
-      (throw (Exception. (str "output directory " (.getAbsolutePath outputdir) " exists"))))
 
     (println "Unpacking CCA to:" (.getAbsolutePath outputdir))
     (println)
-    (dorun
-     (for [[path item] index]
-       (let [entry (:entry item)
-             outputfile (io/file outputdir path)]
-         (io/make-parents outputfile)
-         (with-open [is (dar/entry-stream item)
-                     os (io/output-stream outputfile)]
-           (println (:sha1 entry) (:path entry) (str "(" (:size entry) " bytes)"))
-           (io/copy is os)))))))
+    (dar.unpack/unpack index outputdir :true)))

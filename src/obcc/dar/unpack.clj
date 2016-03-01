@@ -15,64 +15,21 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns obcc.dar.read
-  (:require [flatland.protobuf.core :as fl]
-            [obcc.dar.types :refer :all]
-            [obcc.dar.codecs :as codecs]
-            [obcc.config.parser :as config.parser]
-            [obcc.config.util :as config.util]
-            [pandect.algo.sha1 :refer :all])
-  (:refer-clojure :exclude [read]))
+(ns obcc.dar.unpack
+  (:require [clojure.java.io :as io]
+            [obcc.dar.read :as dar.read]))
 
-(defn read-protobuf [t is] (->> is (fl/protobuf-seq t) first))
+(defn unpack [index outputdir verbose]
+  (when (.exists outputdir)
+    (throw (Exception. (str "output directory " (.getAbsolutePath outputdir) " exists"))))
 
-(defn read-header [is] (read-protobuf Header is))
-(defn read-archive [is] (read-protobuf Archive is))
-
-(defn make-input-stream [type entry]
-  (let [is (->> entry :data .newInput)]
-    (codecs/decompressor type is)))
-
-(defn import-header [is]
-  (if-let [header (read-header is)]
-    (let [compat (select-keys header [:magic :version])]
-      (if (= compat CompatVersion)
-        (:features header)
-        (throw (Exception. (str "Incompatible header detected (expected: " CompatVersion " got: " compat ")")))))
-    (throw (Exception. (str "Failed to read archive header")))))
-
-(defn import-archive [is]
-  (read-archive is)) ;; FIXME - check digitial signature
-
-(defn import-entry [compression entry]
-  (let [type (:description compression)
-        factory #(make-input-stream type entry)]
-
-    ;; verify the SHA1
-    (with-open [is (factory)]
-      (let [sha (sha1 is)]
-        (when (not= sha (:sha1 entry))
-          (throw (Exception. (str (:path entry) ": hash verification failure (expected: " (:sha1 entry) ", got: " sha ")"))))))
-
-    ;; and inject our stream factory
-    {:entry entry :input-stream-factory factory}))
-
-(defn import-payload [archive] (->> archive :payload .newInput (fl/protobuf-load-stream Payload)))
-
-(defn synth-index [payload]
-  (let [compression (:compression payload)]
-    (->> (:entries payload) (map #(vector (:path %) (import-entry compression %))) (into {}))))
-
-(defn entry-stream [entry]
-  (let [factory (:input-stream-factory entry)]
-    (factory)))
-
-(defn read [is]
-  (let [features (import-header is)
-        archive (import-archive is)
-        payload (import-payload archive)
-        index (synth-index payload)]
-
-    (with-open [config-stream (->> config.util/configname index entry-stream)]
-      (let [config (->> config-stream slurp config.parser/from-string)]
-        {:features features :payload payload :index index :config config}))))
+  (dorun
+   (for [[path item] index]
+     (let [entry (:entry item)
+           outputfile (io/file outputdir path)]
+       (io/make-parents outputfile)
+       (with-open [is (dar.read/entry-stream item)
+                   os (io/output-stream outputfile)]
+         (when verbose
+           (println (:sha1 entry) (:path entry) (str "(" (:size entry) " bytes)")))
+         (io/copy is os))))))
