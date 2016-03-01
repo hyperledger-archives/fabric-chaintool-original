@@ -20,7 +20,7 @@
             [doric.core :as doric]
             [obcc.dar.read :as dar]
             [obcc.config.util :as config.util]
-            [pandect.algo.sha256 :refer :all]))
+            [pandect.algo.sha3-512 :refer :all]))
 
 (defn platform-version [config]
   (str (config.util/findfirst config [:platform :name]) " version " (config.util/findfirst config [:platform :version])))
@@ -30,9 +30,9 @@
         entries (:entries payload)]
 
     (println (doric/table [{:name :size} {:name :sha1 :title "SHA1"} {:name :path}] entries))
-    (println "Platform:          " (platform-version config))
-    (println "Digital Signature:  none")
-    (println "Raw Data Size:     " (->> entries (map :size) (reduce +)) "bytes")
-    (println "Archive Size:      " (.length file) "bytes")
-    (println "Compression Alg:   " (get-in payload [:compression :description]))
-    (println "Chaincode SHA-256: " (sha256 file))))
+    (println "Platform:           " (platform-version config))
+    (println "Digital Signature:   none")
+    (println "Raw Data Size:      " (->> entries (map :size) (reduce +)) "bytes")
+    (println "Archive Size:       " (.length file) "bytes")
+    (println "Compression Alg:    " (get-in payload [:compression :description]))
+    (println "Chaincode SHA3:     " (sha3-512 file))))
