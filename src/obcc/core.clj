@@ -62,7 +62,7 @@
     :arguments "path/to/file.cca"
     :validate (fn [options arguments] (= (count arguments) 1))
     :options (option-merge [["-d" "--directory NAME" "path to the output destination"]]
-                           common-path-options)}
+                           common-options)}
 
    {:name "lscca" :desc "List the contents of a CCA file"
     :handler lsccacmd/run
