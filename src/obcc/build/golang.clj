@@ -66,10 +66,10 @@
     (.add template "consumes" consumes)
     (.render template)))
 
-(defn protoc [proto]
+(defn protoc [path proto]
   (let [protoc (conch/programs protoc)]
-    (println "protoc")
-    (println (:stderr (protoc "--go_out=./" (str proto) {:verbose true})))))
+    (println "[PB]" (.getAbsolutePath proto))
+    (println (:stderr (protoc (str "--go_out=" path) (str "--proto_path=" path) (str proto) {:verbose true})))))
 
 (def cwd (System/getProperty "user.dir"))
 (defn fqpath [path] (.getAbsolutePath (io/file cwd path)))
@@ -103,7 +103,7 @@
       (gofmt "-w" (.getAbsolutePath shimpath)))
 
     ;; generate protobuf output
-    (protoc protofile)
+    (protoc (str path "/build") protofile)
 
     ;; install dependencies
     (go path {} "get" "-d" "-v" "chaincode")
