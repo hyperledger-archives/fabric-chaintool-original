@@ -19,6 +19,7 @@
   (:require [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
             [obcc.subcommands.build :as buildcmd]
+            [obcc.subcommands.buildcca :as buildccacmd]
             [obcc.subcommands.clean :as cleancmd]
             [obcc.subcommands.lscca :as lsccacmd]
             [obcc.subcommands.package :as packagecmd]
@@ -46,6 +47,13 @@
     :handler  buildcmd/run
     :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
                            common-path-options)}
+
+   {:name "buildcca" :desc "Build the chaincode project from a CCA file"
+    :handler  buildccacmd/run
+    :arguments "path/to/file.cca"
+    :validate (fn [options arguments] (= (count arguments) 1))
+    :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
+                           common-options)}
 
    {:name "clean" :desc "Clean the chaincode project"
     :handler cleancmd/run

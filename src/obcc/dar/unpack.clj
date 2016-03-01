@@ -20,9 +20,6 @@
             [obcc.dar.read :as dar.read]))
 
 (defn unpack [index outputdir verbose]
-  (when (.exists outputdir)
-    (throw (Exception. (str "output directory " (.getAbsolutePath outputdir) " exists"))))
-
   (dorun
    (for [[path item] index]
      (let [entry (:entry item)
@@ -30,6 +27,6 @@
        (io/make-parents outputfile)
        (with-open [is (dar.read/entry-stream item)
                    os (io/output-stream outputfile)]
-         (when verbose
+         (when (= verbose :true)
            (println (:sha1 entry) (:path entry) (str "(" (:size entry) " bytes)")))
          (io/copy is os))))))

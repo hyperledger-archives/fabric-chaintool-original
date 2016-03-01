@@ -14,26 +14,28 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
-
-(ns obcc.subcommands.unpack
-  (:require [obcc.config.util :as config]
+(ns obcc.subcommands.buildcca
+  (:require [clojure.java.io :as io]
+            [me.raynes.fs :as fs]
+            [clojure.tools.file-utils :as fileutils]
+            [obcc.config.util :as config.util]
             [obcc.dar.read :as dar.read]
             [obcc.dar.unpack :as dar.unpack]
-[clojure.java.io :as io]))
+            [obcc.build.core :as build.core]))
 
-(defn getoutputdir [options config]
-  (if-let [dir (:directory options)]
-    (io/file dir)
-    (io/file "./" (str (config/compositename config)))))
+(defn getoutput [options]
+  (if-let [output (:output options)]
+    (io/file output)
+    (throw (Exception. "Missing -o output (see -h for details)"))))
 
 (defn run [options args]
-  (let [file (io/file (first args))
+  (let [output (getoutput options)
+        file (io/file (first args))
         {:keys [index config]} (with-open [is (io/input-stream file)] (dar.read/read is))
-        outputdir (getoutputdir options config)]
+        workingdir (fs/temp-dir "buildcca-")]
 
-    (when (.exists outputdir)
-      (throw (Exception. (str "output directory " (.getAbsolutePath outputdir) " exists"))))
-
-    (println "Unpacking CCA to:" (.getAbsolutePath outputdir))
-    (println)
-    (dar.unpack/unpack index outputdir :true)))
+    (dar.unpack/unpack index workingdir :false)
+    (let [config (config.util/load workingdir)]
+      (println "Building " file)
+      (build.core/compile workingdir config output)
+      (fileutils/recursive-delete (io/file workingdir)))))
