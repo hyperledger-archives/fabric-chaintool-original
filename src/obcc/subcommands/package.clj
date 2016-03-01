@@ -33,7 +33,7 @@
         outputfile (getoutputfile options path config)]
 
     ;; emit header information after we know the file write was successful
-    (println "Writing CCA to:" (.getAbsolutePath outputfile))
+    (println "Writing CCA to:" (.getCanonicalPath outputfile))
     (println "Using path" path (str filespec))
 
     ;; generate the actual file

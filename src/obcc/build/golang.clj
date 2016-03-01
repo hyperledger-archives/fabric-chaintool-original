@@ -68,16 +68,29 @@
 
 (defn protoc [path proto]
   (let [protoc (conch/programs protoc)]
-    (println "[PB]" (.getAbsolutePath proto))
+    (println "[PB]" (.getCanonicalPath proto))
     (println (:stderr (protoc (str "--go_out=" path) (str "--proto_path=" path) (str proto) {:verbose true})))))
 
-(def cwd (System/getProperty "user.dir"))
-(defn fqpath [path] (.getAbsolutePath (io/file path)))
+(defn fqpath [path] (.getCanonicalPath (io/file path)))
+
+(defn conjpath [components]
+  (.getCanonicalPath (apply io/file components)))
+
+;;------------------------------------------------------------------
+;; return a string with composite GOPATH elements, separated by ":"
+;;
+;; (note that the first entry is where the system will write dependencies
+;; retrived by "go get")
+;;------------------------------------------------------------------
+(defn buildgopath [path]
+  (let [fqpath (fqpath path)
+        gopath (map conjpath [[fqpath "build/deps"][fqpath "build"][fqpath][(System/getenv "GOPATH")]])]
+
+      (clojure.string/join ":" gopath)))
 
 (defn go [path env & args]
   (println "[GO] go" (apply print-str args))
-  (let [fqpath (fqpath path)
-        gopath (str fqpath "/build/deps" ":" fqpath "/build" ":" fqpath ":" (System/getenv "GOPATH"))
+  (let [gopath (buildgopath path)
         _args (vec (concat ["go"] args [:env (merge {"GOPATH" gopath} env)]))]
     (println "\tUsing GOPATH" gopath)
     (let [result (apply sh/proc _args)]
@@ -101,7 +114,7 @@
 
     ;; clean up the generated code with gofmt
     (let [gofmt (conch/programs gofmt)]
-      (gofmt "-w" (.getAbsolutePath shimpath)))
+      (gofmt "-w" (.getCanonicalPath shimpath)))
 
     ;; generate protobuf output
     (protoc (str path "/build") protofile)
@@ -113,6 +126,6 @@
     (let [gobin (io/file (fqpath path) "build/bin")]
       (io/make-parents (io/file gobin ".dummy"))
       (io/make-parents output)
-      (go path {"GOBIN" (.getAbsolutePath gobin)} "build" "-o" (.getAbsolutePath output) "chaincode"))
+      (go path {"GOBIN" (.getCanonicalPath gobin)} "build" "-o" (.getCanonicalPath output) "chaincode"))
 
     (println "Compilation complete")))

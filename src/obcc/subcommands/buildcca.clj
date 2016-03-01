@@ -36,6 +36,6 @@
 
     (dar.unpack/unpack index workingdir :false)
     (let [config (config.util/load workingdir)]
-      (println "Building CCA" (.getAbsolutePath file))
+      (println "Building CCA" (.getCanonicalPath file))
       (build.core/compile workingdir config output)
       (fileutils/recursive-delete (io/file workingdir)))))

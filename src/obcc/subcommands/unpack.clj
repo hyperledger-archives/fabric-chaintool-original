@@ -32,8 +32,8 @@
         outputdir (getoutputdir options config)]
 
     (when (.exists outputdir)
-      (throw (Exception. (str "output directory " (.getAbsolutePath outputdir) " exists"))))
+      (throw (Exception. (str "output directory " (.getCanonicalPath outputdir) " exists"))))
 
-    (println "Unpacking CCA to:" (.getAbsolutePath outputdir))
+    (println "Unpacking CCA to:" (.getCanonicalPath outputdir))
     (println)
     (dar.unpack/unpack index outputdir :true)))
