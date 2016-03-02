@@ -19,14 +19,25 @@
   (:require [clojure.java.io :as io]
             [obcc.dar.read :as dar.read]))
 
+;;--------------------------------------------------------------------------------------
+;; unpack - given a (pre-read) index of entries and an outputdir, unpack each element
+;;--------------------------------------------------------------------------------------
 (defn unpack [index outputdir verbose]
   (dorun
    (for [[path item] index]
      (let [entry (:entry item)
            outputfile (io/file outputdir path)]
+
+       ;; ensure our output path exists
        (io/make-parents outputfile)
+
+       ;; walk each entry and stream it out to the filesystem
        (with-open [is (dar.read/entry-stream item)
                    os (io/output-stream outputfile)]
+
+         ;; we optionally may report out status to stdout
          (when (= verbose :true)
            (println (:sha1 entry) (:path entry) (str "(" (:size entry) " bytes)")))
+
+         ;; stream it out, pulling the input stream through any appropriate decompressor transparently
          (io/copy is os))))))
