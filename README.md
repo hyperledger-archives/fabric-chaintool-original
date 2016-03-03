@@ -123,9 +123,22 @@ The only core requirement is that both OBCC and the chosen OBC network are in ag
 
 Interfaces (as included in ./src/interfaces) may be in one or two categories: Provided or Consumed.  _Provided_ means that the chaincode implements the interface and supports having clients or other chaincode invoke methods as declared.  Likewise, _consumed_ indicates that the chaincode expects to perform inter-chaincode invoke/query operations to a disparate chaincode instance that provides the interface.  It is perfectly fine (though perhaps uncommon) for a chaincode to both provide and consume a given interface (such as for proxy contracts which may accept operations in a polymorhphic manner before passing operations on to a concrete instance).
 
+Both Provides and Consumes are expressed as an array of 1 or more entries.  For example:
+
+```
+Provides: [com.obc.chaincode.example02, com.obc.chaincode.example03]
+Consumes: [com.obc.chaincode.example02]
+```
+
+If there aren't any interfaces in a particular category, the entry may be omitted.  Note that a chaincode that doesnt provide any interfaces doesn't sound particularly useful, however.
+
 ###### "self"
 
-The keyword _self_ may be used as shorthand for an interface that shares the same name as the project (for instance, the com.obc.chaincode.example02 project surfacing the com.obc.chaincode.example02.cci interface), as a convenience.  It is idiomatic for a project to name its primary interfaces after itself, and therefore this shortcut is expected to be commonly used.
+The keyword _self_ may be used as shorthand for an interface that shares the same name as the project (for instance, the com.obc.chaincode.example02 project surfacing the com.obc.chaincode.example02.cci interface), as a convenience.  It is idiomatic for a project to name its primary interfaces after itself, and therefore this shortcut is expected to be commonly used.  Example:
+
+```
+Provides: [self]
+```
 
 #### Chaincode
 
@@ -148,7 +161,7 @@ Each .cci file is meant to represent an interface contract for compatibility.  I
 
 ##### Interface names
 
-The name of the .cci file has direct meaning to the ABI: the name of the file will be translated into ABI tokens on the wire.  This was intentionally chosen so that the filesystem itself (under ./src/interfaces) takes a role in ensuring that only one interface of a particular type is in use within a project at any given time.  Likewise, if a project wishes to import and consume an interface from a different project, it is imperative that the filename be maintained in both projects or the endpoints will be inadvertently namespace-isolated from one another.
+The name of the .cci file has direct meaning to the ABI: the name of the file will be translated into ABI tokens on the wire.  This was intentionally chosen so that the filesystem itself (under ./src/interfaces) takes a role in ensuring that only one interface of a particular type is in use within a project at any given time.  Likewise, if a project wishes to import and consume an interface from a different project, it is imperative that the filename be retained across both projects or the endpoints will be inadvertently namespace-isolated from one another.  To put it another way, do not rename .cci files on import!
 
 ##### Interface namespaces
 
