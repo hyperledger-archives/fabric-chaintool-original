@@ -211,3 +211,28 @@ The main purpose of the grammar is to define RPC functions.  For reasons of ABI 
 - Be indexed (e.g. ABI depends on index stability, not function name)
 - Accept only 0 or 1 _message_ as input and return only 0 (via _void_) or 1 message as output
 - We rely on the message definitions for further ABI stability.
+
+##### "Project" interface
+
+Every project has an implicit interface: project.cci.  This interface is intended to define more system-level iterations such as the "init" or constructor for a given chaincode.  It is also generally assumed to be not something that needs to be shared with other projects in the same manner that application-level interfaces might, thus we are not concerned about "project.cci" name conflicting in the way we care about other interfaces.
+
+The project.cci is also special in another way: it supports an implicit transaction::init() function.  It is expected that every chaincode will need a constructor, and that constructor is a transaction like any other.  However, rather than require every project to explicitly define something like:
+
+```
+message MyCtorParams {
+        int32 balance = 1;
+}
+
+transactions {
+        void Init(MyCtorParams) = 1;
+}
+```
+The can instead just define a message "Init" and the transaction is implied.  For example:
+
+```
+message Init {
+        int32 balance = 1;
+}
+```
+
+is equivelent to the above when placed within the project.cci
