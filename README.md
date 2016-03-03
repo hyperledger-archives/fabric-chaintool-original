@@ -16,11 +16,13 @@ OBCC helps in this regard by allowing applications to declare/consume one or mor
 
 OBCC provides some other benefits too, such as consistent language-neutral packaging and chaincode hashing, which help to simplify both the obc-peer implementation and developer burden.
 
-## Installation
+## Getting Started
+
+### Installation
 
    $ make install
 
-## Usage
+### Usage
 
 ```
 $ obcc -h
@@ -42,4 +44,13 @@ Actions:
 
 (run "obcc <action> -h" for action specific help)
 ```
+### Project Structure
+
+Like many modern build tools, OBCC is opinionated.  It expects a specific structure to your project as follows:
+
+- a file [chaincode.conf](./testdata/example02/chaincode.conf) is in the root directory (discussed below)
+- your chaincode files are in ./src/chaincode ([example](./testdata/example02/src/chaincode/chaincode_example02.go))
+- your interface files are in ./src/interfaces ([example](./testdata/example02/src/interfaces/com.obc.chaincode.example02.cci))
+- your project defines one project-level interface called ./src/interfaces/project.cci ([example](./testdata/example02/src/interfaces/project.cci))
+
 
