@@ -71,7 +71,7 @@ Command Options:
 Like many modern build tools, OBCC is opinionated.  It expects a specific structure to your project as follows:
 
 - a file [chaincode.conf](./testdata/example02/chaincode.conf) is in the root directory (discussed below)
-- your chaincode files are in ./src/chaincode ([example](./testdata/example02/src/chaincode/chaincode_example02.go))
+- your chaincode entry-point in ./src/chaincode ([example](./testdata/example02/src/chaincode/chaincode_example02.go))
 - your interface files are in ./src/interfaces ([example](./testdata/example02/src/interfaces/com.obc.chaincode.example02.cci))
 - your project defines one project-level interface called ./src/interfaces/project.cci ([example](./testdata/example02/src/interfaces/project.cci))
 
@@ -119,13 +119,24 @@ It is here that a chaincode may declare the compatibility/conformity to a specif
 
 The only core requirement is that both OBCC and the chosen OBC network are in agreement to support said platform.  The details of implementing this are "coming soon".
 
-#### Interface Declarations
+##### Interface Declarations
 
 Interfaces (as included in ./src/interfaces) may be in one or two categories: Provided or Consumed.  _Provided_ means that the chaincode implements the interface and supports having clients or other chaincode invoke methods as declared.  Likewise, _consumed_ indicates that the chaincode expects to perform inter-chaincode invoke/query operations to a disparate chaincode instance that provides the interface.  It is perfectly fine (though perhaps uncommon) for a chaincode to both provide and consume a given interface (such as for proxy contracts which may accept operations in a polymorhphic manner before passing operations on to a concrete instance).
 
-##### "self"
+###### "self"
 
 The keyword _self_ may be used as shorthand for an interface that shares the same name as the project (for instance, the com.obc.chaincode.example02 project surfacing the com.obc.chaincode.example02.cci interface), as a convenience.  It is idiomatic for a project to name its primary interfaces after itself, and therefore this shortcut is expected to be commonly used.
 
+#### Chaincode
 
+The opinionated portion of chaincode path largely applies to solely the entry-point for your application.  Other paths for non-entry point code are generally fine if you are using a language that supports namespaces, etc.  For instance, the com.obc.chaincode.golang platform assumes a $GOPATH of ./src and tries to build "chaincode" (via $GOPATH/src/chaincode).  However, if your chaincode uses go imports such as:
+
+```golang
+import (
+   "foo"
+   "bar/baz"
+)
+```
+
+placed in ./src/foo and ./src/bar/baz respectively, they will be discovered perfectly fine. 
 
