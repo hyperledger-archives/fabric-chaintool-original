@@ -134,7 +134,7 @@ Provides: [com.obc.chaincode.example02, com.obc.chaincode.example03]
 Consumes: [com.obc.chaincode.example02]
 ```
 
-If there aren't any interfaces in a particular category, the entry may be omitted.  Note that a chaincode that doesnt provide any interfaces doesn't sound particularly useful, however.
+If there aren't any interfaces in a particular category, the entry may be omitted.  Note that a chaincode that doesnt provide any interfaces doesn't sound particularly useful, however.  Therefore, it is expected that every project will include at least a Provides clause.
 
 ###### "self"
 
@@ -172,3 +172,42 @@ Perhaps even more importantly, interface ABI needs to be globally managed.  Ther
 ##### Interface namespaces
 
 Given the potential for multiple interfaces to use conflicting names, there is a need to let a project place specific interfaces in a unique namespace when necessary.  However, it was felt that the default mode should make it as easy as possible for a chaincode developer to work with the system.  Therefore, the default import of an abitrary .cci file will emit tokens in the global namespace for ease of use.  A future mechanism will be added to the chaincode.conf that will allow a developer to assign arbitrary interfaces to specific namespaces w.r.t. emitted tokens without affecting the wire ABI.  TBD.  For now, note that tokens declared within interfaces files within the same project may not conflict.
+
+##### Definition
+
+Each interface definition loosely adheres to a protobuf-ish syntax.  This was intentional, as the .cci file is actually translated into an intermediate .proto file before being handed to protoc to do the real work.  The reason we did not just use protobuf syntax directly was because it was felt there were a few areas of the protobuf grammar that were suboptimal w.r.t. chaincode definition.  Consider an example .cci:
+
+```
+message PaymentParams {
+        string partySrc = 1;
+        string partyDst = 2;
+        int32  amount   = 3;
+}
+
+message Entity {
+        string id = 1;
+}
+
+message BalanceResult {
+        int32 balance = 1;
+}
+
+transactions {
+        void MakePayment(PaymentParams) = 1;
+        void DeleteAccount(Entity) = 2;
+}
+
+queries {
+        BalanceResult CheckBalance(Entity) = 1;
+}
+```
+
+The _message_ definitions are almost 1:1 with protobuf grammar.  The largest divergence is w.r.t. the _transactions_ and _queries_ sections.  These two are similar to one another as well as to the notion of service/rpc in protobuf grammar.  The reason we diverged is for a few different reasons:
+
+- Chaincode has a strong delination between and invoke and a query, and it was important for the parser to be able to understand the breakdown so that the proper code could be emitted
+- It was felt that the lack of "field indices" in the protobuf service/rpc grammar was a large shortcoming in ABI compatiblity.  Therefore, the grammar used here retains the notion of indicies even for function calls.
+
+The main purpose of the grammar is to define RPC functions.  For reasons of ABI stability, it was decided that all RPCs will have the following properties:
+- Be indexed (e.g. ABI depends on index stability, not function name)
+- Accept only 0 or 1 _message_ as input and return only 0 (via _void_) or 1 message as output
+- We rely on the message definitions for further ABI stability.
