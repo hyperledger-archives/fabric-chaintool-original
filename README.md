@@ -18,6 +18,10 @@ OBCC provides some other benefits too, such as consistent language-neutral packa
 
 ## Getting Started
 
+### Prerequisites
+
+- A Java JRE/JDK v1.7 (or higher)
+
 ### Installation
 
    $ make install
