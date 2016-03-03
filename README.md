@@ -105,7 +105,7 @@ Platform
 Provides: [self] # 'self' is a keyword that means there should be $name.cci (e.g. com.obc.chaincode.example02.cci)
 ```
 
-All chaincode.conf files may have an arbitrary number of comments (via "#") or whitespace, but must start with "Schema: 1" to denote compatibility.  After this, there are 3 primary groups of fields:
+All chaincode.conf files may have an arbitrary number of comments (via "#") or whitespace which are summarily ignored.  Aside from whitespace, the real content of your file must start with "Schema: 1" to denote compatibility.  After this, there are 3 primary groups of fields:
 
 - project name/version
 - platform
