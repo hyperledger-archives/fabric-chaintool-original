@@ -8,11 +8,11 @@ obcc is a proposal for a toolchain to assist in various phases of [openblockchai
 
 ### Why?
 
-Current chaincode development is rather unstructured.  While some provisions to support various chaincode languages are present, only golang based chaincode is actually supported today.  And within the golang environment, there isn't much structure to an application outside of the coarse-level general callbacks for invoke or query.  Applications are left to manually decode a {function-name, argument-array} string-based tuple.  This means that a user needs to study the chaincode source in order to ascertain its API and hope that the API doesn't change over time in an incongruent manner. It also means that field translation/tranform/validation are manual and explicit processes in each chaincode function. 
+Current chaincode development is rather unstructured.  While some provisions to support various chaincode languages are present, only golang based chaincode is actually supported today.  And within the golang environment, there isn't much structure to an application outside of the coarse-level general callbacks for invoke or query.  Applications are left to manually decode a {function-name, argument-array} string-based tuple.  This means that a user needs to study the chaincode source in order to ascertain its API and hope that the API doesn't change over time in an incongruent manner. It also means that field translation/transform/validation are manual and explicit processes in each chaincode function.
 
-Consider that some applications may employ OBC confidentiallity to hide their source code.  Also consider that chaincode processes may potentially be long-running and the API may evolve.  It starts to become clear that there are some advantages to allowing chaincode to express their API interfaces in a way that is independent from the underlying implementation and supports schema management for forwards/backwards compatiblity.
+Consider that some applications may employ OBC confidentiality to hide their source code.  Also consider that chaincode processes may potentially be long-running and the API may evolve.  It starts to become clear that there are some advantages to allowing chaincode to express their API interfaces in a way that is independent from the underlying implementation and supports schema management for forwards/backwards compatibility.
 
-OBCC helps in this regard by allowing applications to declare/consume one or more language neutral interface-definitions and package it with the project.  It also helps the developer by generating shim/stub code in their chosen programming language that helps them implement and/or consume the interfaces declared.  This means that external parties may introspect a given instance for its interface(s) in a language neutral manner without requiring access to and/or an ability to decipher the underlying code.  It also means that we can use [protobufs](https://developers.google.com/protocol-buffers/) to help with various API features such as managing forwards/backwards compatiblity, endian neutrality, basic type validation, etc in a largely transparent manner.
+OBCC helps in this regard by allowing applications to declare/consume one or more language neutral interface-definitions and package it with the project.  It also helps the developer by generating shim/stub code in their chosen programming language that helps them implement and/or consume the interfaces declared.  This means that external parties may introspect a given instance for its interface(s) in a language neutral manner without requiring access to and/or an ability to decipher the underlying code.  It also means that we can use [protobufs](https://developers.google.com/protocol-buffers/) to help with various API features such as managing forwards/backwards compatibility, endian neutrality, basic type validation, etc in a largely transparent manner.
 
 OBCC provides some other benefits too, such as consistent language-neutral packaging and chaincode hashing, which help to simplify both the obc-peer implementation and developer burden.
 
@@ -73,7 +73,7 @@ Command Options:
 
 ### Typical Workflow
 
-- edit -> obcc build -> repeat until satisified
+- edit -> obcc build -> repeat until satisfied
 - obcc package -> generates a .cca file for upload
 - obc-peer chaincode deploy -lcca path/to/file.cca
 
@@ -84,7 +84,7 @@ Command Options:
 Builds your chaincode project into a binary ready for execution on a blockchain.  Various artifacts are emitted to ./build, depending on the platform.  For com.obc.chaincode.golang:
 
 - ./build/src: shim, protobufs, etc
-- ./build/deps: direct and transitive dependencies of your chaincode, as retrieved by "go get".  NOTE: this option is likely to default to disabled in the future, since it is not a good idea for a validating peer to be pulling dependenices down.  Rather, there should be some fixed number of dependencies that are implicitly included with the platform.  For now, we pull things in dynamically.
+- ./build/deps: direct and transitive dependencies of your chaincode, as retrieved by "go get".  NOTE: this option is likely to default to disabled in the future, since it is not a good idea for a validating peer to be pulling dependencies down.  Rather, there should be some fixed number of dependencies that are implicitly included with the platform.  For now, we pull things in dynamically.
 - ./build/bin: the default location for the binary generated (override with -o)
 
 #### obcc clean
@@ -182,7 +182,7 @@ The only core requirement is that both OBCC and the chosen OBC network are in ag
 
 #### Interface Declarations
 
-Interfaces (as included in ./src/interfaces) may be in one or two categories: Provided or Consumed.  _Provided_ means that the chaincode implements the interface and supports having clients or other chaincode invoke methods as declared.  Likewise, _consumed_ indicates that the chaincode expects to perform inter-chaincode invoke/query operations to a disparate chaincode instance that provides the interface.  It is perfectly fine (though perhaps uncommon) for a chaincode to both provide and consume a given interface (such as for proxy contracts which may accept operations in a polymorhphic manner before passing operations on to a concrete instance).
+Interfaces (as included in ./src/interfaces) may be in one or two categories: Provided or Consumed.  _Provided_ means that the chaincode implements the interface and supports having clients or other chaincode invoke methods as declared.  Likewise, _consumed_ indicates that the chaincode expects to perform inter-chaincode invoke/query operations to a disparate chaincode instance that provides the interface.  It is perfectly fine (though perhaps uncommon) for a chaincode to both provide and consume a given interface (such as for proxy contracts which may accept operations in a polymorphic manner before passing operations on to a concrete instance).
 
 Both Provides and Consumes are expressed as an array of 1 or more entries.  For example:
 
@@ -191,7 +191,7 @@ Provides: [com.obc.chaincode.example02, com.obc.chaincode.example03]
 Consumes: [com.obc.chaincode.example02]
 ```
 
-If there aren't any interfaces in a particular category, the entry may be omitted.  Note that a chaincode that doesnt provide any interfaces doesn't sound particularly useful, however.  Therefore, it is expected that every project will include at least a Provides clause.
+If there aren't any interfaces in a particular category, the entry may be omitted.  Note that a chaincode that doesn't provide any interfaces doesn't sound particularly useful, however.  Therefore, it is expected that every project will include at least a Provides clause.
 
 ##### "self"
 
@@ -212,13 +212,13 @@ import (
 )
 ```
 
-placed in ./src/foo and ./src/bar/baz respectively, they will be discovered perfectly fine. 
+placed in ./src/foo and ./src/bar/baz respectively, they will be discovered perfectly fine.
 
 ### Interfaces
 
 An interface is a file ending in .cci (Chaincode Interface) that defines a language neutral definition for various RPC-like functions that a given chaincode instance supports.  An chaincode instance may in fact support many different interfaces at one time.  This is convenient for creating a type of polymorphism within a network of chaincode instances.
 
-Each .cci file is meant to represent an interface contract for compatibility.  Items declared within a .cci file have provisions (similar to protobuf indices) for mutating structures over time that do not break forwards or backwards compatbility.  Changes to a given interface should only be done in a manner which exploits this compatiblity mechanism.  If for some reason it is mandated that compatility _must_ be broken, the name of the interface should be changed.
+Each .cci file is meant to represent an interface contract for compatibility.  Items declared within a .cci file have provisions (similar to protobuf indices) for mutating structures over time that do not break forwards or backwards compatibility.  Changes to a given interface should only be done in a manner which exploits this compatibility mechanism.  If for some reason it is mandated that compatibility _must_ be broken, the name of the interface should be changed.
 
 #### Interface names
 
@@ -228,7 +228,7 @@ Perhaps even more importantly, interface ABI needs to be globally managed.  Ther
 
 #### Interface namespaces
 
-Given the potential for multiple interfaces to use conflicting names, there is a need to let a project place specific interfaces in a unique namespace when necessary.  However, it was felt that the default mode should make it as easy as possible for a chaincode developer to work with the system.  Therefore, the default import of an abitrary .cci file will emit tokens in the global namespace for ease of use.  A future mechanism will be added to the chaincode.conf that will allow a developer to assign arbitrary interfaces to specific namespaces w.r.t. emitted tokens without affecting the wire ABI.  TBD.  For now, note that tokens declared within interfaces files within the same project may not conflict.
+Given the potential for multiple interfaces to use conflicting names, there is a need to let a project place specific interfaces in a unique namespace when necessary.  However, it was felt that the default mode should make it as easy as possible for a chaincode developer to work with the system.  Therefore, the default import of an arbitrary .cci file will emit tokens in the global namespace for ease of use.  A future mechanism will be added to the chaincode.conf that will allow a developer to assign arbitrary interfaces to specific namespaces w.r.t. emitted tokens without affecting the wire ABI.  TBD.  For now, note that tokens declared within interfaces files within the same project may not conflict.
 
 #### Definition
 
@@ -261,8 +261,8 @@ queries {
 
 The _message_ definitions are almost 1:1 with protobuf grammar.  The largest divergence is w.r.t. the _transactions_ and _queries_ sections.  These two are similar to one another as well as to the notion of service/rpc in protobuf grammar.  The reason we diverged is for a few different reasons:
 
-- Chaincode has a strong delination between and invoke and a query, and it was important for the parser to be able to understand the breakdown so that the proper code could be emitted
-- It was felt that the lack of "field indices" in the protobuf service/rpc grammar was a large shortcoming in ABI compatiblity.  Therefore, the grammar used here retains the notion of indicies even for function calls.
+- Chaincode has a strong delineation between and invoke and a query, and it was important for the parser to be able to understand the breakdown so that the proper code could be emitted
+- It was felt that the lack of "field indices" in the protobuf service/rpc grammar was a large shortcoming in ABI compatibility.  Therefore, the grammar used here retains the notion of indices even for function calls.
 
 The main purpose of the grammar is to define RPC functions.  For reasons of ABI stability, it was decided that all RPCs will have the following properties:
 - Be indexed (e.g. ABI depends on index stability, not function name)
@@ -271,7 +271,7 @@ The main purpose of the grammar is to define RPC functions.  For reasons of ABI 
 
 #### "Project" interface
 
-Every project has an implicit interface: project.cci.  This interface is intended to define more system-level iteractions such as the "init" or constructor for a given chaincode.  It is also generally assumed to be not something that needs to be shared with other projects in the same manner that application-level interfaces might, thus we are not concerned about "project.cci" name conflicting in the way we care about other interfaces.
+Every project has an implicit interface: project.cci.  This interface is intended to define more system-level interactions such as the "init" or constructor for a given chaincode.  It is also generally assumed to be not something that needs to be shared with other projects in the same manner that application-level interfaces might, thus we are not concerned about "project.cci" name conflicting in the way we care about other interfaces.
 
 The project.cci is also special in another way: it supports an implicit transaction::init() function.  It is expected that every chaincode will need a constructor, and that constructor is a transaction like any other.  However, rather than require every project to explicitly define something like:
 
@@ -292,4 +292,4 @@ message Init {
 }
 ```
 
-is equivelent to the above when placed within the project.cci
+is equivalent to the above when placed within the project.cci
