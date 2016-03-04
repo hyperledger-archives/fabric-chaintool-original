@@ -203,7 +203,7 @@ Provides: [self]
 
 ### Chaincode
 
-The opinionated portion of chaincode path largely applies to solely the entry-point for your application.  Other paths for non-entry point code are generally fine if you are using a language that supports namespaces, etc.  For instance, the com.obc.chaincode.golang platform assumes a $GOPATH of ./src and tries to build "chaincode" (via $GOPATH/src/chaincode).  However, if your chaincode uses go imports such as:
+The opinionated portion of chaincode path solely applies to the entry-point for your application.  Other paths for non-entry point code are generally fine if you are using a language that supports namespaces, etc.  For instance, the com.obc.chaincode.golang platform assumes a $GOPATH of ./src and tries to build "chaincode" (via $GOPATH/src/chaincode).  However, if your chaincode uses go imports such as:
 
 ```golang
 import (
@@ -284,12 +284,21 @@ transactions {
         void Init(MyCtorParams) = 1;
 }
 ```
-They can instead just define a message "Init" and the transaction is implied.  For example:
+The developer may opt to simply just define a message "Init" and omit the transaction{} entirely.  In this case, the transaction is implied.  For example:
 
 ```
 message Init {
         int32 balance = 1;
 }
 ```
+is equivalent to
+```
+message Init {
+        int32 balance = 1;
+}
 
-is equivalent to the above when placed within the project.cci
+transactions {
+        void Init(Init) = 1;
+}
+```
+when placed within the project.cci
