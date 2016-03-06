@@ -73,7 +73,7 @@ Command Options:
 
 ### Typical Workflow
 
-![typical-worflow](./images/typical-worflow.png)
+![typical-worflow](images/typical-workflow.png)
 
 ### Subcommand Details
 
