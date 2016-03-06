@@ -30,7 +30,7 @@ OBCC provides some other benefits too, such as consistent language-neutral packa
 
 ```
 $ obcc -h
-obcc version: v0.4-SNAPSHOT
+obcc version: v0.4
 
 Usage: obcc [general-options] action [action-options]
 
@@ -57,8 +57,8 @@ Other commands such as _buildcca_, _unpack_, and _lscca_ are designed to operate
 In all cases, you may obtain subcommand specific help by invoking "obcc _$subcommand_ -h".  For example:
 
 ```
-$ obcc  package -h
-obcc version: v0.4-SNAPSHOT
+$ obcc package -h
+obcc version: v0.4
 
 Description: obcc package - Package the chaincode into a CCA file for deployment
 
@@ -73,9 +73,7 @@ Command Options:
 
 ### Typical Workflow
 
-- edit -> obcc build -> repeat until satisfied
-- obcc package -> generates a .cca file for upload
-- obc-peer chaincode deploy -lcca path/to/file.cca
+![typical-worflow](./images/typical-worflow.png)
 
 ### Subcommand Details
 
