@@ -131,10 +131,10 @@ Combines _unpack_ with _build_ by utilizing a temporary directory.  This allows 
 
 Like many modern build tools, OBCC is opinionated.  It expects a specific structure to your project as follows:
 
-- a file [chaincode.conf](./testdata/example02/chaincode.conf) is in the root directory (discussed below)
-- your chaincode entry-point in ./src/chaincode ([example](./testdata/example02/src/chaincode/chaincode_example02.go))
-- your interface files are in ./src/interfaces ([example](./testdata/example02/src/interfaces/com.obc.chaincode.example02.cci))
-- your project defines one project-level interface called ./src/interfaces/project.cci ([example](./testdata/example02/src/interfaces/project.cci))
+- [chaincode.conf](./testdata/example02/chaincode.conf) in the top-level directory of your project (discussed below)
+- a chaincode entry-point in ./src/chaincode ([example](./testdata/example02/src/chaincode/chaincode_example02.go))
+- interface files in ./src/interfaces ([example](./testdata/example02/src/interfaces/com.obc.chaincode.example02.cci))
+   - every project must define a project interface ./src/interfaces/project.cci ([example](./testdata/example02/src/interfaces/project.cci))
 
 ### chaincode.conf
 
