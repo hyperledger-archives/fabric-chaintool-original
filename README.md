@@ -91,7 +91,9 @@ Cleans a chaincode project.  This typically translates to removing the ./build d
 
 #### obcc package
 
-Packages a project into a .cca file suitable for deployment.  Implicitly runs the "lscca" command on the result to display details about the package.
+Packages the sourcecode, interfaces, chaincode.conf, and other project data into a .cca file suitable for deployment.  Note that any binaries generated are _not_ included but rather will be rebuilt (using _obcc buildcca_) by each validating peer in the network.
+
+Implicitly runs the "lscca" command on the result to display details about the package.
 
 ```
 vagrant@obc-devenv:v0.0.7-2ec7137:~ $ obcc package -p /opt/gopath/src/github.com/openblockchain/obc-peer/openchain/example/chaincode/cca/example02/
