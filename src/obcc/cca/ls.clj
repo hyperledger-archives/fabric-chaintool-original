@@ -15,10 +15,10 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns obcc.dar.ls
+(ns obcc.cca.ls
   (:require [clojure.java.io :as io]
             [doric.core :as doric]
-            [obcc.dar.read :as dar]
+            [obcc.cca.read :as cca]
             [obcc.config.util :as config.util]
             [pandect.algo.sha3-512 :refer :all]))
 
@@ -26,7 +26,7 @@
   (str (config.util/findfirst config [:platform :name]) " version " (config.util/findfirst config [:platform :version])))
 
 (defn ls [file]
-  (let [{:keys [payload config]} (with-open [is (io/input-stream file)] (dar/read is))
+  (let [{:keys [payload config]} (with-open [is (io/input-stream file)] (cca/read is))
         entries (:entries payload)]
 
     (println (doric/table [{:name :size} {:name :sha1 :title "SHA1"} {:name :path}] entries))

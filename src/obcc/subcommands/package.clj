@@ -16,8 +16,8 @@
 ;; under the License.
 (ns obcc.subcommands.package
   (:require [obcc.config.util :as config]
-            [obcc.dar.write :as dar]
-            [obcc.dar.ls :refer :all]
+            [obcc.cca.write :as cca]
+            [obcc.cca.ls :refer :all]
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]))
 
@@ -37,7 +37,7 @@
     (println "Using path" path (str filespec))
 
     ;; generate the actual file
-    (dar/write path filespec compressiontype outputfile)
+    (cca/write path filespec compressiontype outputfile)
 
     ;; re-use the ls function to display the contents
     (ls outputfile)))

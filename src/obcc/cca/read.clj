@@ -15,10 +15,10 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns obcc.dar.read
+(ns obcc.cca.read
   (:require [flatland.protobuf.core :as fl]
-            [obcc.dar.types :refer :all]
-            [obcc.dar.codecs :as codecs]
+            [obcc.cca.types :refer :all]
+            [obcc.cca.codecs :as codecs]
             [obcc.config.parser :as config.parser]
             [obcc.config.util :as config.util]
             [pandect.algo.sha1 :refer :all])

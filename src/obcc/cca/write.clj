@@ -15,12 +15,12 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns obcc.dar.write
+(ns obcc.cca.write
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [flatland.protobuf.core :as fl]
-            [obcc.dar.types :refer :all]
-            [obcc.dar.codecs :as codecs]
+            [obcc.cca.types :refer :all]
+            [obcc.cca.codecs :as codecs]
             [pandect.algo.sha1 :refer :all])
   (:import (org.apache.commons.io.input TeeInputStream)
            (org.apache.commons.io.output ByteArrayOutputStream

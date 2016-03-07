@@ -17,8 +17,8 @@
 
 (ns obcc.subcommands.lscca
   (:require [clojure.java.io :as io]
-            [obcc.dar.ls :as dar]))
+            [obcc.cca.ls :as cca]))
 
 (defn run [options args]
   (let [file (io/file (first args))]
-    (dar/ls file)))
+    (cca/ls file)))

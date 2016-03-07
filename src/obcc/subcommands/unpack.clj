@@ -17,8 +17,8 @@
 
 (ns obcc.subcommands.unpack
   (:require [obcc.config.util :as config]
-            [obcc.dar.read :as dar.read]
-            [obcc.dar.unpack :as dar.unpack]
+            [obcc.cca.read :as cca.read]
+            [obcc.cca.unpack :as cca.unpack]
 [clojure.java.io :as io]))
 
 (defn getoutputdir [options config]
@@ -28,7 +28,7 @@
 
 (defn run [options args]
   (let [file (io/file (first args))
-        {:keys [index config]} (with-open [is (io/input-stream file)] (dar.read/read is))
+        {:keys [index config]} (with-open [is (io/input-stream file)] (cca.read/read is))
         outputdir (getoutputdir options config)]
 
     (when (.exists outputdir)
@@ -36,4 +36,4 @@
 
     (println "Unpacking CCA to:" (.getCanonicalPath outputdir))
     (println)
-    (dar.unpack/unpack index outputdir :true)))
+    (cca.unpack/unpack index outputdir :true)))

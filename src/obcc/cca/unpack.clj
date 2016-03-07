@@ -15,9 +15,9 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns obcc.dar.unpack
+(ns obcc.cca.unpack
   (:require [clojure.java.io :as io]
-            [obcc.dar.read :as dar.read]))
+            [obcc.cca.read :as cca.read]))
 
 ;;--------------------------------------------------------------------------------------
 ;; unpack - given a (pre-read) index of entries and an outputdir, unpack each element
@@ -32,7 +32,7 @@
        (io/make-parents outputfile)
 
        ;; walk each entry and stream it out to the filesystem
-       (with-open [is (dar.read/entry-stream item)
+       (with-open [is (cca.read/entry-stream item)
                    os (io/output-stream outputfile)]
 
          ;; we optionally may report out status to stdout

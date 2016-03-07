@@ -19,8 +19,8 @@
             [me.raynes.fs :as fs]
             [clojure.tools.file-utils :as fileutils]
             [obcc.config.util :as config.util]
-            [obcc.dar.read :as dar.read]
-            [obcc.dar.unpack :as dar.unpack]
+            [obcc.cca.read :as cca.read]
+            [obcc.cca.unpack :as cca.unpack]
             [obcc.build.core :as build.core]))
 
 (defn getoutput [options]
@@ -31,10 +31,10 @@
 (defn run [options args]
   (let [output (getoutput options)
         file (io/file (first args))
-        {:keys [index config]} (with-open [is (io/input-stream file)] (dar.read/read is))
+        {:keys [index config]} (with-open [is (io/input-stream file)] (cca.read/read is))
         workingdir (fs/temp-dir "buildcca-")]
 
-    (dar.unpack/unpack index workingdir :false)
+    (cca.unpack/unpack index workingdir :false)
     (let [config (config.util/load workingdir)]
       (println "Building CCA" (.getCanonicalPath file))
       (build.core/compile workingdir config output)
