@@ -14,11 +14,9 @@ Schema:  1
 Name:    com.obc.chaincode.example.invoker
 Version: 0.1-SNAPSHOT
 
-Platform
-{
+Platform:
         Name: com.obc.chaincode.golang
         Version: 1
-}
 
 Provides: [com.obc.chaincode.example02]
 Consumes: [com.obc.chaincode.example02]

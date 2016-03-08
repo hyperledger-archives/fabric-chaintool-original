@@ -28,7 +28,7 @@
 
 (defn run [options args]
   (let [[path config] (config/load-from-options options)
-        filespec ["src" "chaincode.conf"]
+        filespec ["src" config/configname]
         compressiontype (:compress options)
         outputfile (getoutputfile options path config)]
 

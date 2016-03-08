@@ -19,11 +19,10 @@
   (:require [clojure.java.io :as io]
             [doric.core :as doric]
             [obcc.cca.read :as cca]
-            [obcc.config.util :as config.util]
             [pandect.algo.sha3-512 :refer :all]))
 
 (defn platform-version [config]
-  (str (config.util/findfirst config [:platform :name]) " version " (config.util/findfirst config [:platform :version])))
+  (str (->> config :Platform :Name) " version " (->> config :Platform :Version)))
 
 (defn ls [file]
   (let [{:keys [payload config]} (with-open [is (io/input-stream file)] (cca/read is))

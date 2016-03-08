@@ -22,7 +22,8 @@
                  [org.apache.commons/commons-compress "1.10"]
                  [com.github.jponge/lzma-java "1.3"]
                  [pandect "0.5.4"]
-                 [doric "0.9.0"]]
+                 [doric "0.9.0"]
+                 [circleci/clj-yaml "0.5.5"]]
   :main ^:skip-aot obcc.core
   :bin {:name "obcc"
         :bin-path "target"

@@ -21,8 +21,7 @@
             [clojure.walk :as walk]
             [clojure.zip :as zip]
             [instaparse.core :as insta]
-            [obcc.ast :as ast]
-            [obcc.config.util :as config])
+            [obcc.ast :as ast])
   (:refer-clojure :exclude [compile]))
 
 (def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf")
@@ -35,12 +34,12 @@
 ;; "project.cci" and translating "self" to the name of the project
 ;;-----------------------------------------------------------------
 (defn getprovides [config]
-  (let [name (config/findfirst config [:name])
-        entries (config/find config [:provides])]
+  (let [name (:Name config)
+        entries (:Provides config)]
     (->> entries flatten (remove nil?) (walk/postwalk-replace {"self" name}) (cons "project") (into #{}))))
 
 (defn getconsumes [config]
-  (->> (config/find config [:consumes]) (remove nil?) (into #{})))
+  (->> config :Consumes (remove nil?) (into #{})))
 
 ;;-----------------------------------------------------------------
 ;; aggregate all of the interfaces declared in the config

@@ -18,12 +18,15 @@
 (ns obcc.config.parser
   (:require [clojure.java.io :as io]
             [clojure.zip :as zip]
-            [instaparse.core :as insta]))
+            [clj-yaml.core :as yaml]))
 
-(def skipper (insta/parser (io/resource "parsers/config/skip.bnf")))
+(def supported-schema 1)
 
-(def grammar (insta/parser (io/resource "parsers/config/grammar.bnf") :auto-whitespace skipper))
-
-(defn from-string [data] (->> data grammar zip/vector-zip))
+(defn from-string [data]
+  (let [config (yaml/parse-string data)
+        schema (:Schema config)]
+    (if (not= schema supported-schema)
+      (throw (Exception. (str "Unsuported configuration schema (read:" schema " expected:" supported-schema ")")))
+      config)))
 
 (defn from-file [file] (->> file slurp from-string))
