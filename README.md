@@ -91,18 +91,18 @@ Cleans a chaincode project.  This typically translates to removing the ./build d
 
 #### obcc package
 
-Packages the sourcecode, interfaces, chaincode.conf, and other project data into a .cca file suitable for deployment.  Note that any binaries generated are _not_ included but rather will be rebuilt (using _obcc buildcca_) by each validating peer in the network.
+Packages the sourcecode, interfaces, chaincode.yaml, and other project data into a .cca file suitable for deployment.  Note that any binaries generated are _not_ included but rather will be rebuilt (using _obcc buildcca_) by each validating peer in the network.
 
 Implicitly runs the "lscca" command on the result to display details about the package.
 
 ```
 vagrant@obc-devenv:v0.0.7-2ec7137:~ $ obcc package -p /opt/gopath/src/github.com/openblockchain/obc-peer/openchain/example/chaincode/cca/example02/
 Writing CCA to: /opt/gopath/src/github.com/openblockchain/obc-peer/openchain/example/chaincode/cca/example02/build/com.obc.chaincode.example02-0.1-SNAPSHOT.cca
-Using path /opt/gopath/src/github.com/openblockchain/obc-peer/openchain/example/chaincode/cca/example02/ ["src" "chaincode.conf"]
+Using path /opt/gopath/src/github.com/openblockchain/obc-peer/openchain/example/chaincode/cca/example02/ ["src" "chaincode.yaml"]
 |------+------------------------------------------+------------------------------------------------|
 | Size |                   SHA1                   |                      Path                      |
 |------+------------------------------------------+------------------------------------------------|
-| 456  | fc4ad46e08416ffde454b7dfeeba4270a075ef7f | chaincode.conf                                 |
+| 456  | fc4ad46e08416ffde454b7dfeeba4270a075ef7f | chaincode.yaml                                 |
 | 3630 | 55d1754539a3c25033faae53b00022494c70939b | src/chaincode/chaincode_example02.go           |
 | 375  | 9492a1e96f380a97bba1f16f085fc70140154c65 | src/interfaces/com.obc.chaincode.example02.cci |
 | 143  | 7305f65e18e4aab860b201d40916bb7adf97544f | src/interfaces/project.cci                     |
@@ -131,14 +131,14 @@ Combines _unpack_ with _build_ by utilizing a temporary directory.  This allows 
 
 Like many modern build tools, OBCC is opinionated.  It expects a specific structure to your project as follows:
 
-- [chaincode.conf](./testdata/example02/chaincode.conf) in the top-level directory of your project (discussed below)
+- [chaincode.yaml](./testdata/example02/chaincode.yaml) in the top-level directory of your project (discussed below)
 - a chaincode entry-point in ./src/chaincode ([example](./testdata/example02/src/chaincode/chaincode_example02.go))
 - interface files in ./src/interfaces ([example](./testdata/example02/src/interfaces/com.obc.chaincode.example02.cci))
    - every project must define a project interface ./src/interfaces/project.cci ([example](./testdata/example02/src/interfaces/project.cci))
 
-### chaincode.conf
+### chaincode.yaml
 
-_chaincode.conf_ is the central configuration file for a given obcc-managed chaincode project.  An example looks like this:
+_chaincode.yaml_ is the central configuration file for a given obcc-managed chaincode project.  An example looks like this:
 
 ```
 # ----------------------------------
@@ -150,23 +150,25 @@ _chaincode.conf_ is the central configuration file for a given obcc-managed chai
 #
 
 Schema:  1
-Name:    com.obc.chaincode.example02  # trailing comment test
+Name:    com.obc.chaincode.example02
 Version: 0.1-SNAPSHOT
 
-Platform
-{
+Platform:
         Name: com.obc.chaincode.golang
         Version: 1
-}
 
 Provides: [self] # 'self' is a keyword that means there should be $name.cci (e.g. com.obc.chaincode.example02.cci)
 ```
 
-All chaincode.conf files may have an arbitrary number of comments (via "#") or whitespace which are summarily ignored.  Aside from whitespace, the real content of your file must start with "Schema: 1" to denote compatibility.  After this, there are 3 primary groups of fields:
+All chaincode.yaml should minimally contain:
 
+- schema
 - project name/version
 - platform
 - interface declarations (provides/consumes)
+
+#### Schema
+This helps to relay compatibility with the structures used in the chaincode.yaml itself.  At the time of writing, it should be "1".
 
 #### Project name/version
 
@@ -228,7 +230,7 @@ Perhaps even more importantly, interface ABI needs to be globally managed.  Ther
 
 #### Interface namespaces
 
-Given the potential for multiple interfaces to use conflicting names, there is a need to let a project place specific interfaces in a unique namespace when necessary.  However, it was felt that the default mode should make it as easy as possible for a chaincode developer to work with the system.  Therefore, the default import of an arbitrary .cci file will emit tokens in the global namespace for ease of use.  A future mechanism will be added to the chaincode.conf that will allow a developer to assign arbitrary interfaces to specific namespaces w.r.t. emitted tokens without affecting the wire ABI.  TBD.  For now, note that tokens declared within interfaces files within the same project may not conflict.
+Given the potential for multiple interfaces to use conflicting names, there is a need to let a project place specific interfaces in a unique namespace when necessary.  However, it was felt that the default mode should make it as easy as possible for a chaincode developer to work with the system.  Therefore, the default import of an arbitrary .cci file will emit tokens in the global namespace for ease of use.  A future mechanism will be added to the chaincode.yaml that will allow a developer to assign arbitrary interfaces to specific namespaces w.r.t. emitted tokens without affecting the wire ABI.  TBD.  For now, note that tokens declared within interfaces files within the same project may not conflict.
 
 #### Definition
 
