@@ -115,13 +115,13 @@ func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *example
 	}
 
 	fmt.Printf("Query Response: %d\n", val)
-	return &example02.BalanceResult{Balance: proto.Int32(int32(val))}, nil
+	return &example02.BalanceResult{Balance: *proto.Int32(int32(val))}, nil
 }
 
 func main() {
 	self := &ChaincodeExample{}
 	handler := ccs.ShimHandler{Project: self, Example02: self}
-	err := ccs.Start(handler) // Our one instance implements both Transactions and Queries interfaces
+	err := ccs.Start(&handler) // Our one instance implements both Transactions and Queries interfaces
 	if err != nil {
 		fmt.Printf("Error starting example chaincode: %s", err)
 	}
