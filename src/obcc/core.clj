@@ -18,6 +18,7 @@
 (ns obcc.core
   (:require [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
+            [slingshot.slingshot :as slingshot]
             [obcc.subcommands.build :as buildcmd]
             [obcc.subcommands.buildcca :as buildccacmd]
             [obcc.subcommands.clean :as cleancmd]
@@ -146,9 +147,11 @@
             (exit -1 (subcommand-usage subcommand summary))
 
             :else
-            (do
+            (slingshot/try+
               ((:handler subcommand) options arguments)
-              (exit 0 ""))))
+              (exit 0 "")
+              (catch [:type :obccabort] {:keys [msg retval]}
+                (exit retval (str "Error: " msg))))))
 
         ;; unrecognized subcommand
         (exit 1 (usage summary))))))

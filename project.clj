@@ -23,7 +23,8 @@
                  [com.github.jponge/lzma-java "1.3"]
                  [pandect "0.5.4"]
                  [doric "0.9.0"]
-                 [circleci/clj-yaml "0.5.5"]]
+                 [circleci/clj-yaml "0.5.5"]
+                 [slingshot "0.12.2"]]
   :main ^:skip-aot obcc.core
   :bin {:name "obcc"
         :bin-path "target"

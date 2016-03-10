@@ -67,16 +67,25 @@
         proto_path (str "--proto_path=" path)
         proto (.getCanonicalPath _proto)]
     (println "[PB] protoc" go_out proto_path proto)
-    (println (:stderr (protoc go_out proto_path proto {:verbose true})))))
+    (try
+      (let [result (protoc go_out proto_path proto {:verbose true})]
+        (println (:stderr result)))
+      (catch clojure.lang.ExceptionInfo e
+        (util/abort -1 (-> e ex-data :stderr))))))
 
 (defn go-cmd [path env & args]
   (println "[GO] go" (apply print-str args))
   (let [gopath (buildgopath path)
         _args (vec (concat ["go"] args [:env (merge {"GOPATH" gopath} env)]))]
+
     (println "\tUsing GOPATH" gopath)
-    (let [result (apply sh/proc _args)]
-      (sh/done result)
-      (println (sh/stream-to-string result :err)))))
+    (let [result (apply sh/proc _args)
+          _ (sh/done result)
+          stderr (sh/stream-to-string result :err)]
+
+      (if (zero? (sh/exit-code result))
+        (println stderr)
+        (util/abort -1 stderr)))))
 
 ;;-----------------------------------------------------------------
 ;; buildX - build our ST friendly objects

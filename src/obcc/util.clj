@@ -17,7 +17,8 @@
 
 (ns obcc.util
   (:require [clojure.string :as string]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [slingshot.slingshot :as slingshot]))
 
 (def app-version (System/getProperty "obcc.version"))
 
@@ -28,3 +29,8 @@
 
   ;; and blast it out to the filesystem
   (spit filename content :truncate true))
+
+;; throws an exception that should unwind us all the way to the core/main
+;; function and exit cleanly with an error message rather than a stacktrace, etc
+(defn abort [retval msg]
+  (slingshot/throw+ {:type :obccabort :retval retval :msg msg}))
