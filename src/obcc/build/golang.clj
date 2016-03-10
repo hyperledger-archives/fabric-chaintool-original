@@ -44,8 +44,6 @@
 (defn package-camel [name] (-> name package-name string/capitalize))
 (defn package-path [name] (str "openblockchain/cci/" (string/replace name "." "/")))
 
-(defn fqpath [path] (.getCanonicalPath (io/file path)))
-
 (defn conjpath [components]
   (.getCanonicalPath (apply io/file components)))
 
@@ -56,8 +54,7 @@
 ;; retrived by "go get")
 ;;------------------------------------------------------------------
 (defn buildgopath [path]
-  (let [fqpath (fqpath path)
-        gopath (map conjpath [[fqpath "build/deps"][fqpath "build"][fqpath][(System/getenv "GOPATH")]])]
+  (let [gopath (map conjpath [[path "build/deps"][path "build"][path][(System/getenv "GOPATH")]])]
 
     (clojure.string/join ":" gopath)))
 
