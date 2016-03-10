@@ -17,22 +17,24 @@ specific language governing permissions and limitations
 under the License.
 */
 
-package main
+package chaincode
 
 import (
 	"fmt"
 
-	"chaincode_support"
+	"openblockchain/ccs"
+	"openblockchain/cci/com/obc/chaincode/example02"
+	"openblockchain/cci/project"
+
 	"github.com/openblockchain/obc-peer/openchain/chaincode/shim"
 )
 
 type ChaincodeExample struct {
-	chaincode_support.Transactions
-	chaincode_support.Queries
+
 }
 
 // Called to initialize the chaincode
-func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *chaincode_support.Init) error {
+func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *project.Init) error {
 
 	var err error
 
@@ -46,7 +48,7 @@ func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *chaincode_suppo
 }
 
 // Transaction makes payment of X units from A to B
-func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *chaincode_support.PaymentParams) error {
+func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *example02.PaymentParams) error {
 
 	var err error
 
@@ -56,11 +58,11 @@ func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *chaincod
 		return err
 	}
 
-	return chaincode_support.MakePayment(stub, string(addr), param)
+	return example02.MakePayment(stub, string(addr), param)
 }
 
 // Deletes an entity from state
-func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *chaincode_support.Entity) error {
+func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *example02.Entity) error {
 
 	var err error
 
@@ -70,11 +72,11 @@ func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *chainc
 		return err
 	}
 
-	return chaincode_support.DeleteAccount(stub, string(addr), param)
+	return example02.DeleteAccount(stub, string(addr), param)
 }
 
 // Query callback representing the query of a chaincode
-func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *chaincode_support.Entity) (*chaincode_support.BalanceResult, error) {
+func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *example02.Entity) (*example02.BalanceResult, error) {
 
 	var err error
 
@@ -84,12 +86,13 @@ func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *chainco
 		return nil, err
 	}
 
-	return chaincode_support.CheckBalance(stub, string(addr), param)
+	return example02.CheckBalance(stub, string(addr), param)
 }
 
 func main() {
 	self := &ChaincodeExample{}
-	err := chaincode_support.Start(self, self) // Our one instance implements both Transactions and Queries interfaces
+	handler := &ccs.ShimHandler{Project: self, Example02: self}
+	err := ccs.Start(handler) // Our one instance implements both Transactions and Queries interfaces
 	if err != nil {
 		fmt.Printf("Error starting example chaincode: %s", err)
 	}

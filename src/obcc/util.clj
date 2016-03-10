@@ -16,15 +16,15 @@
 ;; under the License.
 
 (ns obcc.util
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            [clojure.java.io :as io]))
 
 (def app-version (System/getProperty "obcc.version"))
-(def supportpath "build/src/chaincode_support")
 
-;;-----------------------------------------------------------------
-;; manage object names
-;;-----------------------------------------------------------------
-(defn qualifyname [namespace name]
-  (if namespace
-    (str (string/replace namespace "." "_") "_" name)
-    name))
+(defn truncate-file [filename content]
+
+  ;; ensure the path exists
+  (io/make-parents filename)
+
+  ;; and blast it out to the filesystem
+  (spit filename content :truncate true))

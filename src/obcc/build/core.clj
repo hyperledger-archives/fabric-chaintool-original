@@ -16,14 +16,12 @@
 ;; under the License.
 (ns obcc.build.core
   (:require [obcc.build.interface :as intf]
-            [obcc.build.protobuf :as pb]
-            [obcc.build.golang :as go])
+            [obcc.build.golang :as golang])
   (:refer-clojure :exclude [compile]))
 
 (defn compile [path config output]
-  (let [interfaces (intf/compile path config)
-        namespaces {} ;; FIXME
-        protofile (pb/compile path interfaces namespaces)]
+  (let [interfaces (intf/compile path config)]
 
-    ;; generate golang shim output
-    (go/compile path config interfaces namespaces protofile output)))
+    ;; generate golang output (shim, protobufs, etc)
+    ;; FIXME: we need to switch on the Platform type
+    (golang/compile path config interfaces output)))

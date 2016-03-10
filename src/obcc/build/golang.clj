@@ -18,58 +18,31 @@
 (ns obcc.build.golang
   (:require [clojure.algo.generic.functor :as algo]
             [clojure.java.io :as io]
+            [clojure.string :as string]
             [me.raynes.conch :as conch]
             [me.raynes.conch.low-level :as sh]
             [obcc.build.interface :as intf]
+            [obcc.build.protobuf :as pb]
             [obcc.util :as util])
   (:import (java.util ArrayList)
            (org.stringtemplate.v4 STGroupFile))
   (:refer-clojure :exclude [compile find]))
 
+(conch/programs protoc)
+(conch/programs gofmt)
+
 ;; types to map to java objects that string template expects.
 ;;
 
 (deftype Function  [^String rettype ^String name ^String param ^Integer index])
-(deftype Interface  [^String name ^String ns ^ArrayList transactions ^ArrayList queries])
+(deftype Interface  [^String name ^String package ^String packageCamel ^String packagepath ^ArrayList transactions ^ArrayList queries])
 
-;;-----------------------------------------------------------------
-;; buildX - build our ST friendly objects
-;;-----------------------------------------------------------------
-
-(defn buildfunction [{:keys [rettype functionName param index]}]
-  (vector functionName (->Function (when (not= rettype "void") rettype) functionName param index)))
-
-(defn buildfunctions [functions]
-  (into {} (for [[k v] functions]
-             (buildfunction v))))
-
-(defn buildinterface [name interface namespaces]
-  (let [transactions (buildfunctions (:transactions interface))
-        queries (buildfunctions (:queries interface))]
-    (vector name (->Interface name (namespaces name) transactions queries))))
-
-(defn build [interfaces namespaces]
-  (into {} (map (fn [[name interface]] (buildinterface name interface namespaces)) interfaces)))
-
-;;-----------------------------------------------------------------
-;; generate shim output - compiles the interfaces into a
-;; golang shim, suitable for writing to a file
-;;-----------------------------------------------------------------
-(defn generateshim [config interfaces namespaces]
-  (let [functions (algo/fmap intf/getallfunctions interfaces)
-        provides (build (select-keys functions (intf/getprovides config)) namespaces)
-        consumes (build (select-keys functions (intf/getconsumes config)) namespaces)
-        stg  (STGroupFile. "generators/golang.stg")
-        template (.getInstanceOf stg "golang")]
-
-    (.add template "provides" provides)
-    (.add template "consumes" consumes)
-    (.render template)))
-
-(defn protoc [path proto]
-  (let [protoc (conch/programs protoc)]
-    (println "[PB]" (.getCanonicalPath proto))
-    (println (:stderr (protoc (str "--go_out=" path) (str "--proto_path=" path) (str proto) {:verbose true})))))
+;;------------------------------------------------------------------
+;; helper functions
+;;------------------------------------------------------------------
+(defn package-name [name] (-> name (string/split #"\.") last))
+(defn package-camel [name] (-> name package-name string/capitalize))
+(defn package-path [name] (str "openblockchain/cci/" (string/replace name "." "/")))
 
 (defn fqpath [path] (.getCanonicalPath (io/file path)))
 
@@ -86,9 +59,20 @@
   (let [fqpath (fqpath path)
         gopath (map conjpath [[fqpath "build/deps"][fqpath "build"][fqpath][(System/getenv "GOPATH")]])]
 
-      (clojure.string/join ":" gopath)))
+    (clojure.string/join ":" gopath)))
 
-(defn go [path env & args]
+;;------------------------------------------------------------------
+;; X-cmd interfaces: Invoke external commands
+;;------------------------------------------------------------------
+(defn protoc-cmd [_path _proto]
+  (let [path (->> _path io/file .getCanonicalPath)
+        go_out (str "--go_out=" path)
+        proto_path (str "--proto_path=" path)
+        proto (.getCanonicalPath _proto)]
+    (println "[PB] protoc" go_out proto_path proto)
+    (println (:stderr (protoc go_out proto_path proto {:verbose true})))))
+
+(defn go-cmd [path env & args]
   (println "[GO] go" (apply print-str args))
   (let [gopath (buildgopath path)
         _args (vec (concat ["go"] args [:env (merge {"GOPATH" gopath} env)]))]
@@ -98,34 +82,109 @@
       (println (sh/stream-to-string result :err)))))
 
 ;;-----------------------------------------------------------------
-;; compile - generates golang shim code and writes it to
-;; the default location in the build area
+;; buildX - build our ST friendly objects
 ;;-----------------------------------------------------------------
-(defn compile [path config interfaces namespaces protofile output]
-  (let [shim (generateshim config interfaces namespaces)
-        shimpath (io/file path util/supportpath "shim.go")]
 
-    ;; ensure the path exists
-    (io/make-parents shimpath)
+(defn buildfunction [{:keys [rettype functionName param index]}]
+  (vector functionName (->Function (when (not= rettype "void") rettype) functionName param index)))
 
-    ;; emit our output
-    (with-open [output (io/writer shimpath :truncate true)]
-      (.write output shim))
+(defn buildfunctions [functions]
+  (into {} (for [[k v] functions]
+             (buildfunction v))))
 
-    ;; clean up the generated code with gofmt
-    (let [gofmt (conch/programs gofmt)]
-      (gofmt "-w" (.getCanonicalPath shimpath)))
+(defn buildinterface [name interface]
+  (let [transactions (buildfunctions (:transactions interface))
+        queries (buildfunctions (:queries interface))]
+    (vector name (->Interface name (package-name name) (package-camel name) (package-path name) transactions queries))))
 
-    ;; generate protobuf output
-    (protoc (str path "/build") protofile)
+(defn build [interfaces]
+  (into {} (map (fn [[name interface]] (buildinterface name interface)) interfaces)))
 
-    ;; install dependencies
-    (go path {} "get" "-d" "-v" "chaincode")
+;;-----------------------------------------------------------------
+;; generic template rendering
+;;-----------------------------------------------------------------
+(defn render-golang [templatename params]
+  (let [stg  (STGroupFile. "generators/golang.stg")
+        template (.getInstanceOf stg templatename)]
 
-    ;; build the actual code
-    (let [gobin (io/file (fqpath path) "build/bin")]
-      (io/make-parents (io/file gobin ".dummy"))
-      (io/make-parents output)
-      (go path {"GOBIN" (.getCanonicalPath gobin)} "build" "-o" (.getCanonicalPath output) "chaincode"))
+    (dorun (for [[param value] params] (.add template param value)))
+    (.render template)))
 
-    (println "Compilation complete")))
+;;-----------------------------------------------------------------
+;; render shim output - compiles the interfaces into the primary
+;; golang shim, suitable for writing to a file
+;;-----------------------------------------------------------------
+(defn render-primary-shim [config interfaces]
+  (let [functions (algo/fmap intf/getallfunctions interfaces)
+        provides (build (select-keys functions (intf/getprovides config)))]
+
+    (render-golang "primary" [["provides" provides]])))
+
+;;-----------------------------------------------------------------
+;; write golang source to the filesystem, using gofmt to clean
+;; up the generated code
+;;-----------------------------------------------------------------
+(defn emit-golang [outputfile content]
+  (util/truncate-file outputfile content)
+  (gofmt "-w" (.getCanonicalPath outputfile)))
+
+;;-----------------------------------------------------------------
+;; emit-shim
+;;-----------------------------------------------------------------
+(defn emit-shim [name interfaces template srcdir filename]
+  (let [functions (intf/getallfunctions (interfaces name))
+        [_ interface] (buildinterface name functions)
+        content (render-golang template [["intf" interface]])
+        output (io/file srcdir (package-path name) filename)]
+
+    (emit-golang output content)))
+
+;;-----------------------------------------------------------------
+;; emit-proto
+;;-----------------------------------------------------------------
+(defn emit-proto [srcdir [name ast :as interface]]
+  (let [outputdir (io/file srcdir (package-path name))
+        output (io/file outputdir "interface.proto")]
+
+    ;; emit the .proto file
+    (pb/generate-file output (package-name name) interface)
+
+    ;; execute the protoc compiler to generate golang
+    (protoc-cmd outputdir output)))
+
+;;-----------------------------------------------------------------
+;; compile - generates all golang platform artifacts within the
+;; default location in the build area
+;;-----------------------------------------------------------------
+(defn compile [path config interfaces output]
+  (dorun
+   (let [builddir (io/file path "build")
+         srcdir (io/file builddir "src")]
+
+     ;; generate protobuf output
+     (dorun (for [interface interfaces]
+              (emit-proto srcdir interface)))
+
+     ;; generate our primary shim
+     (let [content (render-primary-shim config interfaces)
+           filename (io/file srcdir "openblockchain/ccs" "shim.go")]
+       (emit-golang filename content))
+
+     ;; generate our server shims
+     (dorun (for [name (intf/getprovides config)]
+              (emit-shim name interfaces "server" srcdir "server-shim.go")))
+
+     ;; generate our client shims
+     (dorun (for [name (intf/getconsumes config)]
+              (emit-shim name interfaces "client" srcdir "client-shim.go")))
+
+     ;; install go dependencies
+     (go-cmd path {} "get" "-d" "-v" "chaincode")
+
+     ;; build the actual code
+     (let [gobin (io/file builddir "bin")]
+       (io/make-parents (io/file gobin ".dummy"))
+       (io/make-parents output)
+       (go-cmd path {"GOBIN" (.getCanonicalPath gobin)} "build" "-o" (.getCanonicalPath output) "chaincode"))
+
+     (println "Compilation complete"))))

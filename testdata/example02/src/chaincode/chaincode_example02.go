@@ -24,18 +24,19 @@ import (
 	"fmt"
 	"strconv"
 
-	ccs "chaincode_support"
+	"openblockchain/ccs"
+	"openblockchain/cci/project"
+	"openblockchain/cci/com/obc/chaincode/example02"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/openblockchain/obc-peer/openchain/chaincode/shim"
 )
 
 type ChaincodeExample struct {
-	ccs.Transactions
-	ccs.Queries
 }
 
 // Called to initialize the chaincode
-func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *ccs.Init) error {
+func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *project.Init) error {
 
 	var err error
 
@@ -56,7 +57,7 @@ func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *ccs.Init) error
 }
 
 // Transaction makes payment of X units from A to B
-func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *ccs.PaymentParams) error {
+func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *example02.PaymentParams) error {
 
 	var err error
 
@@ -92,7 +93,7 @@ func (t *ChaincodeExample) MakePayment(stub *shim.ChaincodeStub, param *ccs.Paym
 }
 
 // Deletes an entity from state
-func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *ccs.Entity) error {
+func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *example02.Entity) error {
 
 	// Delete the key from the state in ledger
 	err := stub.DelState(param.Id)
@@ -104,7 +105,7 @@ func (t *ChaincodeExample) DeleteAccount(stub *shim.ChaincodeStub, param *ccs.En
 }
 
 // Query callback representing the query of a chaincode
-func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *ccs.Entity) (*ccs.BalanceResult, error) {
+func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *example02.Entity) (*example02.BalanceResult, error) {
 	var err error
 
 	// Get the state from the ledger
@@ -114,12 +115,13 @@ func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *ccs.Ent
 	}
 
 	fmt.Printf("Query Response: %d\n", val)
-	return &ccs.BalanceResult{Balance: proto.Int32(int32(val))}, nil
+	return &example02.BalanceResult{Balance: proto.Int32(int32(val))}, nil
 }
 
 func main() {
 	self := &ChaincodeExample{}
-	err := ccs.Start(self, self) // Our one instance implements both Transactions and Queries interfaces
+	handler := ccs.ShimHandler{Project: self, Example02: self}
+	err := ccs.Start(handler) // Our one instance implements both Transactions and Queries interfaces
 	if err != nil {
 		fmt.Printf("Error starting example chaincode: %s", err)
 	}
@@ -128,7 +130,7 @@ func main() {
 //-------------------------------------------------
 // Helpers
 //-------------------------------------------------
-func (t *ChaincodeExample) PutState(stub *shim.ChaincodeStub, party *ccs.Party) error {
+func (t *ChaincodeExample) PutState(stub *shim.ChaincodeStub, party *project.Party) error {
 	return stub.PutState(party.Entity, []byte(strconv.Itoa(int(party.Value))))
 }
 

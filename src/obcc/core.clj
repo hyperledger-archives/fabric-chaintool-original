@@ -146,10 +146,9 @@
             (exit -1 (subcommand-usage subcommand summary))
 
             :else
-            (try
+            (do
               ((:handler subcommand) options arguments)
-              (exit 0 "")
-              (catch Exception e (exit -1 (str e))))))
+              (exit 0 ""))))
 
         ;; unrecognized subcommand
         (exit 1 (usage summary))))))

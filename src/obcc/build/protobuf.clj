@@ -29,56 +29,39 @@
 (deftype Field    [^String modifier ^String type ^String name ^String index])
 (deftype Message  [^String name ^ArrayList fields])
 
-;; scalar types should just be passed naked.  user types should be fully qualified
-(defn typeconvert [namespace [type name]]
-  (if (= type :scalar)
-    name
-    (util/qualifyname namespace name)))
+(defn typeconvert [[_ name]] name)
 
 ;;-----------------------------------------------------------------
 ;; buildX - build our ST friendly objects from the AST
 ;;-----------------------------------------------------------------
-(defn buildfields [namespace fields]
+(defn buildfields [fields]
   (into {} (map (fn [[index {:keys [modifier type fieldName]}]]
-                  (vector index (->Field modifier (typeconvert namespace type) fieldName index))) fields)))
+                  (vector index (->Field modifier (typeconvert type) fieldName index))) fields)))
 
-(defn buildmessage [namespace [name fields]]
-  (->Message (util/qualifyname namespace name) (buildfields namespace fields)))
+(defn buildmessage [[name fields]]
+  (->Message name (buildfields fields)))
 
-(defn buildmessages [namespace ast]
-  (map #(buildmessage namespace %) (intf/getmessages ast)))
-
-(defn buildallmessages [ast namespaces]
-  (let [msgs (->> ast (map (fn [[namespace ast]] (buildmessages (namespaces namespace) ast))) flatten)]
+(defn buildmessages [ast]
+  (let [msgs (map buildmessage (intf/getmessages ast))]
     (into {} (map #(vector (.name %) %) msgs))))
 
 ;;-----------------------------------------------------------------
-;; generate protobuf output - compiles the interfaces into a
-;; protobuf specification, suitable for writing to a file or
+;; generate-string - compiles the interface into a protobuf
+;; specification in a string, suitable for writing to a file or
 ;; passing to protoc
 ;;-----------------------------------------------------------------
-(defn generateproto [interfaces namespaces]
-  (let [messages (buildallmessages interfaces namespaces)
+(defn generate-string [package [name ast]]
+  (let [messages (buildmessages ast)
         stg  (STGroupFile. "generators/proto.stg")
         template (.getInstanceOf stg "protobuf")]
 
+    (.add template "package" (if (nil? package) name package))
     (.add template "messages" messages)
     (.render template)))
 
 ;;-----------------------------------------------------------------
-;; compile - generates a protobuf specification and writes it to
-;; the default location in the build area
+;; generate-file - generates a protobuf specification and writes
+;; it to a file
 ;;-----------------------------------------------------------------
-(defn compile [path interfaces namespaces]
-  (let [protobuf (generateproto interfaces namespaces)
-        protofile (io/file path util/supportpath "wireprotocol.proto")]
-
-    ;; ensure the path exists
-    (io/make-parents protofile)
-
-    ;; and emit our output
-    (with-open [output (io/writer protofile :truncate true)]
-      (.write output protobuf))
-
-    ;; finally, return the name of the file so other tools (like protoc) may consume it
-    protofile))
+(defn generate-file [filename package interface]
+  (util/truncate-file filename (generate-string package interface)))
