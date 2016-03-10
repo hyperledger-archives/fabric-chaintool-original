@@ -17,6 +17,7 @@
 
 (ns obcc.config.parser
   (:require [clojure.java.io :as io]
+            [obcc.util :as util]
             [clojure.zip :as zip]
             [clj-yaml.core :as yaml]))
 
@@ -26,7 +27,7 @@
   (let [config (yaml/parse-string data)
         schema (:Schema config)]
     (if (not= schema supported-schema)
-      (throw (Exception. (str "Unsuported configuration schema (read:" schema " expected:" supported-schema ")")))
+      (util/abort -1 (str "Unsuported configuration schema (read:" schema " expected:" supported-schema ")"))
       config)))
 
 (defn from-file [file] (->> file slurp from-string))

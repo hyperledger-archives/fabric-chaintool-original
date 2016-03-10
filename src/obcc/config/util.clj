@@ -16,7 +16,8 @@
 ;; under the License.
 
 (ns obcc.config.util
-  (:require [clojure.java.io :as io]
+  (:require [obcc.util :as util]
+            [clojure.java.io :as io]
             [clojure.zip :as zip]
             [obcc.config.parser :as config.parser])
   (:refer-clojure :exclude [load find]))
@@ -28,7 +29,7 @@
     (cond
 
       (not (.isFile file))
-      (throw (Exception. (str (.getAbsolutePath file) " not found")))
+      (util/abort -1 (str (.getCanonicalPath file) " not found"))
 
       :else
       (config.parser/from-file file))))

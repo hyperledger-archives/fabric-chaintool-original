@@ -17,6 +17,7 @@
 
 (ns obcc.subcommands.unpack
   (:require [obcc.config.util :as config]
+            [obcc.util :as util]
             [obcc.cca.read :as cca.read]
             [obcc.cca.unpack :as cca.unpack]
 [clojure.java.io :as io]))
@@ -32,7 +33,7 @@
         outputdir (getoutputdir options config)]
 
     (when (.exists outputdir)
-      (throw (Exception. (str "output directory " (.getCanonicalPath outputdir) " exists"))))
+      (util/abort -1 (str "output directory " (.getCanonicalPath outputdir) " exists")))
 
     (println "Unpacking CCA to:" (.getCanonicalPath outputdir))
     (println)

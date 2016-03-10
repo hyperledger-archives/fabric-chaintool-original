@@ -17,6 +17,7 @@
 
 (ns obcc.cca.read
   (:require [flatland.protobuf.core :as fl]
+            [obcc.util :as util]
             [obcc.cca.types :refer :all]
             [obcc.cca.codecs :as codecs]
             [obcc.config.parser :as config.parser]
@@ -59,8 +60,8 @@
     (let [compat (select-keys header [:magic :version])]
       (if (= compat CompatVersion)
         (:features header)
-        (throw (Exception. (str "Incompatible header detected (expected: " CompatVersion " got: " compat ")")))))
-    (throw (Exception. (str "Failed to read archive header")))))
+        (util/abort -1 (str "Incompatible header detected (expected: " CompatVersion " got: " compat ")"))))
+    (util/abort -1 (str "Failed to read archive header"))))
 
 ;;--------------------------------------------------------------------------------------
 ;; import-archive - imports an Archive object from the input stream
@@ -81,7 +82,7 @@
     (with-open [is (factory)]
       (let [sha (sha1 is)]
         (when (not= sha (:sha1 entry))
-          (throw (Exception. (str (:path entry) ": hash verification failure (expected: " (:sha1 entry) ", got: " sha ")"))))))
+          (util/abort -1 (str (:path entry) ": hash verification failure (expected: " (:sha1 entry) ", got: " sha ")")))))
 
     ;; and inject our stream factory
     {:entry entry :input-stream-factory factory}))

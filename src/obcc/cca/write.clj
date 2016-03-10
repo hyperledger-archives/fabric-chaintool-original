@@ -16,7 +16,8 @@
 ;; under the License.
 
 (ns obcc.cca.write
-  (:require [clojure.java.io :as io]
+  (:require [obcc.util :as util]
+            [clojure.java.io :as io]
             [clojure.string :as string]
             [flatland.protobuf.core :as fl]
             [obcc.cca.types :refer :all]
@@ -115,4 +116,4 @@
         (fl/protobuf-write os header archive)))
 
     ;; else
-    (throw (Exception. (str "Unknown compression type: \"" compressiontype "\"")))))
+    (util/abort -1 (str "Unknown compression type: \"" compressiontype "\""))))

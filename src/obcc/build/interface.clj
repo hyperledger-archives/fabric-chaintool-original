@@ -21,7 +21,8 @@
             [clojure.walk :as walk]
             [clojure.zip :as zip]
             [instaparse.core :as insta]
-            [obcc.ast :as ast])
+            [obcc.ast :as ast]
+            [obcc.util :as util])
   (:refer-clojure :exclude [compile]))
 
 (def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf")
@@ -57,7 +58,7 @@
       file
 
       :else
-      (throw (Exception. (str (.getAbsolutePath file) " not found"))))))
+      (util/abort -1 (str (.getCanonicalPath file) " not found")))))
 
 ;;-----------------------------------------------------------------
 ;; getX - helper functions to extract data from an interface AST
@@ -150,7 +151,7 @@
       ;; We cannot continue if the user didnt supply a message "Init"  which will
       ;; serve as the implicit parameter to our synthesized init function
       (not (initmsg? ast))
-      (throw (Exception. (str "project.cci: message Init{} not found")))
+      (util/abort -1 (str "project.cci: message Init{} not found"))
 
       :else
       (assoc interfaces "project" (-> ast (zip/append-child inittxn) zip/root zip/vector-zip)))))

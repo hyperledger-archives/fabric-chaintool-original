@@ -18,6 +18,7 @@
   (:require [clojure.java.io :as io]
             [me.raynes.fs :as fs]
             [clojure.tools.file-utils :as fileutils]
+            [obcc.util :as util]
             [obcc.config.util :as config.util]
             [obcc.cca.read :as cca.read]
             [obcc.cca.unpack :as cca.unpack]
@@ -26,7 +27,7 @@
 (defn getoutput [options]
   (if-let [output (:output options)]
     (io/file output)
-    (throw (Exception. "Missing -o output (see -h for details)"))))
+    (util/abort -1 "Missing -o output (see -h for details)")))
 
 (defn run [options args]
   (let [output (getoutput options)
