@@ -20,6 +20,7 @@
             [clojure.set :as set]
             [clojure.walk :as walk]
             [clojure.zip :as zip]
+            [clojure.pprint :refer :all]
             [instaparse.core :as insta]
             [obcc.ast :as ast]
             [obcc.util :as util])
@@ -28,7 +29,12 @@
 (def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf")
                            :auto-whitespace (insta/parser (io/resource "parsers/interface/skip.bnf"))))
 
-(defn parse [intf] (->> intf grammar zip/vector-zip))
+(defn parse [intf]
+  (let [result (grammar intf)]
+    (if (insta/failure? result)
+      (let [{:keys [line column text]} result]
+        (util/abort -1 (str "could not parse \"" text "\": line=" line " column=" column)))
+      (zip/vector-zip result))))
 
 ;;-----------------------------------------------------------------
 ;; retrieve all "provided" interfaces, adding the implicit
