@@ -119,8 +119,9 @@
 ;; it to an AST.
 ;;-----------------------------------------------------------------
 (defn compileintf [path intf]
-  (let [ipath (str path "/src/interfaces")]
-    (->> (open ipath intf) slurp parse)))
+  (let [file (open (io/file path "src/interfaces") intf)]
+    (println (str "[CCI] parse " (.getName file)))
+    (->> file slurp parse)))
 
 ;;-----------------------------------------------------------------
 ;; returns true if the interface contains a message named "Init"
