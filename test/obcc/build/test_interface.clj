@@ -23,17 +23,18 @@
 (def example1-cci
   "
   # This is a comment
+  // So is this
 
   message ActiveMessage {
-     # mid-message comment
+     // mid-message comment
      string param1 = 1; # trailing comment
      int32  param2 = 2;
      int64  param3 = 3;
   }
 
-  #message CommentedMessage {
-  #   int32 param1 = 1;
-  #}
+  //message CommentedMessage {
+  //   int32 param1 = 1;
+  //}
   "
   )
 
