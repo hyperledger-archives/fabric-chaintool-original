@@ -40,6 +40,23 @@
 (def example1-expected-result
   [[:interface [:message "ActiveMessage" [:field [:type [:scalar "string"]] [:fieldName "param1"] [:index "1"]] [:field [:type [:scalar "int32"]] [:fieldName "param2"] [:index "2"]] [:field [:type [:scalar "int64"]] [:fieldName "param3"] [:index "3"]]]] nil])
 
+(def example2-cci
+  "
+  message NestedMessage {
+     message Entry {
+        string key = 1;
+        int32  value = 2;
+     }
+
+    repeated Entry entries = 1;
+  }
+
+  "
+  )
+
+(def example2-expected-result
+  [[:interface [:message "NestedMessage" [:message "Entry" [:field [:type [:scalar "string"]] [:fieldName "key"] [:index "1"]] [:field [:type [:scalar "int32"]] [:fieldName "value"] [:index "2"]]] [:field [:modifier "repeated"] [:type [:userType "Entry"]] [:fieldName "entries"] [:index "1"]]]] nil])
+
 (deftest test-parser
-  (let [result (parse example1-cci)]
-    (is (= example1-expected-result result))))
+  (is (= example1-expected-result (parse example1-cci)))
+  (is (= example2-expected-result (parse example2-cci))))
