@@ -26,8 +26,8 @@
             [obcc.util :as util])
   (:refer-clojure :exclude [compile]))
 
-(def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf")
-                           :auto-whitespace (insta/parser (io/resource "parsers/interface/skip.bnf"))))
+(def skipper (insta/parser (io/resource "parsers/interface/skip.bnf")))
+(def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf") :auto-whitespace skipper))
 
 (defn parse [intf]
   (let [result (grammar intf)]
