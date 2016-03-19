@@ -16,7 +16,8 @@
 ;; under the License.
 
 (ns obcc.build.interface
-  (:require [clojure.java.io :as io]
+  (:require [clojure.string :as string]
+            [clojure.java.io :as io]
             [clojure.set :as set]
             [clojure.walk :as walk]
             [clojure.zip :as zip]
@@ -88,8 +89,11 @@
       (let [attrs (->> loc zip/down zip/right getattrs)]
         (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
 
+(defn get-message-name [ast]
+  (->> ast zip/right zip/node))
+
 (defn getmessage [ast]
-  (let [name (->> ast zip/right zip/node)
+  (let [name (get-message-name ast)
         fields (getentries (->> ast zip/right zip/right))]
     (vector name fields)))
 
@@ -121,13 +125,68 @@
 (defn getallfunctions [ast] (into {} (vector (gettransactions ast) (getqueries ast))))
 
 ;;-----------------------------------------------------------------
+;; verify-XX - verify our interface is rational
+;;-----------------------------------------------------------------
+;; A sanely defined interface should ensure several things
+;;
+;; 1) All field types are either scalars or defined within the interface
+;;    following inner-to-outer scoping.
+;;
+;; 2) All functions reference either void, or reference a valid
+;;    top-level message for both return and/or input parameters
+;;-----------------------------------------------------------------
+(defn verify-field [ast]
+  (println "Checking field" (->> ast zip/right getattrs)))
+
+(defn verify-message [ast]
+  (let [name (get-message-name ast)]
+    (println "Checking message" name)
+    (loop [loc (->> ast zip/right zip/right)]
+      (cond
+
+        (nil? loc)
+        nil
+
+        :else
+        (let [node (zip/down loc)
+              type (zip/node node)]
+
+          (if-let [error (when (= type :field)
+                           (verify-field node))]
+            error
+            (recur (zip/right loc))))))))
+
+(defn verify-messages [intf]
+  (loop [loc intf]
+    (cond
+
+      (or (nil? loc) (zip/end? loc))
+      nil
+
+      :else
+      (let [node (zip/node loc)]
+        (if-let [error (when (= node :message)
+                         (verify-message loc))]
+          error
+          (recur (zip/next loc)))))))
+
+(defn verify-intf [intf]
+  (verify-messages intf))
+
+;;-----------------------------------------------------------------
 ;; takes an interface name, maps it to a file, and if present, compiles
 ;; it to an AST.
 ;;-----------------------------------------------------------------
 (defn compileintf [path intf]
   (let [file (open (io/file path "src/interfaces") intf)]
     (println (str "[CCI] parse " (.getName file)))
-    (->> file slurp parse)))
+    (let [ast (->> file slurp parse)]
+
+      (when-let [errors (verify-intf ast)]
+          (util/abort -1 (str "Errors parsing " (.getName file) ": " (string/join errors))))
+
+      ;; return the AST
+      ast)))
 
 ;;-----------------------------------------------------------------
 ;; returns true if the interface contains a message named "Init"

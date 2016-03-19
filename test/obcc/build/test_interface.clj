@@ -17,7 +17,8 @@
 
 (ns obcc.build.test_interface
   (:require [clojure.test :refer :all]
-            [obcc.build.interface :refer :all])
+            [obcc.build.interface :refer :all]
+            [slingshot.slingshot :as slingshot])
   (:refer-clojure :exclude [compile]))
 
 (def example1-cci
@@ -58,6 +59,24 @@
 (def example2-expected-result
   [[:interface [:message "NestedMessage" [:message "Entry" [:field [:type [:scalar "string"]] [:fieldName "key"] [:index "1"]] [:field [:type [:scalar "int32"]] [:fieldName "value"] [:index "2"]]] [:field [:modifier "repeated"] [:type [:userType "Entry"]] [:fieldName "entries"] [:index "1"]]]] nil])
 
-(deftest test-parser
+(deftest test-parser-output
   (is (= example1-expected-result (parse example1-cci)))
   (is (= example2-expected-result (parse example2-cci))))
+
+(def example-undefined-type-cci
+  "
+  message BadMessage {
+     message Entry {
+        string key = 1;
+        UnknownType value = 2;
+     }
+
+    repeated Entry entries = 1;
+  }
+
+  "
+  )
+
+(deftest test-parser-validation
+  (let [intf (parse example-undefined-type-cci)]
+    (is (some? (verify-intf intf)))))
