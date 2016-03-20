@@ -124,6 +124,26 @@
 (defn getqueries [ast] (getgeneric ast :queries))
 (defn getallfunctions [ast] (into {} (vector (gettransactions ast) (getqueries ast))))
 
+(defn get-fieldname [ast]
+  (let [node (zip/down ast)
+        type (zip/node node)]
+    (when (or (= type :message) (= type :enum))
+      (->> node zip/right zip/node))))
+
+(defn find-match-in-row [name ast]
+  ;; each row looks like [:message $name fields...], so "leftmost, right, right" gets the first field
+  (loop [loc (->> ast zip/leftmost zip/right zip/right)]
+    (cond
+
+      (nil? loc)
+      nil
+
+      (= name (get-fieldname loc))
+      true
+
+      :else
+      (recur (zip/right loc)))))
+
 ;;-----------------------------------------------------------------
 ;; verify-XX - verify our interface is rational
 ;;-----------------------------------------------------------------
@@ -136,7 +156,22 @@
 ;;    top-level message for both return and/or input parameters
 ;;-----------------------------------------------------------------
 (defn verify-field [ast]
-  (println "Checking field" (->> ast zip/right getattrs)))
+  (let [{:keys [type fieldName]} (->> ast zip/right getattrs)]
+    (let [[subtype typename] type]
+      (when (= :userType subtype)
+        ;; We need to walk our scope backwards to find if this usertype has been defined
+        (println "Checking field" fieldName "of type" type)
+        (loop [loc (zip/up ast)]
+          (cond
+
+            (nil? loc)
+            (str "Error: type \"" typename "\" for field \"" fieldName "\" is not defined")
+
+            :else
+            (when-not (find-match-in-row typename loc)
+              (recur (zip/up loc)))))))))
+
+
 
 (defn verify-message [ast]
   (let [name (get-message-name ast)]
