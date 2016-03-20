@@ -160,7 +160,6 @@
     (let [[subtype typename] type]
       (when (= :userType subtype)
         ;; We need to walk our scope backwards to find if this usertype has been defined
-        (println "Checking field" fieldName "of type" type)
         (loop [loc (zip/up ast)]
           (cond
 
@@ -171,11 +170,8 @@
             (when-not (find-match-in-row typename loc)
               (recur (zip/up loc)))))))))
 
-
-
 (defn verify-message [ast]
   (let [name (get-message-name ast)]
-    (println "Checking message" name)
     (loop [loc (->> ast zip/right zip/right)]
       (cond
 
