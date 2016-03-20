@@ -31,7 +31,7 @@
 (def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf") :auto-whitespace skipper))
 
 (defn parse [intf]
-  (let [result (grammar intf)]
+  (let [result (insta/add-line-and-column-info-to-metadata intf (grammar intf))]
     (if (insta/failure? result)
       (let [{:keys [line column text]} result]
         (util/abort -1 (str "could not parse \"" text "\": line=" line " column=" column)))
@@ -164,7 +164,7 @@
           (cond
 
             (nil? loc)
-            (str "Error: type \"" typename "\" for field \"" fieldName "\" is not defined")
+            (str "Error: type \"" typename "\" for field \"" fieldName "\" is not defined" (insta/span ast))
 
             :else
             (when-not (find-match-in-row typename loc)
