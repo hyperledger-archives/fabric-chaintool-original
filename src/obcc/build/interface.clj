@@ -124,13 +124,13 @@
 (defn getqueries [ast] (getgeneric ast :queries))
 (defn getallfunctions [ast] (into {} (vector (gettransactions ast) (getqueries ast))))
 
-(defn get-fieldname [ast]
+(defn get-definition-name [ast]
   (let [node (zip/down ast)
         type (zip/node node)]
     (when (or (= type :message) (= type :enum))
       (->> node zip/right zip/node))))
 
-(defn find-match-in-row [name ast]
+(defn find-definition-in-msg [name ast]
   ;; each row looks like [:message $name fields...], so "leftmost, right, right" gets the first field
   (loop [loc (->> ast zip/leftmost zip/right zip/right)]
     (cond
@@ -138,7 +138,7 @@
       (nil? loc)
       nil
 
-      (= name (get-fieldname loc))
+      (= name (get-definition-name loc))
       true
 
       :else
@@ -164,10 +164,10 @@
           (cond
 
             (nil? loc)
-            (str "Error: type \"" typename "\" for field \"" fieldName "\" is not defined" (insta/span ast))
+            (str "Error on line " (:instaparse.gll/start-line (meta type)) ": type \"" typename "\" for field \"" fieldName "\" is not defined")
 
             :else
-            (when-not (find-match-in-row typename loc)
+            (when-not (find-definition-in-msg typename loc)
               (recur (zip/up loc)))))))))
 
 (defn verify-message [ast]
