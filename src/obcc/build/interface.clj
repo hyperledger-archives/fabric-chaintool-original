@@ -16,7 +16,8 @@
 ;; under the License.
 
 (ns obcc.build.interface
-  (:require [clojure.java.io :as io]
+  (:require [clojure.string :as string]
+            [clojure.java.io :as io]
             [clojure.set :as set]
             [clojure.walk :as walk]
             [clojure.zip :as zip]
@@ -30,7 +31,7 @@
 (def grammar (insta/parser (io/resource "parsers/interface/grammar.bnf") :auto-whitespace skipper))
 
 (defn parse [intf]
-  (let [result (grammar intf)]
+  (let [result (insta/add-line-and-column-info-to-metadata intf (grammar intf))]
     (if (insta/failure? result)
       (let [{:keys [line column text]} result]
         (util/abort -1 (str "could not parse \"" text "\": line=" line " column=" column)))
@@ -88,8 +89,11 @@
       (let [attrs (->> loc zip/down zip/right getattrs)]
         (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
 
+(defn get-message-name [ast]
+  (->> ast zip/right zip/node))
+
 (defn getmessage [ast]
-  (let [name (->> ast zip/right zip/node)
+  (let [name (get-message-name ast)
         fields (getentries (->> ast zip/right zip/right))]
     (vector name fields)))
 
@@ -120,6 +124,86 @@
 (defn getqueries [ast] (getgeneric ast :queries))
 (defn getallfunctions [ast] (into {} (vector (gettransactions ast) (getqueries ast))))
 
+(defn get-definition-name [ast]
+  (let [node (zip/down ast)
+        type (zip/node node)]
+    (when (or (= type :message) (= type :enum))
+      (->> node zip/right zip/node))))
+
+(defn find-definition-in-msg [name ast]
+  ;; each row looks like [:message $name fields...], so "leftmost, right, right" gets the first field
+  (loop [loc (->> ast zip/leftmost zip/right zip/right)]
+    (cond
+
+      (nil? loc)
+      nil
+
+      (= name (get-definition-name loc))
+      true
+
+      :else
+      (recur (zip/right loc)))))
+
+;;-----------------------------------------------------------------
+;; verify-XX - verify our interface is rational
+;;-----------------------------------------------------------------
+;; A sanely defined interface should ensure several things
+;;
+;; 1) All field types are either scalars or defined within the interface
+;;    following inner-to-outer scoping.
+;;
+;; 2) All functions reference either void, or reference a valid
+;;    top-level message for both return and/or input parameters
+;;-----------------------------------------------------------------
+(defn verify-field [ast]
+  (let [{:keys [type fieldName]} (->> ast zip/right getattrs)]
+    (let [[subtype typename] type]
+      (when (= :userType subtype)
+        ;; We need to walk our scope backwards to find if this usertype has been defined
+        (loop [loc (zip/up ast)]
+          (cond
+
+            (nil? loc)
+            (str "Error on line " (:instaparse.gll/start-line (meta type)) ": type \"" typename "\" for field \"" fieldName "\" is not defined")
+
+            :else
+            (when-not (find-definition-in-msg typename loc)
+              (recur (zip/up loc)))))))))
+
+(defn verify-message [ast]
+  (let [name (get-message-name ast)]
+    (loop [loc (->> ast zip/right zip/right)]
+      (cond
+
+        (nil? loc)
+        nil
+
+        :else
+        (let [node (zip/down loc)
+              type (zip/node node)]
+
+          (if-let [error (when (= type :field)
+                           (verify-field node))]
+            error
+            (recur (zip/right loc))))))))
+
+(defn verify-messages [intf]
+  (loop [loc intf]
+    (cond
+
+      (or (nil? loc) (zip/end? loc))
+      nil
+
+      :else
+      (let [node (zip/node loc)]
+        (if-let [error (when (= node :message)
+                         (verify-message loc))]
+          error
+          (recur (zip/next loc)))))))
+
+(defn verify-intf [intf]
+  (verify-messages intf))
+
 ;;-----------------------------------------------------------------
 ;; takes an interface name, maps it to a file, and if present, compiles
 ;; it to an AST.
@@ -127,7 +211,13 @@
 (defn compileintf [path intf]
   (let [file (open (io/file path "src/interfaces") intf)]
     (println (str "[CCI] parse " (.getName file)))
-    (->> file slurp parse)))
+    (let [ast (->> file slurp parse)]
+
+      (when-let [errors (verify-intf ast)]
+          (util/abort -1 (str "Errors parsing " (.getName file) ": " (string/join errors))))
+
+      ;; return the AST
+      ast)))
 
 ;;-----------------------------------------------------------------
 ;; returns true if the interface contains a message named "Init"
