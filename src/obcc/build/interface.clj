@@ -155,20 +155,27 @@
 ;; 2) All functions reference either void, or reference a valid
 ;;    top-level message for both return and/or input parameters
 ;;-----------------------------------------------------------------
+
+;;-----------------------------------------------------------------
+;; verify-field: fields of type :userType need to reference an
+;; in scope definition (:message or :enum).  Therefore, we need to
+;; walk our scope backwards to find if this usertype has been defined
+;;-----------------------------------------------------------------
 (defn verify-field [ast]
-  (let [{:keys [type fieldName]} (->> ast zip/right getattrs)]
-    (let [[subtype typename] type]
-      (when (= :userType subtype)
-        ;; We need to walk our scope backwards to find if this usertype has been defined
-        (loop [loc (zip/up ast)]
-          (cond
+  (let [{:keys [type fieldName]} (->> ast zip/right getattrs)
+        [subtype typename] type]
+    (when (= :userType subtype)
+      (loop [loc (zip/up ast)]
+        (cond
 
-            (nil? loc)
-            (str "Error on line " (:instaparse.gll/start-line (meta type)) ": type \"" typename "\" for field \"" fieldName "\" is not defined")
+          (nil? loc)
+          (str "Error on line " (:instaparse.gll/start-line (meta type)) ": type \"" typename "\" for field \"" fieldName "\" is not defined")
 
-            :else
-            (when-not (find-definition-in-msg typename loc)
-              (recur (zip/up loc)))))))))
+          (find-definition-in-msg typename loc)
+          nil
+
+          :else
+          (recur (zip/up loc)))))))
 
 (defn verify-message [ast]
   (let [name (get-message-name ast)]
