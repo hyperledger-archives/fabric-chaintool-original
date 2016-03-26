@@ -70,13 +70,23 @@
 ;;-----------------------------------------------------------------
 ;; getX - helper functions to extract data from an interface AST
 ;;-----------------------------------------------------------------
-(defn getattrs [ast]
-  (loop [loc ast attrs {}]
+(defn get-raw-attrs [ast]
+  (loop [loc (zip/right ast) attrs {}]
     (if (nil? loc)
       attrs
       ;; else
       (let [[k v] (zip/node loc)]
         (recur (zip/right loc) (assoc attrs k v))))))
+
+(defn getattrs [ast]
+  (let [{:keys [type] :as attrs} (get-raw-attrs ast)
+        [subType typeName] type]
+    ;; sythesize the subType/typeName fields
+    (merge attrs {:subType subType :typeName typeName})))
+
+(defn get-index [ast]
+  (let [{:keys [index]} (getattrs ast)]
+    index))
 
 (defn getentries [ast]
   (loop [loc ast fields {}]
@@ -86,7 +96,7 @@
       fields
 
       :else
-      (let [attrs (->> loc zip/down zip/right getattrs)]
+      (let [attrs (->> loc zip/down getattrs)]
         (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
 
 (defn get-message-name [ast]
@@ -130,20 +140,20 @@
     (when (or (= type :message) (= type :enum))
       (->> node zip/right zip/node))))
 
-(defn find-definition-in-msg [name ast]
-  ;; each row looks like [:message $name fields...], so "leftmost, right, right" gets the first field
-  (let [type (->> ast zip/down zip/node)
-        start (cond
+(defn find-definition-in-local [name ast]
+  (let [start (zip/leftmost ast)
+        type (zip/node start)]
+    (loop [loc (case type
+                 ;; each :message entry looks like [:message $name fields...],
+                 ;; so "start + right + right" gets the first field
+                 :message (->> start zip/right zip/right)
 
-                (= type :message)
-                (->> ast zip/leftmost zip/right zip/right)
+                 ;; each :interface entry looks like [:interface [:message] [:message] ...],
+                 ;; so "start+right" gets the first msg
+                 :interface (zip/right start)
 
-                (= type :interface)
-                (->> ast zip/down zip/right)
-
-                :else
-                nil)]
-    (loop [loc start]
+                 ;; otherwise, skip
+                 nil)]
       (cond
 
         (nil? loc)
@@ -156,6 +166,26 @@
         (recur (zip/right loc))))))
 
 ;;-----------------------------------------------------------------
+;; get-lineno: get the line number for a given AST entry
+;;-----------------------------------------------------------------
+(defn get-lineno [ast]
+  ;; use the end-line since instaparse includes whitespace and the start-line is typically the previous line
+  (->> ast meta :instaparse.gll/end-line))
+
+;;-----------------------------------------------------------------
+;; error threading helpers
+;;-----------------------------------------------------------------
+(defn bind-error [f [val err]]
+  (if (nil? err)
+    (f val)
+    [nil err]))
+
+(defmacro err->> [val & fns]
+  (let [fns (for [f fns] `(bind-error ~f))]
+    `(->> [~val nil]
+          ~@fns)))
+
+;;-----------------------------------------------------------------
 ;; verify-XX - verify our interface is rational
 ;;-----------------------------------------------------------------
 ;; A sanely defined interface should ensure several things
@@ -163,34 +193,74 @@
 ;; 1) All field types are either scalars or defined within the interface
 ;;    following inner-to-outer scoping.
 ;;
-;; 2) All functions reference either void, or reference a valid
+;; 2) Indexes should never overlap
+;;
+;; 3) All functions reference either void, or reference a valid
 ;;    top-level message for both return and/or input parameters
 ;;-----------------------------------------------------------------
 
 ;;-----------------------------------------------------------------
-;; verify-field: fields of type :userType need to reference an
+;; verify-usertype: fields of type :userType need to reference an
 ;; in scope definition (:message or :enum).  Therefore, we need to
 ;; walk our scope backwards to find if this usertype has been defined
 ;;-----------------------------------------------------------------
-(defn verify-field [ast]
-  (let [{:keys [type fieldName]} (->> ast zip/right getattrs)
-        [subtype typename] type]
-    (when (= :userType subtype)
-      (loop [loc (zip/up ast)]
-        (cond
+(defn verify-usertype [ast]
+  (let [{:keys [typeName fieldName type]} (getattrs ast)]
+    (loop [loc (->> ast zip/up)]
+      (cond
 
-          (nil? loc)
-          (str "line " (:instaparse.gll/start-line (meta type)) ": type \"" typename "\" for field \"" fieldName "\" is not defined")
+        (nil? loc)
+        [nil (str "line " (get-lineno type) ": type \"" typeName "\" for field \"" fieldName "\" is not defined")]
 
-          (find-definition-in-msg typename loc)
-          nil
+        (find-definition-in-local typeName loc)
+        [ast nil]
 
-          :else
-          (recur (zip/up loc)))))))
+        :else
+        (recur (zip/up loc))))))
 
+;;-----------------------------------------------------------------
+;; verify-fieldtype: validate a field according to the type it is
+;;-----------------------------------------------------------------
+(defn verify-fieldtype [ast]
+  (let [{:keys [subType]} (getattrs ast)]
+    (case subType
+      :userType (verify-usertype ast)
+      :scalar [ast nil])))
+
+;;-----------------------------------------------------------------
+;; verify-index: ensures we do not have any duplicate indices
+;;-----------------------------------------------------------------
+(defn verify-index [indices ast]
+  (let [index (get-index ast)]
+    (if (contains? indices index)
+      (let [node (->> ast zip/up zip/node)]
+        [nil (str "line " (get-lineno node) ": duplicate index " index ", previously seen on line " (indices index))])
+      ;; else
+      [ast nil])))
+
+;;-----------------------------------------------------------------
+;; verify-field: ensure a field is valid by running various
+;; verifications such as checking scope resolution for any custom
+;; types, and ensuring our indices do not conflict
+;;-----------------------------------------------------------------
+(defn verify-field [ast indices]
+  (let [[_ error] (err->> ast
+                      verify-fieldtype
+                      #(verify-index indices %))
+        lineno (->> ast zip/up zip/node get-lineno)]
+    (if (nil? error)
+      ;; add our index to the table
+      [(assoc indices (get-index ast) lineno) nil]
+      ;; else, stop on error
+      [indices error])))
+
+;;-----------------------------------------------------------------
+;; verify-message: verify the fields of a message by scanning through
+;; all fields in the AST, skipping non :field types
+;;-----------------------------------------------------------------
 (defn verify-message [ast]
   (let [name (get-message-name ast)]
-    (loop [loc (->> ast zip/right zip/right)]
+    (loop [loc (->> ast zip/right zip/right) _indices {}]
       (cond
 
         (nil? loc)
@@ -198,14 +268,27 @@
 
         :else
         (let [node (zip/down loc)
-              type (zip/node node)]
+              type (zip/node node)
+              [indices error] (case type
+                                   :field (verify-field node _indices)
+                                   [_indices nil])]
 
-          (if-let [error (when (= type :field)
-                           (verify-field node))]
-            error
-            (recur (zip/right loc))))))))
+          (if (nil? error)
+            (recur (zip/right loc) indices)
+            error))))))
 
-(defn verify-messages [intf]
+;;-----------------------------------------------------------------
+;; verify-enum: ensure enum entries do not have any conflicting indices
+;;-----------------------------------------------------------------
+(defn verify-enum [ast]
+  ;;FIXME
+  )
+
+;;-----------------------------------------------------------------
+;; verify-intf: scan the entire interface and validate various
+;; types we encounter
+;;-----------------------------------------------------------------
+(defn verify-intf [intf]
   (loop [loc intf]
     (cond
 
@@ -214,13 +297,12 @@
 
       :else
       (let [node (zip/node loc)]
-        (if-let [error (when (= node :message)
-                         (verify-message loc))]
+        (if-let [error (case node
+                         :message (verify-message loc)
+                         :enum (verify-enum loc)
+                         nil)]
           error
           (recur (zip/next loc)))))))
-
-(defn verify-intf [intf]
-  (verify-messages intf))
 
 ;;-----------------------------------------------------------------
 ;; takes an interface name, maps it to a file, and if present, compiles

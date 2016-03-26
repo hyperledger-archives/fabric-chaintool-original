@@ -98,3 +98,18 @@
 (deftest test-type-resolution
   (let [intf (parse example-type-resolution)]
     (is (nil? (verify-intf intf)))))
+
+(def example-conflicting-index
+  "
+  message Conflict {
+        string foo    = 1;
+        int32  bar    = 2;
+        int32  baz    = 1;
+  }
+
+  "
+  )
+
+(deftest test-conflict-detection
+  (let [intf (parse example-conflicting-index)]
+    (is (some? (verify-intf intf)))))
