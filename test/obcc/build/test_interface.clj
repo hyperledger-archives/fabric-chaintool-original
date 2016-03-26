@@ -80,3 +80,21 @@
 (deftest test-parser-validation
   (let [intf (parse example-undefined-type-cci)]
     (is (some? (verify-intf intf)))))
+
+(def example-type-resolution
+  "
+  message Party {
+        string entity = 1;
+        int32  value  = 2;
+  }
+
+  message Init {
+        Party partyA = 1;
+        Party partyB = 2;
+  }
+  "
+  )
+
+(deftest test-type-resolution
+  (let [intf (parse example-type-resolution)]
+    (is (nil? (verify-intf intf)))))

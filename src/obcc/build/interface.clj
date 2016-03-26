@@ -132,17 +132,28 @@
 
 (defn find-definition-in-msg [name ast]
   ;; each row looks like [:message $name fields...], so "leftmost, right, right" gets the first field
-  (loop [loc (->> ast zip/leftmost zip/right zip/right)]
-    (cond
+  (let [type (->> ast zip/down zip/node)
+        start (cond
 
-      (nil? loc)
-      nil
+                (= type :message)
+                (->> ast zip/leftmost zip/right zip/right)
 
-      (= name (get-definition-name loc))
-      true
+                (= type :interface)
+                (->> ast zip/down zip/right)
 
-      :else
-      (recur (zip/right loc)))))
+                :else
+                nil)]
+    (loop [loc start]
+      (cond
+
+        (nil? loc)
+        nil
+
+        (= name (get-definition-name loc))
+        true
+
+        :else
+        (recur (zip/right loc))))))
 
 ;;-----------------------------------------------------------------
 ;; verify-XX - verify our interface is rational
@@ -169,7 +180,7 @@
         (cond
 
           (nil? loc)
-          (str "Error on line " (:instaparse.gll/start-line (meta type)) ": type \"" typename "\" for field \"" fieldName "\" is not defined")
+          (str "line " (:instaparse.gll/start-line (meta type)) ": type \"" typename "\" for field \"" fieldName "\" is not defined")
 
           (find-definition-in-msg typename loc)
           nil
