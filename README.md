@@ -79,7 +79,7 @@ Command Options:
 
 #### obcc build
 
-Builds your chaincode project into a binary ready for execution on a blockchain.  Various artifacts are emitted to ./build, depending on the platform.  For com.obc.chaincode.golang:
+Builds your chaincode project into a binary ready for execution on a blockchain.  Various artifacts are emitted to ./build, depending on the platform.  For [com.obc.chaincode.golang](./documentation/platforms/golang/README.md):
 
 - ./build/src: shim, protobufs, etc
 - ./build/deps: direct and transitive dependencies of your chaincode, as retrieved by "go get".  NOTE: this option is likely to default to disabled in the future, since it is not a good idea for a validating peer to be pulling dependencies down.  Rather, there should be some fixed number of dependencies that are implicitly included with the platform.  For now, we pull things in dynamically.
@@ -304,3 +304,8 @@ transactions {
 }
 ```
 when placed within the project.cci
+
+# Platforms
+
+The following is a list of the currently supported chaincode platforms
+* [com.obc.chaincode.golang](./documentation/platforms/golang/README.md)
