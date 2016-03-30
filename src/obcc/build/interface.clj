@@ -269,9 +269,9 @@
         :else
         (let [node (zip/down loc)
               type (zip/node node)
-              [indices error] (case type
-                                   :field (verify-field node _indices)
-                                   [_indices nil])]
+              [indices error] (if (= type :field)
+                                (verify-field node _indices)
+                                [_indices nil])]
 
           (if (nil? error)
             (recur (zip/right loc) indices)
