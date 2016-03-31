@@ -22,7 +22,7 @@
             [me.raynes.conch :as conch]
             [me.raynes.conch.low-level :as sh]
             [obcc.build.interface :as intf]
-            [obcc.build.protobuf :as pb]
+            [obcc.protobuf.generate :as pb]
             [obcc.util :as util])
   (:import (java.util ArrayList)
            (org.stringtemplate.v4 STGroupFile))
@@ -153,7 +153,7 @@
         output (io/file outputdir "interface.proto")]
 
     ;; emit the .proto file
-    (pb/generate-file output (package-name name) interface)
+    (pb/to-file output (package-name name) interface)
 
     ;; execute the protoc compiler to generate golang
     (protoc-cmd outputdir output)))

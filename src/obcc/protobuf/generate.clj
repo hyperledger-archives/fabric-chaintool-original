@@ -15,7 +15,7 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns obcc.build.protobuf
+(ns obcc.protobuf.generate
   (:require [clojure.java.io :as io]
             [obcc.build.interface :as intf]
             [obcc.util :as util])
@@ -46,11 +46,11 @@
     (into {} (map #(vector (.name %) %) msgs))))
 
 ;;-----------------------------------------------------------------
-;; generate-string - compiles the interface into a protobuf
+;; to-string - compiles the interface into a protobuf
 ;; specification in a string, suitable for writing to a file or
 ;; passing to protoc
 ;;-----------------------------------------------------------------
-(defn generate-string [package [name ast]]
+(defn to-string [package [name ast]]
   (let [messages (buildmessages ast)
         stg  (STGroupFile. "generators/proto.stg")
         template (.getInstanceOf stg "protobuf")]
@@ -60,8 +60,8 @@
     (.render template)))
 
 ;;-----------------------------------------------------------------
-;; generate-file - generates a protobuf specification and writes
+;; to-file - generates a protobuf specification and writes
 ;; it to a file
 ;;-----------------------------------------------------------------
-(defn generate-file [filename package interface]
-  (util/truncate-file filename (generate-string package interface)))
+(defn to-file [filename package interface]
+  (util/truncate-file filename (to-string package interface)))
