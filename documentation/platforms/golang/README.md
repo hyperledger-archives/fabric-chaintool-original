@@ -1,29 +1,30 @@
-# com.obc.chaincode.golang Plaform
-The canonical chaincode environment utilizes golang as its language.  This chapter documents how OBCC interfaces between the language neutral features (such as .cci interfaces), the OBC peer, and your application chaincode written in Go.
+# Openblockchain GO Language Chaincode Platform
+The Openblockchain framework provides support for chaincode written in the Go language. The OBC peer provide a complete execution environment for Go programs. This README describes the Go platform-specific interface code that OBCC generates from the language neutral interface definitions and specifies the conventions applications written in Go must adhere to in order to execute in the OBC Go environment. Basic familarity with the structure and function of obcc as described in the top level README file is assumed.
 ## Environment
-Any invocation of 'obcc build*' will automatically manage the $GOPATH environment as an amalgam of the current environment variable and your chaincode project.  Your chaincode project need _not_ be visible within the current $GOPATH for your sources (or any of the compiler generated sources) to be included properly.  It will effectively include the following paths:
-* $project-root/build/deps
-  - Direct and transitive dependencies of your application as retrieved by _go get_.  This will likely be disabled during peer builds in the future, but it remains on by default for now for convenience while the libraries defined as part of the platform are ironed out.
-* $project-root/build
-  - Default location for compiler generated artifacts
-* $project-root
-  - Location for your project files, typically under $project-root/src/chaincode
+Any invocation of 'obcc build*' will automatically synthesize the correct value for the $GOPATH environment variable based on the current value of the variable and path of your chaincode project tree. Your chaincode project tree need _not_ be located within directory hierarchy defined by the current value of $GOPATH. The 'obcc build' command will ensures that the build correctly includes Go code from following paths (where $PROJECT_ROOT is the root directory of the application chaincode.)
+* $PROJECT_ROOT/build/deps
+  - Direct and transitive dependencies of your application as retrieved by _go get_.  (Please note: it is highly unlikey that production OBC peers will use  _go get_ to resolve dependencies. This use of _go get_ is an artifact of ongoing OBC development; reducing development friction as the platform dependencies are refined. Operationally all dependencies will be explicit.
+* $PROJECT_ROOT/build
+  - Root directory of the default location for compiler generated artifacts
+* $PROJECT_ROOT
+  - Root directory for your project files. Typically all application code is stored under $PROJECT_ROOT/src/chaincode.
 * current $GOPATH as set in the environment
 
 ## Chaincode Integration
 ### Entry-point
-Your chaincode entry-point _func main()_ is placed in the package "chaincode" under $project-root/src/chaincode.   Other packages may be placed in other locations and imported by your entry-point module using standard golang mechanisms, typically somewhere under $project-root/src.  Any files that are under $project-root/src will be included in the final CCA package.
+Your chaincode entry-point _func main()_ should be placed in a file stored in a directory under $PROJECT_ROOT/src/chaincode/. The function should be part of a package called "chaincode". Other packages may be placed in files stored in other locations in the $PROJECT_ROOT directory hierarchy and may be imported by your entry-point module using standard golang mechanisms. (The typical Go convention is to place source files in directories rooted at $PROJECT_ROOT/src.) Any Go files that are stored under $PROJECT_ROOT/src will be included in the final CCA package.
 ### Imports
-Chaincode applications will want to import from 4 primary areas in addition to any needed for the application logic:
-* openblockchain/ccs - chaincode support
-  - general generated shim logic output by the compiler
-* openblockchain/cci - chaincode interface
-  - each declared interface is placed under a golang package based on the name of the .cci file.  For instance "com.foo.bar.cci" is placed in the package "bar" under the path $GOPATH/src/openblockchain/cci/com/foo/bar
+In addition to any packages imported as part of your application logic your chaincode will import packages from four other locations.
+* openblockchain/ccs  - "chaincode support"
+  - generated "shim" code produced by the obcc compiler
+* openblockchain/cci/... - "chaincode interface"
+  - Go code which implements the interfaces defined in the application's .cci files including the required projiect.cci. The functions are placed in a package the name of which is generated from the name of the .cci file. The path to these files is likewise generated from the name of the .cci file. For example code generated from a file named "com.foo.bar.cci" is placed in the package "bar" under the path $PROJECT_ROOT/src/openblockchain/cci/com/foo/bar
 * github.com/golang/protobuf/proto - google protocol buffer support
-  - needed to encode/decode PB objects generated by the shim layers
-* github.com/openblockchain/obc-peer/openchain/chaincode/shim - pulls in general OBC chaincode support
+  - Go implementation of Google Protocol Buffers. Protocol Buffers are used by the obcc generated code to encode messages used by chaincode.
+* github.com/openblockchain/obc-peer/openchain/chaincode/shim - generic OBC chaincode support
+  - Common Go language support for required chaincode operations.
 
-For example:
+Here's the import section required for the 'example02' sample chaincode. This application includes "com.obc.chaincode.example02.cci" and "project.cci" located in $PROJECT_ROOT/src/interfaces/.
 ```
 import (
 	"openblockchain/ccs"
@@ -35,7 +36,7 @@ import (
 )
 ```
 ### Hooks and Registration
-Each chaincode application is responsible for calling ccs.Start() to register itself as chaincode with the peer.  ccs.Start() takes a pointer to a ccs.ShimHandler{} structure.  This structure is generated by the compiler and placed within $project-root/build/src/openblockchain/ccs/shim.go as an aggregate of all of the CCI interfaces declared as _provided_.  It is the callers responsibility to provide a pointer to each interface declared.  It is idiomatic to create one interface (e.g. "ChaincodeExample", as per below) to handle all interfaces.  However, for special circumstances such as function-name collisions, the caller may wish to dispatch certain interfaces to different handlers.
+Each chaincode application must call ccs.Start() to register itself as chaincode with the peer. The ccs.Start() function takes a pointer to a ccs.ShimHandler{} structure. This structure is generated by the compiler and placed in the file $PROJECT_ROOT/build/src/openblockchain/ccs/shim.go. It aggregates all of the CCI interfaces declared as _provided_ in the application configuration.  It is the application programmer's responsibility to provide an implementation for each interface declared.  It is idiomatic to create one implementation structure (e.g. "ChaincodeExample", as shown below) to handle all interfaces.  However, for special circumstances such as function-name collisions, the caller may wish to dispatch certain interfaces to different handlers.
 ```
 type ChaincodeExample struct {
 }
@@ -53,7 +54,7 @@ func main() {
 ```
 
 ### Callbacks
-Every _provided_ interface requires an implementation for any _transactions_ or _queries_.  There is generally a 1:1 mapping between the CCI declaration and the required function signature in your code.  For instance, the following CCI declaration:
+For each interface declared in the _provided_ section of the application configuration the application programmer must provide implementations for all the functions specified in the respective _transactions_ or _queries_ declarations.  There is generally a 1:1 mapping between the CCI declaration and the required function signature in your code.  For instance, the following CCI declaration:
 ```
 queries {
         BalanceResult CheckBalance(Entity) = 1;
@@ -63,10 +64,10 @@ requires a function signature that looks like:
 ```
 func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *example02.Entity) (*example02.BalanceResult, error) {}
 ```
-Most notably, every callback always takes a shim.ChaincodeStub pointer as its first parameter, followed by an input parameter and return parameter as declared in the interface definition.  Functions that return _void_ simply return a single _error_ rather than _(type, error)_.
-## Generated Code Structure
+Every callback requires a shim.ChaincodeStub pointer as its first parameter, followed by an input parameter and return parameter as declared in the interface definition.  Functions that return _void_ simply return a single _error_ rather than _(type, error)_.
+## Generated Code File Structure
 ### Overview
-All generated code is placed under $project-root/build, which as mentioned earlier is implicitly included in the $GOPATH.  Interfaces are emitted to build/src/openblockchain/cci, and general chaincode support shims are emitted to build/src/openblockchain/ccs.
+All generated code is placed in directories rooted at $PROJECT_ROOT/build which, as mentioned earlier, is implicitly included in the $GOPATH. Interfaces are emitted to $PROJECT_ROOT/build/src/openblockchain/cci/..., and general chaincode support shims are emitted to $PROJECT_ROOT/build/src/openblockchain/ccs.
 ```
 build/src/
 └── openblockchain
@@ -86,7 +87,7 @@ build/src/
         └── shim.go
 ```
 ### Interfaces
-Interfaces consist of 4 major artifact types per declared interface:
+The obcc compiler generates up to four artifact types per declared interface:
 * interface.proto - The google protobuf definition derived from the corresponding .cci definition.
 * interface.pb.go - The compiled protobuf definition, as emitted by _protoc --go_out_.
 * server-shim.go - The server-side shim for a provided interface.
