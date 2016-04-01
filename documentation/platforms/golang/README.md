@@ -1,26 +1,29 @@
 # Openblockchain GO Language Chaincode Platform
 The Openblockchain framework provides support for chaincode written in the Go language. The OBC peer provide a complete execution environment for Go programs. This README describes the Go platform-specific interface code that OBCC generates from the language neutral interface definitions and specifies the conventions applications written in Go must adhere to in order to execute in the OBC Go environment. Basic familarity with the structure and function of obcc as described in the top level README file is assumed.
 ## Environment
-Any invocation of 'obcc build*' will automatically synthesize the correct value for the $GOPATH environment variable based on the current value of the variable and path of your chaincode project tree. Your chaincode project tree need _not_ be located within directory hierarchy defined by the current value of $GOPATH. The 'obcc build' command will ensures that the build correctly includes Go code from following paths (where $PROJECT_ROOT is the root directory of the application chaincode.)
+Any invocation of 'obcc build*' will automatically synthesize the correct value for the $GOPATH environment variable based on the current value of the variable and the path of your chaincode project tree. Your chaincode project tree need _not_ be located within the directory hierarchy defined by the current value of $GOPATH. The 'obcc build' command will ensures that the build correctly includes Go code from following paths (where $PROJECT_ROOT is the root directory of your application chaincode.)
 * $PROJECT_ROOT/build/deps
-  - Direct and transitive dependencies of your application as retrieved by _go get_.  (Please note: it is highly unlikey that production OBC peers will use  _go get_ to resolve dependencies. This use of _go get_ is an artifact of ongoing OBC development; reducing development friction as the platform dependencies are refined. Operationally all dependencies will be explicit.
+  - Direct and transitive dependencies of your application as retrieved by _go get_.  (Please note: it is highly unlikely that production OBC peers will use  _go get_ to resolve dependencies. This use of _go get_ is an artifact of ongoing OBC development; reducing development friction as the platform dependencies are refined. Operationally all dependencies will be explicit.
 * $PROJECT_ROOT/build
-  - Root directory of the default location for compiler generated artifacts
+  - Root directory of the default location for compiler generated artifacts.
 * $PROJECT_ROOT
-  - Root directory for your project files. Typically all application code is stored under $PROJECT_ROOT/src/chaincode.
-* current $GOPATH as set in the environment
+  - Root directory for your application source files. Typically all application code is stored under $PROJECT_ROOT/src/chaincode.
+* current $GOPATH as set in the environment.
 
 ## Chaincode Integration
 ### Entry-point
-Your chaincode entry-point _func main()_ should be placed in a file stored in a directory under $PROJECT_ROOT/src/chaincode/. The function should be part of a package called "chaincode". Other packages may be placed in files stored in other locations in the $PROJECT_ROOT directory hierarchy and may be imported by your entry-point module using standard golang mechanisms. (The typical Go convention is to place source files in directories rooted at $PROJECT_ROOT/src.) Any Go files that are stored under $PROJECT_ROOT/src will be included in the final CCA package.
+Your chaincode entry-point _func main()_ should be placed in a file stored in a directory under $PROJECT_ROOT/src/chaincode/. The function should be part of a package called "chaincode". Other packages may be placed in files stored in other locations in the $PROJECT_ROOT directory hierarchy and may be imported by your entry-point module using standard golang mechanisms. (The typical Go convention is to place source files in directories rooted at $PROJECT_ROOT/src). Any Go files that are stored under $PROJECT_ROOT/src will be included in the final CCA package.
 ### Imports
 In addition to any packages imported as part of your application logic your chaincode will import packages from four other locations.
 * openblockchain/ccs  - "chaincode support"
   - generated "shim" code produced by the obcc compiler
+
 * openblockchain/cci/... - "chaincode interface"
   - Go code which implements the interfaces defined in the application's .cci files including the required projiect.cci. The functions are placed in a package the name of which is generated from the name of the .cci file. The path to these files is likewise generated from the name of the .cci file. For example code generated from a file named "com.foo.bar.cci" is placed in the package "bar" under the path $PROJECT_ROOT/src/openblockchain/cci/com/foo/bar
+
 * github.com/golang/protobuf/proto - google protocol buffer support
   - Go implementation of Google Protocol Buffers. Protocol Buffers are used by the obcc generated code to encode messages used by chaincode.
+
 * github.com/openblockchain/obc-peer/openchain/chaincode/shim - generic OBC chaincode support
   - Common Go language support for required chaincode operations.
 
