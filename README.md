@@ -1,20 +1,20 @@
 [![Build Status](https://travis-ci.org/ghaskins/obcc.svg?branch=master)](https://travis-ci.org/ghaskins/obcc)
 
-# obcc - openblockchain compiler (Work In Progress)
+# hlcc - Hyperledger Chaincode Compiler (Work In Progress)
 
 ## Introduction
 
-obcc is a proposal for a toolchain to assist in various phases of [openblockchain](https://github.com/openblockchain) chaincode development, such as compilation, test, packaging, and deployment.
+hlcc is a proposal for a toolchain to assist in various phases of [hyperledger](https://github.com/hyperledger) chaincode development, such as compilation, test, packaging, and deployment.
 
 ### Why?
 
 Current chaincode development is rather unstructured outside of the coarse-level callbacks for invoke or query passing a {function-name, argument-array} string-based tuple.  The result of this is that input translation/validation is a manual, explicit, and likely fragile process in each chaincode function.  Additionally, any potential chaincode consumer needs to study the chaincode source in order to ascertain its API.
 
-Consider that some chaincode applications may employ OBC confidentiality to hide their source, while others may wish to employ alternative programming languages.  This aside, chaincode deployment lifecycles may be long enough to require us to be aware of managing potential API incompatibilities between the chaincode and its clients.  It starts to become clear that there are some advantages to allowing chaincode to express its API interfaces in a way that is independent from the underlying implementation/language and in a manner that supports some form of schema management.
+Consider that some chaincode applications may employ confidentiality to hide their source, while others may wish to employ alternative programming languages.  This aside, chaincode deployment lifecycles may be long enough to require us to be aware of managing potential API incompatibilities between the chaincode and its clients.  It starts to become clear that there are some advantages to allowing chaincode to express its API interfaces in a way that is independent from the underlying implementation/language and in a manner that supports some form of schema management.
 
-OBCC helps in this regard by allowing applications to declare/consume one or more language neutral interface-definitions and package it with the project.  It helps the developer by generating shim/stub code in their chosen programming language that helps them implement and/or consume the interfaces declared.  This means that external parties may introspect a given instance for its interface(s) in a language neutral manner without requiring access to and/or an ability to decipher the underlying code.  It also means that we can use [protobufs](https://developers.google.com/protocol-buffers/) to help with various API features such as managing forwards/backwards compatibility, endian neutrality, basic type validation, etc in a largely transparent manner.
+HLCC helps in this regard by allowing applications to declare/consume one or more language neutral interface-definitions and package it with the project.  It helps the developer by generating shim/stub code in their chosen programming language that helps them implement and/or consume the interfaces declared.  This means that external parties may introspect a given instance for its interface(s) in a language neutral manner without requiring access to and/or an ability to decipher the underlying code.  It also means that we can use [protobufs](https://developers.google.com/protocol-buffers/) to help with various API features such as managing forwards/backwards compatibility, endian neutrality, basic type validation, etc in a largely transparent manner.
 
-OBCC provides some other benefits too, such as consistent language-neutral packaging and chaincode hashing, which help to simplify both the obc-peer implementation and developer burden.
+HLCC provides some other benefits too, such as consistent language-neutral packaging and chaincode hashing, which help to simplify both the hyperledger fabric implementation and developer burden.
 
 ## Getting Started
 
@@ -29,10 +29,10 @@ OBCC provides some other benefits too, such as consistent language-neutral packa
 ### Usage
 
 ```
-$ obcc -h
-obcc version: v0.4
+$ hlcc -h
+hlcc version: v0.4
 
-Usage: obcc [general-options] action [action-options]
+Usage: hlcc [general-options] action [action-options]
 
 General Options:
   -v, --version  Print the version and exit
@@ -46,23 +46,23 @@ Actions:
   unpack -> Unpackage a CCA file
   lscca -> List the contents of a CCA file
 
-(run "obcc <action> -h" for action specific help)
+(run "hlcc <action> -h" for action specific help)
 ```
-### Working with OBCC
+### Working with HLCC
 
-The idiomatic way to use obcc is to treat it similar to other build tools such as Make, Maven, or Leiningen.  That is, by default it expects to be executed from within your [project root](#project-structure).  Subcommands such as _build_, _clean_, and _package_ fall into this category.  You can run it outside of a project root by using the "-p" switch to these commands to inform OBCC where your project root is when it is not the current directory.
+The idiomatic way to use hlcc is to treat it similar to other build tools such as Make, Maven, or Leiningen.  That is, by default it expects to be executed from within your [project root](#project-structure).  Subcommands such as _build_, _clean_, and _package_ fall into this category.  You can run it outside of a project root by using the "-p" switch to these commands to inform HLCC where your project root is when it is not the current directory.
 
 Other commands such as _buildcca_, _unpack_, and _lscca_ are designed to operate against a Chaincode Archive (CCA) from a previous _package_ operation.  These commands expect a path to a CCA file.
 
-In all cases, you may obtain subcommand specific help by invoking "obcc _$subcommand_ -h".  For example:
+In all cases, you may obtain subcommand specific help by invoking "hlcc _$subcommand_ -h".  For example:
 
 ```
-$ obcc package -h
-obcc version: v0.4
+$ hlcc package -h
+hlcc version: v0.4
 
-Description: obcc package - Package the chaincode into a CCA file for deployment
+Description: hlcc package - Package the chaincode into a CCA file for deployment
 
-Usage: obcc package [options]
+Usage: hlcc package [options]
 
 Command Options:
   -o, --output NAME          path to the output destination
@@ -77,37 +77,37 @@ Command Options:
 
 ### Subcommand Details
 
-#### obcc build
+#### hlcc build
 
-Builds your chaincode project into a binary ready for execution on a blockchain.  Various artifacts are emitted to ./build, depending on the platform.  For [com.obc.chaincode.golang](./documentation/platforms/golang/README.md):
+Builds your chaincode project into a binary ready for execution on a blockchain.  Various artifacts are emitted to ./build, depending on the platform.  For [org.hyperledger.chaincode.golang](./documentation/platforms/golang/README.md):
 
 - ./build/src: shim, protobufs, etc
 - ./build/deps: direct and transitive dependencies of your chaincode, as retrieved by "go get".  NOTE: this option is likely to default to disabled in the future, since it is not a good idea for a validating peer to be pulling dependencies down.  Rather, there should be some fixed number of dependencies that are implicitly included with the platform.  For now, we pull things in dynamically.
 - ./build/bin: the default location for the binary generated (override with -o)
 
-#### obcc clean
+#### hlcc clean
 
 Cleans a chaincode project.  This typically translates to removing the ./build directory, but platforms are free to define this as they see fit and may perform additional or alternative operations.
 
-#### obcc package
+#### hlcc package
 
 Packages the sourcecode, interfaces, chaincode.yaml, and other project data into a .cca file suitable for deployment.  Note that any artifacts generated by commands such as _build_ and _buildcca_ are _not_ included but rather will be rebuilt locally by each validating peer in the network.
 
 Implicitly runs the "lscca" command on the result to display details about the package.
 
 ```
-vagrant@obc-devenv:v0.0.7-2ec7137:~ $ obcc package -p /opt/gopath/src/github.com/openblockchain/obc-peer/openchain/example/chaincode/cca/example02/
-Writing CCA to: /opt/gopath/src/github.com/openblockchain/obc-peer/openchain/example/chaincode/cca/example02/build/com.obc.chaincode.example02-0.1-SNAPSHOT.cca
-Using path /opt/gopath/src/github.com/openblockchain/obc-peer/openchain/example/chaincode/cca/example02/ ["src" "chaincode.yaml"]
-|------+------------------------------------------+------------------------------------------------|
-| Size |                   SHA1                   |                      Path                      |
-|------+------------------------------------------+------------------------------------------------|
-| 456  | fc4ad46e08416ffde454b7dfeeba4270a075ef7f | chaincode.yaml                                 |
-| 3630 | 55d1754539a3c25033faae53b00022494c70939b | src/chaincode/chaincode_example02.go           |
-| 375  | 9492a1e96f380a97bba1f16f085fc70140154c65 | src/interfaces/com.obc.chaincode.example02.cci |
-| 143  | 7305f65e18e4aab860b201d40916bb7adf97544f | src/interfaces/project.cci                     |
-|------+------------------------------------------+------------------------------------------------|
-Platform:            com.obc.chaincode.golang version 1
+vagrant@hyperledger-devenv:v0.0.7-2ec7137:~ $ hlcc package -p /opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/cca/example02/
+Writing CCA to: /opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/cca/example02/build/org.hyperledger.chaincode.example02-0.1-SNAPSHOT.cca
+Using path /opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/cca/example02/ ["src" "chaincode.yaml"]
+|------+------------------------------------------+--------------------------------------------------------|
+| Size |                   SHA1                   |                      Path                              |
+|------+------------------------------------------+--------------------------------------------------------|
+| 456  | fc4ad46e08416ffde454b7dfeeba4270a075ef7f | chaincode.yaml                                         |
+| 3630 | 55d1754539a3c25033faae53b00022494c70939b | src/chaincode/chaincode_example02.go                   |
+| 375  | 9492a1e96f380a97bba1f16f085fc70140154c65 | src/interfaces/org.hyperledger.chaincode.example02.cci |
+| 143  | 7305f65e18e4aab860b201d40916bb7adf97544f | src/interfaces/project.cci                             |
+|------+------------------------------------------+--------------------------------------------------------|
+Platform:            org.hyperledger.chaincode.golang version 1
 Digital Signature:   none
 Raw Data Size:       4604 bytes
 Archive Size:        2315 bytes
@@ -115,49 +115,49 @@ Compression Alg:     gzip
 Chaincode SHA3:      98493521a198d0a93cc07c4451616efebbe96eb2655dd38357c4e0c495bcae3ff3de14bc2287c70bc6c67968669871dc32164bb48e9765c97fb843a2cd7a0f78
 ```
 
-#### obcc lscca
+#### hlcc lscca
 
-Displays the contents of an existing .cca file (see 'obcc package' for an output example)
+Displays the contents of an existing .cca file (see 'hlcc package' for an output example)
 
-#### obcc unpack
+#### hlcc unpack
 
 Unpacks a .cca archive into the filesystem as a chaincode project.
 
-#### obcc buildcca
+#### hlcc buildcca
 
 Combines _unpack_ with _build_ by utilizing a temporary directory.  This allows a project to be built from a .cca file without explicitly unpacking it first, as a convenience.
 
 ## Project Structure
 
-Like many modern build tools, OBCC is opinionated.  It expects a specific structure to your project as follows:
+Like many modern build tools, HLCC is opinionated.  It expects a specific structure to your project as follows:
 
 - [chaincode.yaml](./testdata/example02/chaincode.yaml) in the top-level directory of your project (discussed below)
 - a chaincode entry-point in ./src/chaincode ([example](./testdata/example02/src/chaincode/chaincode_example02.go))
-- interface files in ./src/interfaces ([example](./testdata/example02/src/interfaces/com.obc.chaincode.example02.cci))
+- interface files in ./src/interfaces ([example](./testdata/example02/src/interfaces/org.hyperledger.chaincode.example02.cci))
    - every project must define a project interface ./src/interfaces/project.cci ([example](./testdata/example02/src/interfaces/project.cci))
 
 ### chaincode.yaml
 
-_chaincode.yaml_ is the central configuration file for a given obcc-managed chaincode project.  An example looks like this:
+_chaincode.yaml_ is the central configuration file for a given hlcc-managed chaincode project.  An example looks like this:
 
 ```
 # ----------------------------------
 # chaincode example02
 # ----------------------------------
 #
-# Copyright (C) 2016 - OpenBlockChain
+# Copyright (C) 2016 - Hyperledger
 # All rights reserved
 #
 
 Schema:  1
-Name:    com.obc.chaincode.example02
+Name:    org.hyperledger.chaincode.example02
 Version: 0.1-SNAPSHOT
 
 Platform:
-        Name: com.obc.chaincode.golang
+        Name: org.hyperledger.chaincode.golang
         Version: 1
 
-Provides: [self] # 'self' is a keyword that means there should be $name.cci (e.g. com.obc.chaincode.example02.cci)
+Provides: [self] # 'self' is a keyword that means there should be $name.cci (e.g. org.hyperledger.chaincode.example02.cci)
 ```
 
 All chaincode.yaml should minimally contain:
@@ -172,15 +172,15 @@ This helps to relay compatibility with the structures used in the chaincode.yaml
 
 #### Project name/version
 
-This is something that should uniquely identify your chaincode project for human/UX consumption.  It is generally advised that a DNS name of some kind be incorporated to promote global uniqueness.  Note that the OBC subsystem in general does not interpret these names in any meaningful way other than for display purposes.
+This is something that should uniquely identify your chaincode project for human/UX consumption.  It is generally advised that a DNS name of some kind be incorporated to promote global uniqueness.  Note that the Hyperledger subsystem in general does not interpret these names in any meaningful way other than for display purposes.
 
 #### Platform
 
-It is here that a chaincode may declare the compatibility/conformity to a specific platform.  The idea is to promote extensibility (e.g. other platforms may be added in the future) and also compatility (e.g. platform X, version Y may mean something very specifically about the type of chaincode language supported, the ABI for any peripheral libraries, etc).  It is analogous to the notion that java 1.7 is a different ABI than java 1.8, etc.  At the time of writing, the only supported platform is com.obc.chaincode.golang version 1.  More platforms may be added in the future.
+It is here that a chaincode may declare the compatibility/conformity to a specific platform.  The idea is to promote extensibility (e.g. other platforms may be added in the future) and also compatility (e.g. platform X, version Y may mean something very specifically about the type of chaincode language supported, the ABI for any peripheral libraries, etc).  It is analogous to the notion that java 1.7 is a different ABI than java 1.8, etc.  At the time of writing, the only supported platform is org.hyperledger.chaincode.golang version 1.  More platforms may be added in the future.
 
 ##### Adding platforms
 
-The only core requirement is that both OBCC and the chosen OBC network are in agreement to support said platform.  The details of implementing this are "coming soon".
+The only core requirement is that both HLCC and the chosen Hyperledger network are in agreement to support said platform.  The details of implementing this are "coming soon".
 
 #### Interface Declarations
 
@@ -189,15 +189,15 @@ Interfaces (as included in ./src/interfaces) may be in one or two categories: Pr
 Both Provides and Consumes are expressed as an array of 1 or more entries.  For example:
 
 ```
-Provides: [com.obc.chaincode.example02, com.obc.chaincode.example03]
-Consumes: [com.obc.chaincode.example02]
+Provides: [org.hyperledger.chaincode.example02, org.hyperledger.chaincode.example03]
+Consumes: [org.hyperledger.chaincode.example02]
 ```
 
 If there aren't any interfaces in a particular category, the entry may be omitted.  Note that a chaincode that doesn't provide any interfaces doesn't sound particularly useful, however.  Therefore, it is expected that every project will include at least a Provides clause.
 
 ##### "self"
 
-The keyword _self_ may be used as shorthand for an interface that shares the same name as the project (for instance, the com.obc.chaincode.example02 project surfacing the com.obc.chaincode.example02.cci interface), as a convenience.  It is idiomatic for a project to name its primary interfaces after itself, and therefore this shortcut is expected to be commonly used.  Example:
+The keyword _self_ may be used as shorthand for an interface that shares the same name as the project (for instance, the org.hyperledger.chaincode.example02 project surfacing the org.hyperledger.chaincode.example02.cci interface), as a convenience.  It is idiomatic for a project to name its primary interfaces after itself, and therefore this shortcut is expected to be commonly used.  Example:
 
 ```
 Provides: [self]
@@ -205,7 +205,7 @@ Provides: [self]
 
 ### Chaincode
 
-The opinionated portion of chaincode path solely applies to the entry-point for your application.  Other paths for non-entry point code are generally fine if you are using a language that supports namespaces, etc.  For instance, the com.obc.chaincode.golang platform assumes a $GOPATH of ./src and tries to build "chaincode" (via $GOPATH/src/chaincode).  However, if your chaincode uses go imports such as:
+The opinionated portion of chaincode path solely applies to the entry-point for your application.  Other paths for non-entry point code are generally fine if you are using a language that supports namespaces, etc.  For instance, the org.hyperledger.chaincode.golang platform assumes a $GOPATH of ./src and tries to build "chaincode" (via $GOPATH/src/chaincode).  However, if your chaincode uses go imports such as:
 
 ```golang
 import (
@@ -308,4 +308,4 @@ when placed within the project.cci
 # Platforms
 
 The following is a list of the currently supported chaincode platforms
-* [com.obc.chaincode.golang](./documentation/platforms/golang/README.md)
+* [org.hyperledger.chaincode.golang](./documentation/platforms/golang/README.md)

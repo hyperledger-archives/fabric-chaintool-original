@@ -1,4 +1,4 @@
-NAME=obcc
+NAME=hlcc
 LEIN = $(shell which lein || echo ./lein)
 BINDIR ?= /usr/bin
 OUTPUT=target/$(NAME)

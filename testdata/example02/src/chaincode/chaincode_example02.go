@@ -24,12 +24,12 @@ import (
 	"fmt"
 	"strconv"
 
-	"openblockchain/ccs"
-	"openblockchain/cci/project"
-	"openblockchain/cci/com/obc/chaincode/example02"
+	"hyperledger/ccs"
+	"hyperledger/cci/project"
+	"hyperledger/cci/org/hyperledger/chaincode/example02"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/openblockchain/obc-peer/openchain/chaincode/shim"
+	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
 type ChaincodeExample struct {

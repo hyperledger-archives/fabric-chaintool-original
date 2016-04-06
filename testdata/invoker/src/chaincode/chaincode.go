@@ -22,11 +22,11 @@ package chaincode
 import (
 	"fmt"
 
-	"openblockchain/ccs"
-	"openblockchain/cci/com/obc/chaincode/example02"
-	"openblockchain/cci/project"
+	"hyperledger/ccs"
+	"hyperledger/cci/org/hyperledger/chaincode/example02"
+	"hyperledger/cci/project"
 
-	"github.com/openblockchain/obc-peer/openchain/chaincode/shim"
+	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
 type ChaincodeExample struct {

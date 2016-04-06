@@ -3,7 +3,7 @@
 # chaincode invoker
 # -----------------------------------------------------------------------
 #
-# Copyright (C) 2016 - OpenBlockChain
+# Copyright (C) 2016 - Hyperledger
 # All rights reserved
 #
 # This example demonstrates chaincode to chaincode invoke.  This example
@@ -11,15 +11,15 @@
 #
 
 Schema:  1
-Name:    com.obc.chaincode.example.invoker
+Name:    org.hyperledger.chaincode.example.invoker
 Version: 0.1-SNAPSHOT
 
 Platform:
-        Name: com.obc.chaincode.golang
+        Name: org.hyperledger.chaincode.golang
         Version: 1
 
-Provides: [com.obc.chaincode.example02]
-Consumes: [com.obc.chaincode.example02]
+Provides: [org.hyperledger.chaincode.example02]
+Consumes: [org.hyperledger.chaincode.example02]
 
 
 
