@@ -46,7 +46,7 @@
 	<key>Creator</key>
 	<string>Greg Haskins</string>
 	<key>DisplayScale</key>
-	<string>1 0/72 in = 1 0/72 in</string>
+	<string>1 0/72 in = 1.0000 in</string>
 	<key>GraphDocumentVersion</key>
 	<integer>8</integer>
 	<key>GraphicsList</key>
@@ -325,7 +325,7 @@
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
 
-\f0\fs20 \cf0 obc-peer chain code deploy}</string>
+\f0\fs20 \cf0 fabric chaincode deploy}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
 			</dict>
@@ -378,7 +378,7 @@
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
 
-\f0\fs20 \cf0 obcc package}</string>
+\f0\fs20 \cf0 hlcc package}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
 			</dict>
@@ -699,7 +699,7 @@
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
 
-\f0\fs20 \cf0 obcc build}</string>
+\f0\fs20 \cf0 hlcc build}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
 			</dict>
@@ -854,7 +854,7 @@
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2016-03-06 02:48:19 +0000</string>
+	<string>2016-04-06 19:48:49 +0000</string>
 	<key>Modifier</key>
 	<string>Greg Haskins</string>
 	<key>NotesVisible</key>
