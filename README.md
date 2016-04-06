@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ghaskins/obcc.svg?branch=master)](https://travis-ci.org/ghaskins/obcc)
+[![Build Status](https://travis-ci.org/ghaskins/hlcc.svg?branch=master)](https://travis-ci.org/ghaskins/hlcc)
 
 # hlcc - Hyperledger Chaincode Compiler (Work In Progress)
 
