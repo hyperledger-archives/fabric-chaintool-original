@@ -328,30 +328,21 @@
       true
       false)))
 
-;;-----------------------------------------------------------------
-;; sythesize the project::Init() transaction
-;;
-;; We allow the user to omit declaring an explicit transaction { void Init() }
-;; in the project.cci by simply specifying a message named "Init".  We will
-;; then sythesize a transaction with the signature "void Init(Init) = 1;"
-;;-----------------------------------------------------------------
-(def inittxn [:transactions [:function [:rettype "void"] [:functionName "Init"] [:param "Init"] [:index "1"]]])
-
-(defn synthinit [interfaces]
+(defn verify-init [interfaces]
   (let [ast (interfaces "project")]
     (cond
 
-      ;; do not synthesize anything if there are explicit transactions defined
-      (ast/find :transactions ast)
-      interfaces
+      ;; We do not allow any explicit transactions or queries in the project interface
+      (or (ast/find :transactions ast) (ast/find :queries ast))
+      (str "project.cci: illegal RPCs detected")
 
       ;; We cannot continue if the user didnt supply a message "Init"  which will
-      ;; serve as the implicit parameter to our synthesized init function
+      ;; serve as the implicit parameter to our init function
       (not (initmsg? ast))
-      (util/abort -1 (str "project.cci: message Init{} not found"))
+      (str "project.cci: message Init{} not found")
 
       :else
-      (assoc interfaces "project" (-> ast (zip/append-child inittxn) zip/root zip/vector-zip)))))
+      nil)))
 
 ;;-----------------------------------------------------------------
 ;; compile all applicable interfaces into a map of ASTs keyed by interface name
@@ -359,4 +350,8 @@
 (defn compile [path config]
   (let [names (getinterfaces config)
         interfaces (into {} (map #(vector % (compileintf path %)) names))]
-    (synthinit interfaces)))
+
+    ;; sanity check the project interface
+    (if-let [err (verify-init interfaces)]
+      (util/abort -1 err)
+      interfaces)))

@@ -137,13 +137,15 @@
 ;;-----------------------------------------------------------------
 ;; emit-shim
 ;;-----------------------------------------------------------------
-(defn emit-shim [name interfaces template srcdir filename]
-  (let [functions (intf/getallfunctions (interfaces name))
-        [_ interface] (buildinterface name functions)
+(defn emit-shim [name functions template srcdir filename]
+  (let [[_ interface] (buildinterface name functions)
         content (render-golang template [["intf" interface]])
         output (io/file srcdir (package-path name) filename)]
 
     (emit-golang output content)))
+
+(defn emit-server-shim [name functions srcdir]
+  (emit-shim name functions "server" srcdir "server-shim.go"))
 
 ;;-----------------------------------------------------------------
 ;; emit-proto
@@ -177,8 +179,15 @@
        (emit-golang filename content))
 
      ;; generate our server shims
-     (dorun (for [name (intf/getprovides config)]
-              (emit-shim name interfaces "server" srcdir "server-shim.go")))
+     (let [provides (->> config intf/getprovides (filter #(not= % "project")))]
+
+       ;; first process all _except_ the project interface
+       (dorun (for [name provides]
+                (let [functions (intf/getallfunctions (interfaces name))]
+                  (emit-server-shim name functions srcdir))))
+
+       ;; and now special case the project interface
+       (emit-server-shim "project" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} srcdir))
 
      ;; generate our client shims
      (dorun (for [name (intf/getconsumes config)]

@@ -26,8 +26,22 @@ type ShimHandler struct {
      <provides.values:{intf | <intf.packageCamel> <intf.package>.CCInterface }; separator="\n">
 }
 
-// Run callback representing the invocation of a chaincode
-func (t *ShimHandler) Run(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+// Initialization function, called only once
+func (t *ShimHandler) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+
+	if len(args) != 1 {
+		return nil, errors.New("Expected exactly one argument")
+	}
+
+        if function != "init" {
+               return nil, errors.New("Function must be \"init\"")
+        }
+
+        return project.InitStub(stub, t.Project, args[0])
+}
+
+// Callback representing the invocation of a chaincode
+func (t *ShimHandler) Invoke(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 
 	if len(args) != 1 {
 		return nil, errors.New("Expected exactly one argument")
@@ -41,7 +55,7 @@ func (t *ShimHandler) Run(stub *shim.ChaincodeStub, function string, args []stri
         }
 }
 
-// Query callback representing the query of a chaincode
+// Callback representing the query of a chaincode
 func (t *ShimHandler) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 
 	if len(args) != 1 {
@@ -97,8 +111,8 @@ type CCInterface interface {
 }
 
 /* Server stubs */
-<implementservers(true, intf, intf.transactions)>
-<implementservers(false, intf, intf.queries)>
+<implementservers(intf, intf.transactions)>
+<implementservers(intf, intf.queries)>
 
 <!
 !-------------------------------------------------------------------------------------------------
@@ -139,7 +153,7 @@ import (
 >>
 
 compositename(txn, intf, func)          ::= "\"<intf.name>/<if(txn)>txn<else>query<endif>/<func.index>\""
-implementservers(txn, intf, functions)  ::= "<functions.values:{x | <implementserver(txn, intf, x)> }; separator=\"\n\">"
+implementservers(intf, functions)  ::= "<functions.values:{x | <implementserver(intf, x)> }; separator=\"\n\">"
 implementclients(txn, intf, functions)  ::= "<functions.values:{x | <implementclient(txn, intf, x)> }; separator=\"\n\">"
 dispatchfunctions(txn, intf, functions) ::= "<functions.values:{x | <dispatchfunction(txn, intf, x)> }; separator=\"\n\">"
 
@@ -154,7 +168,7 @@ case function == <compositename(txn, intf, func)>:
      return <intf.package>.<func.name>Stub(stub, t.<intf.packageCamel>, args[0])
 >>
 
-implementserver(txn, intf, func) ::=
+implementserver(intf, func) ::=
 <<
 
 func <func.name>Stub(stub *shim.ChaincodeStub, intf CCInterface, _params string) ([]byte, error) {
