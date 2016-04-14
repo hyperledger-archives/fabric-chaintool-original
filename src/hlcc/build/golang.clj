@@ -179,15 +179,15 @@
        (emit-golang filename content))
 
      ;; generate our server shims
-     (let [provides (->> config intf/getprovides (filter #(not= % "project")))]
+     (let [provides (->> config intf/getprovides (filter #(not= % "init")))]
 
-       ;; first process all _except_ the project interface
+       ;; first process all _except_ the init interface
        (dorun (for [name provides]
                 (let [functions (intf/getallfunctions (interfaces name))]
                   (emit-server-shim name functions srcdir))))
 
-       ;; and now special case the project interface
-       (emit-server-shim "project" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} srcdir))
+       ;; and now special case the init  interface
+       (emit-server-shim "init" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} srcdir))
 
      ;; generate our client shims
      (dorun (for [name (intf/getconsumes config)]

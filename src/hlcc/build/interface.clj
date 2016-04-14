@@ -39,12 +39,12 @@
 
 ;;-----------------------------------------------------------------
 ;; retrieve all "provided" interfaces, adding the implicit
-;; "project.cci" and translating "self" to the name of the project
+;; "init.cci" and translating "self" to the name of the project
 ;;-----------------------------------------------------------------
 (defn getprovides [config]
   (let [name (:Name config)
         entries (:Provides config)]
-    (->> entries flatten (remove nil?) (walk/postwalk-replace {"self" name}) (cons "project") (into #{}))))
+    (->> entries flatten (remove nil?) (walk/postwalk-replace {"self" name}) (cons "init") (into #{}))))
 
 (defn getconsumes [config]
   (->> config :Consumes (remove nil?) (into #{})))
@@ -329,17 +329,17 @@
       false)))
 
 (defn verify-init [interfaces]
-  (let [ast (interfaces "project")]
+  (let [ast (interfaces "init")]
     (cond
 
       ;; We do not allow any explicit transactions or queries in the project interface
       (or (ast/find :transactions ast) (ast/find :queries ast))
-      (str "project.cci: illegal RPCs detected")
+      (str "init.cci: illegal RPCs detected")
 
       ;; We cannot continue if the user didnt supply a message "Init"  which will
       ;; serve as the implicit parameter to our init function
       (not (initmsg? ast))
-      (str "project.cci: message Init{} not found")
+      (str "init.cci: message Init{} not found")
 
       :else
       nil)))

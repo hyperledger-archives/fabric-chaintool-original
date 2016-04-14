@@ -105,7 +105,7 @@ Using path /opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/cca/
 | 456  | fc4ad46e08416ffde454b7dfeeba4270a075ef7f | chaincode.yaml                                         |
 | 3630 | 55d1754539a3c25033faae53b00022494c70939b | src/chaincode/chaincode_example02.go                   |
 | 375  | 9492a1e96f380a97bba1f16f085fc70140154c65 | src/interfaces/org.hyperledger.chaincode.example02.cci |
-| 143  | 7305f65e18e4aab860b201d40916bb7adf97544f | src/interfaces/project.cci                             |
+| 143  | 7305f65e18e4aab860b201d40916bb7adf97544f | src/interfaces/init.cci                                |
 |------+------------------------------------------+--------------------------------------------------------|
 Platform:            org.hyperledger.chaincode.golang version 1
 Digital Signature:   none
@@ -134,7 +134,7 @@ Like many modern build tools, HLCC is opinionated.  It expects a specific struct
 - [chaincode.yaml](./testdata/example02/chaincode.yaml) in the top-level directory of your project (discussed below)
 - a chaincode entry-point in ./src/chaincode ([example](./testdata/example02/src/chaincode/chaincode_example02.go))
 - interface files in ./src/interfaces ([example](./testdata/example02/src/interfaces/org.hyperledger.chaincode.example02.cci))
-   - every project must define a project interface ./src/interfaces/project.cci ([example](./testdata/example02/src/interfaces/project.cci))
+   - every project must define an init interface ./src/interfaces/init.cci ([example](./testdata/example02/src/interfaces/init.cci))
 
 ### chaincode.yaml
 
@@ -271,39 +271,11 @@ The main purpose of the grammar is to define RPC functions.  For reasons of ABI 
 - Accept only 0 or 1 _message_ as input and return only 0 (via _void_) or 1 message as output
 - We rely on the message definitions for further ABI stability.
 
-#### "Project" interface
+#### "Init" interface
 
-Every project has an implicit interface: project.cci.  This interface is intended to define more system-level interactions such as the "init" or constructor for a given chaincode.  It is also generally assumed to be not something that needs to be shared with other projects in the same manner that application-level interfaces might, thus we are not concerned about "project.cci" name conflicting in the way we care about other interfaces.
+Every project has an implicit interface: init.cci.  This interface is intended to define the "init" or constructor for a given chaincode.  It is also generally assumed to be not something that needs to be shared with other projects in the same manner that application-level interfaces might, thus we are not concerned about "init.cci" name conflicting in the way we care about other interfaces.
 
-The project.cci is also special in another way: it supports an implicit transaction::init() function.  It is expected that every chaincode will need a constructor, and that constructor is a transaction like any other.  However, rather than require every project to explicitly define something like:
-
-```
-message MyCtorParams {
-        int32 balance = 1;
-}
-
-transactions {
-        void Init(MyCtorParams) = 1;
-}
-```
-The developer may opt to simply just define a message "Init" and omit the transaction{} entirely.  In this case, the transaction is implied.  For example:
-
-```
-message Init {
-        int32 balance = 1;
-}
-```
-is equivalent to
-```
-message Init {
-        int32 balance = 1;
-}
-
-transactions {
-        void Init(Init) = 1;
-}
-```
-when placed within the project.cci
+The interface expected to define a message "Init" with no RPCs.  This message will be assumed to be the argument to the chaincode constructor.
 
 # Platforms
 
