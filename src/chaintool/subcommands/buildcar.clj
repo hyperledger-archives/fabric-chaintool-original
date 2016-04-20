@@ -14,14 +14,14 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
-(ns chaintool.subcommands.buildcca
+(ns chaintool.subcommands.buildcar
   (:require [clojure.java.io :as io]
             [me.raynes.fs :as fs]
             [clojure.tools.file-utils :as fileutils]
             [chaintool.util :as util]
             [chaintool.config.util :as config.util]
-            [chaintool.cca.read :as cca.read]
-            [chaintool.cca.unpack :as cca.unpack]
+            [chaintool.car.read :as car.read]
+            [chaintool.car.unpack :as car.unpack]
             [chaintool.build.core :as build.core]))
 
 (defn getoutput [options]
@@ -32,11 +32,11 @@
 (defn run [options args]
   (let [output (getoutput options)
         file (io/file (first args))
-        {:keys [index config]} (with-open [is (io/input-stream file)] (cca.read/read is))
-        workingdir (fs/temp-dir "buildcca-")]
+        {:keys [index config]} (with-open [is (io/input-stream file)] (car.read/read is))
+        workingdir (fs/temp-dir "buildcar-")]
 
-    (cca.unpack/unpack index workingdir :false)
+    (car.unpack/unpack index workingdir :false)
     (let [config (config.util/load workingdir)]
-      (println "Building CCA" (.getCanonicalPath file))
+      (println "Building CAR" (.getCanonicalPath file))
       (build.core/compile workingdir config output)
       (fileutils/recursive-delete (io/file workingdir)))))

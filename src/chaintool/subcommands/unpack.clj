@@ -18,8 +18,8 @@
 (ns chaintool.subcommands.unpack
   (:require [chaintool.config.util :as config]
             [chaintool.util :as util]
-            [chaintool.cca.read :as cca.read]
-            [chaintool.cca.unpack :as cca.unpack]
+            [chaintool.car.read :as car.read]
+            [chaintool.car.unpack :as car.unpack]
 [clojure.java.io :as io]))
 
 (defn getoutputdir [options config]
@@ -29,12 +29,12 @@
 
 (defn run [options args]
   (let [file (io/file (first args))
-        {:keys [index config]} (with-open [is (io/input-stream file)] (cca.read/read is))
+        {:keys [index config]} (with-open [is (io/input-stream file)] (car.read/read is))
         outputdir (getoutputdir options config)]
 
     (when (.exists outputdir)
       (util/abort -1 (str "output directory " (.getCanonicalPath outputdir) " exists")))
 
-    (println "Unpacking CCA to:" (.getCanonicalPath outputdir))
+    (println "Unpacking CAR to:" (.getCanonicalPath outputdir))
     (println)
-    (cca.unpack/unpack index outputdir :true)))
+    (car.unpack/unpack index outputdir :true)))

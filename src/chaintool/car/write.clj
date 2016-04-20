@@ -15,13 +15,13 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns chaintool.cca.write
+(ns chaintool.car.write
   (:require [chaintool.util :as util]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [flatland.protobuf.core :as fl]
-            [chaintool.cca.types :refer :all]
-            [chaintool.cca.codecs :as codecs]
+            [chaintool.car.types :refer :all]
+            [chaintool.car.codecs :as codecs]
             [pandect.algo.sha1 :refer :all])
   (:import (org.apache.commons.io.input TeeInputStream)
            (org.apache.commons.io.output ByteArrayOutputStream

@@ -16,15 +16,15 @@
 ;; under the License.
 (ns chaintool.subcommands.package
   (:require [chaintool.config.util :as config]
-            [chaintool.cca.write :as cca]
-            [chaintool.cca.ls :refer :all]
+            [chaintool.car.write :as car]
+            [chaintool.car.ls :refer :all]
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]))
 
 (defn getoutputfile [options path config]
   (if-let [output (:output options)]
     (io/file output)
-    (io/file path "build" (str (config/compositename config) ".cca"))))
+    (io/file path "build" (str (config/compositename config) ".car"))))
 
 (defn run [options args]
   (let [[path config] (config/load-from-options options)
@@ -33,11 +33,11 @@
         outputfile (getoutputfile options path config)]
 
     ;; emit header information after we know the file write was successful
-    (println "Writing CCA to:" (.getCanonicalPath outputfile))
+    (println "Writing CAR to:" (.getCanonicalPath outputfile))
     (println "Using path" path (str filespec))
 
     ;; generate the actual file
-    (cca/write path filespec compressiontype outputfile)
+    (car/write path filespec compressiontype outputfile)
 
     ;; re-use the ls function to display the contents
     (ls outputfile)))

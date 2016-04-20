@@ -15,11 +15,11 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns chaintool.cca.read
+(ns chaintool.car.read
   (:require [flatland.protobuf.core :as fl]
             [chaintool.util :as util]
-            [chaintool.cca.types :refer :all]
-            [chaintool.cca.codecs :as codecs]
+            [chaintool.car.types :refer :all]
+            [chaintool.car.codecs :as codecs]
             [chaintool.config.parser :as config.parser]
             [chaintool.config.util :as config.util]
             [pandect.algo.sha1 :refer :all])

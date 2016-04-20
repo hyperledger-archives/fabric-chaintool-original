@@ -17,8 +17,8 @@
 
 (ns chaintool.subcommands.ls
   (:require [clojure.java.io :as io]
-            [chaintool.cca.ls :as cca]))
+            [chaintool.car.ls :as car]))
 
 (defn run [options args]
   (let [file (io/file (first args))]
-    (cca/ls file)))
+    (car/ls file)))

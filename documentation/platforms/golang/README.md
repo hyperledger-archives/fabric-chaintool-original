@@ -12,7 +12,7 @@ Any invocation of 'chaintool build*' will automatically synthesize the correct v
 
 ## Chaincode Integration
 ### Entry-point
-Your chaincode entry-point _func main()_ should be placed in a file stored in a directory under $PROJECT_ROOT/src/chaincode/. The function should be part of a package called "chaincode". Other packages may be placed in files stored in other locations in the $PROJECT_ROOT directory hierarchy and may be imported by your entry-point module using standard golang mechanisms. (The typical Go convention is to place source files in directories rooted at $PROJECT_ROOT/src). Any Go files that are stored under $PROJECT_ROOT/src will be included in the final CCA package.
+Your chaincode entry-point _func main()_ should be placed in a file stored in a directory under $PROJECT_ROOT/src/chaincode/. The function should be part of a package called "chaincode". Other packages may be placed in files stored in other locations in the $PROJECT_ROOT directory hierarchy and may be imported by your entry-point module using standard golang mechanisms. (The typical Go convention is to place source files in directories rooted at $PROJECT_ROOT/src). Any Go files that are stored under $PROJECT_ROOT/src will be included in the final CAR package.
 ### Imports
 In addition to any packages imported as part of your application logic your chaincode will import packages from four other locations.
 * hyperledger/ccs  - "chaincode support"

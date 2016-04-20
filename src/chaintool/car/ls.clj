@@ -15,17 +15,17 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns chaintool.cca.ls
+(ns chaintool.car.ls
   (:require [clojure.java.io :as io]
             [doric.core :as doric]
-            [chaintool.cca.read :as cca]
+            [chaintool.car.read :as car]
             [pandect.algo.sha3-512 :refer :all]))
 
 (defn platform-version [config]
   (str (->> config :Platform :Name) " version " (->> config :Platform :Version)))
 
 (defn ls [file]
-  (let [{:keys [payload config]} (with-open [is (io/input-stream file)] (cca/read is))
+  (let [{:keys [payload config]} (with-open [is (io/input-stream file)] (car/read is))
         entries (:entries payload)]
 
     (println (doric/table [{:name :size} {:name :sha1 :title "SHA1"} {:name :path}] entries))

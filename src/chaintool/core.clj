@@ -20,7 +20,7 @@
             [clojure.tools.cli :refer [parse-opts]]
             [slingshot.slingshot :as slingshot]
             [chaintool.subcommands.build :as buildcmd]
-            [chaintool.subcommands.buildcca :as buildccacmd]
+            [chaintool.subcommands.buildcar :as buildcarcmd]
             [chaintool.subcommands.clean :as cleancmd]
             [chaintool.subcommands.ls :as lscmd]
             [chaintool.subcommands.package :as packagecmd]
@@ -49,9 +49,9 @@
     :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
                            common-path-options)}
 
-   {:name "buildcca" :desc "Build the chaincode project from a CCA file"
-    :handler  buildccacmd/run
-    :arguments "path/to/file.cca"
+   {:name "buildcar" :desc "Build the chaincode project from a CAR file"
+    :handler  buildcarcmd/run
+    :arguments "path/to/file.car"
     :validate (fn [options arguments] (= (count arguments) 1))
     :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
                            common-options)}
@@ -60,22 +60,22 @@
     :handler cleancmd/run
     :options common-path-options}
 
-   {:name "package" :desc "Package the chaincode into a CCA file for deployment"
+   {:name "package" :desc "Package the chaincode into a CAR file for deployment"
     :handler packagecmd/run
     :options (option-merge [["-o" "--output NAME" "path to the output destination"]
                             ["-c" "--compress NAME" "compression algorithm to use" :default "gzip"]]
                            common-path-options)}
 
-   {:name "unpack" :desc "Unpackage a CCA file"
+   {:name "unpack" :desc "Unpackage a CAR file"
     :handler unpackcmd/run
-    :arguments "path/to/file.cca"
+    :arguments "path/to/file.car"
     :validate (fn [options arguments] (= (count arguments) 1))
     :options (option-merge [["-d" "--directory NAME" "path to the output destination"]]
                            common-options)}
 
-   {:name "ls" :desc "List the contents of a CCA file"
+   {:name "ls" :desc "List the contents of a CAR file"
     :handler lscmd/run
-    :arguments "path/to/file.cca"
+    :arguments "path/to/file.car"
     :validate (fn [options arguments] (= (count arguments) 1))
     :options common-options}])
 
