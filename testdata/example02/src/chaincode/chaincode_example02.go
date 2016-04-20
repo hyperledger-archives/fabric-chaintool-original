@@ -24,9 +24,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"hyperledger/ccs"
-	"hyperledger/cci/project"
+	"hyperledger/cci/appinit"
 	"hyperledger/cci/org/hyperledger/chaincode/example02"
+	"hyperledger/ccs"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -36,7 +36,7 @@ type ChaincodeExample struct {
 }
 
 // Called to initialize the chaincode
-func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *project.Init) error {
+func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *appinit.Init) error {
 
 	var err error
 
@@ -120,7 +120,7 @@ func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *example
 
 func main() {
 	self := &ChaincodeExample{}
-	handler := ccs.ShimHandler{Project: self, Example02: self}
+	handler := ccs.ShimHandler{Appinit: self, Example02: self}
 	err := ccs.Start(&handler) // Our one instance implements both Transactions and Queries interfaces
 	if err != nil {
 		fmt.Printf("Error starting example chaincode: %s", err)
@@ -130,7 +130,7 @@ func main() {
 //-------------------------------------------------
 // Helpers
 //-------------------------------------------------
-func (t *ChaincodeExample) PutState(stub *shim.ChaincodeStub, party *project.Party) error {
+func (t *ChaincodeExample) PutState(stub *shim.ChaincodeStub, party *appinit.Party) error {
 	return stub.PutState(party.Entity, []byte(strconv.Itoa(int(party.Value))))
 }
 

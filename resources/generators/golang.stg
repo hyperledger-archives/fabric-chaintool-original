@@ -37,7 +37,7 @@ func (t *ShimHandler) Init(stub *shim.ChaincodeStub, function string, args []str
                return nil, errors.New("Function must be \"init\"")
         }
 
-        return project.InitStub(stub, t.Project, args[0])
+        return appinit.InitStub(stub, t.Appinit, args[0])
 }
 
 // Callback representing the invocation of a chaincode

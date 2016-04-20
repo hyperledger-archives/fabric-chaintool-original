@@ -22,15 +22,14 @@ package chaincode
 import (
 	"fmt"
 
-	"hyperledger/ccs"
+	"hyperledger/cci/appinit"
 	"hyperledger/cci/org/hyperledger/chaincode/example02"
-	"hyperledger/cci/project"
+	"hyperledger/ccs"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
 type ChaincodeExample struct {
-
 }
 
 // Called to initialize the chaincode
