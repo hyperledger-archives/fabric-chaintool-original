@@ -22,7 +22,7 @@
             [chaintool.subcommands.build :as buildcmd]
             [chaintool.subcommands.buildcca :as buildccacmd]
             [chaintool.subcommands.clean :as cleancmd]
-            [chaintool.subcommands.lscca :as lsccacmd]
+            [chaintool.subcommands.ls :as lscmd]
             [chaintool.subcommands.package :as packagecmd]
             [chaintool.subcommands.unpack :as unpackcmd]
 [chaintool.util :as util])
@@ -73,8 +73,8 @@
     :options (option-merge [["-d" "--directory NAME" "path to the output destination"]]
                            common-options)}
 
-   {:name "lscca" :desc "List the contents of a CCA file"
-    :handler lsccacmd/run
+   {:name "ls" :desc "List the contents of a CCA file"
+    :handler lscmd/run
     :arguments "path/to/file.cca"
     :validate (fn [options arguments] (= (count arguments) 1))
     :options common-options}])

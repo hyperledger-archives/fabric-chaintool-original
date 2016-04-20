@@ -15,7 +15,7 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns chaintool.subcommands.lscca
+(ns chaintool.subcommands.ls
   (:require [clojure.java.io :as io]
             [chaintool.cca.ls :as cca]))
 
