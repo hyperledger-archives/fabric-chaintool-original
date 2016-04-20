@@ -1,7 +1,7 @@
 # Hyperledger GO Language Chaincode Platform
-The Hyperledger framework provides support for chaincode written in the Go language. The Hyperledger validating peer provide a complete execution environment for Go programs. This README describes the Go platform-specific interface code that hlcc generates from the language neutral interface definitions and specifies the conventions applications written in Go must adhere to in order to execute in the Hyperledger Go environment. Basic familarity with the structure and function of hlcc as described in the top level README file is assumed.
+The Hyperledger framework provides support for chaincode written in the Go language. The Hyperledger validating peer provide a complete execution environment for Go programs. This README describes the Go platform-specific interface code that chaintool generates from the language neutral interface definitions and specifies the conventions applications written in Go must adhere to in order to execute in the Hyperledger Go environment. Basic familarity with the structure and function of chaintool as described in the top level README file is assumed.
 ## Environment
-Any invocation of 'hlcc build*' will automatically synthesize the correct value for the $GOPATH environment variable based on the current value of the variable and the path of your chaincode project tree. Your chaincode project tree need _not_ be located within the directory hierarchy defined by the current value of $GOPATH. The 'hlcc build' command will ensures that the build correctly includes Go code from following paths (where $PROJECT_ROOT is the root directory of your application chaincode.)
+Any invocation of 'chaintool build*' will automatically synthesize the correct value for the $GOPATH environment variable based on the current value of the variable and the path of your chaincode project tree. Your chaincode project tree need _not_ be located within the directory hierarchy defined by the current value of $GOPATH. The 'chaintool build' command will ensures that the build correctly includes Go code from following paths (where $PROJECT_ROOT is the root directory of your application chaincode.)
 * $PROJECT_ROOT/build/deps
   - Direct and transitive dependencies of your application as retrieved by _go get_.  (Please note: it is highly unlikely that production Hyperledger peers will use  _go get_ to resolve dependencies. This use of _go get_ is an artifact of ongoing Hyperledger development; reducing development friction as the platform dependencies are refined. Operationally all dependencies will be explicit.
 * $PROJECT_ROOT/build
@@ -16,13 +16,13 @@ Your chaincode entry-point _func main()_ should be placed in a file stored in a 
 ### Imports
 In addition to any packages imported as part of your application logic your chaincode will import packages from four other locations.
 * hyperledger/ccs  - "chaincode support"
-  - generated "shim" code produced by the hlcc compiler
+  - generated "shim" code produced by the chaintool compiler
 
 * hyperledger/cci/... - "chaincode interface"
   - Go code which implements the interfaces defined in the application's .cci files including the required projiect.cci. The functions are placed in a package the name of which is generated from the name of the .cci file. The path to these files is likewise generated from the name of the .cci file. For example code generated from a file named "com.foo.bar.cci" is placed in the package "bar" under the path $PROJECT_ROOT/src/hyperledger/cci/com/foo/bar
 
 * github.com/golang/protobuf/proto - google protocol buffer support
-  - Go implementation of Google Protocol Buffers. Protocol Buffers are used by the hlcc generated code to encode messages used by chaincode.
+  - Go implementation of Google Protocol Buffers. Protocol Buffers are used by the chaintool generated code to encode messages used by chaincode.
 
 * github.com/hyperledger/fabric/core/chaincode/shim - generic Hyperledger chaincode support
   - Common Go language support for required chaincode operations.
@@ -90,7 +90,7 @@ build/src/
         └── shim.go
 ```
 ### Interfaces
-The hlcc compiler generates up to four artifact types per declared interface:
+The chaintool compiler generates up to four artifact types per declared interface:
 * interface.proto - The google protobuf definition derived from the corresponding .cci definition.
 * interface.pb.go - The compiled protobuf definition, as emitted by _protoc --go_out_.
 * server-shim.go - The server-side shim for a provided interface.

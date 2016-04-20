@@ -1,6 +1,6 @@
-(defproject hlcc "0.5-SNAPSHOT"
-  :description "hyperledger chaincode compiler"
-  :url "https://github.com/ghaskins/hlcc"
+(defproject chaintool "0.5-SNAPSHOT"
+  :description "hyperledger chaincode tool"
+  :url "https://github.com/ghaskins/chaintool"
   :license {:name "Apache License"
             :url "http://www.apache.org/licenses/LICENSE-2.0.txt"}
   :min-lein-version "2.0.0"
@@ -25,8 +25,8 @@
                  [doric "0.9.0"]
                  [circleci/clj-yaml "0.5.5"]
                  [slingshot "0.12.2"]]
-  :main ^:skip-aot hlcc.core
-  :bin {:name "hlcc"
+  :main ^:skip-aot chaintool.core
+  :bin {:name "chaintool"
         :bin-path "target"
         :bootclasspath true}
   :target-path "target/%s"

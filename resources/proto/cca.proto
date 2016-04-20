@@ -84,7 +84,7 @@ under the License.
 */
 
 syntax = "proto2";
-package hlcc.cca.abi;
+package chaintool.cca.abi;
 
 message CompatibilityHeader {
     required string magic    = 1;

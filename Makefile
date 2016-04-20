@@ -1,4 +1,4 @@
-NAME=hlcc
+NAME=chaintool
 LEIN = $(shell which lein || echo ./lein)
 BINDIR ?= /usr/bin
 OUTPUT=target/$(NAME)

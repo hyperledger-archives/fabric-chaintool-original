@@ -1,10 +1,10 @@
-[![Build Status](https://travis-ci.org/ghaskins/hlcc.svg?branch=master)](https://travis-ci.org/ghaskins/hlcc)
+[![Build Status](https://travis-ci.org/ghaskins/chaintool.svg?branch=master)](https://travis-ci.org/ghaskins/chaintool)
 
-# hlcc - Hyperledger Chaincode Compiler (Work In Progress)
+# chaintool - Hyperledger Chaincode Compiler (Work In Progress)
 
 ## Introduction
 
-hlcc is a proposal for a toolchain to assist in various phases of [hyperledger](https://github.com/hyperledger) chaincode development, such as compilation, test, packaging, and deployment.
+chaintool is a proposal for a toolchain to assist in various phases of [hyperledger](https://github.com/hyperledger) chaincode development, such as compilation, test, packaging, and deployment.
 
 ### Why?
 
@@ -12,9 +12,9 @@ Current chaincode development is rather unstructured outside of the coarse-level
 
 Consider that some chaincode applications may employ confidentiality to hide their source, while others may wish to employ alternative programming languages.  This aside, chaincode deployment lifecycles may be long enough to require us to be aware of managing potential API incompatibilities between the chaincode and its clients.  It starts to become clear that there are some advantages to allowing chaincode to express its API interfaces in a way that is independent from the underlying implementation/language and in a manner that supports some form of schema management.
 
-HLCC helps in this regard by allowing applications to declare/consume one or more language neutral interface-definitions and package it with the project.  It helps the developer by generating shim/stub code in their chosen programming language that helps them implement and/or consume the interfaces declared.  This means that external parties may introspect a given instance for its interface(s) in a language neutral manner without requiring access to and/or an ability to decipher the underlying code.  It also means that we can use [protobufs](https://developers.google.com/protocol-buffers/) to help with various API features such as managing forwards/backwards compatibility, endian neutrality, basic type validation, etc in a largely transparent manner.
+CHAINTOOL helps in this regard by allowing applications to declare/consume one or more language neutral interface-definitions and package it with the project.  It helps the developer by generating shim/stub code in their chosen programming language that helps them implement and/or consume the interfaces declared.  This means that external parties may introspect a given instance for its interface(s) in a language neutral manner without requiring access to and/or an ability to decipher the underlying code.  It also means that we can use [protobufs](https://developers.google.com/protocol-buffers/) to help with various API features such as managing forwards/backwards compatibility, endian neutrality, basic type validation, etc in a largely transparent manner.
 
-HLCC provides some other benefits too, such as consistent language-neutral packaging and chaincode hashing, which help to simplify both the hyperledger fabric implementation and developer burden.
+CHAINTOOL provides some other benefits too, such as consistent language-neutral packaging and chaincode hashing, which help to simplify both the hyperledger fabric implementation and developer burden.
 
 ## Getting Started
 
@@ -29,10 +29,10 @@ HLCC provides some other benefits too, such as consistent language-neutral packa
 ### Usage
 
 ```
-$ hlcc -h
-hlcc version: v0.4
+$ chaintool -h
+chaintool version: v0.4
 
-Usage: hlcc [general-options] action [action-options]
+Usage: chaintool [general-options] action [action-options]
 
 General Options:
   -v, --version  Print the version and exit
@@ -46,23 +46,23 @@ Actions:
   unpack -> Unpackage a CCA file
   lscca -> List the contents of a CCA file
 
-(run "hlcc <action> -h" for action specific help)
+(run "chaintool <action> -h" for action specific help)
 ```
-### Working with HLCC
+### Working with CHAINTOOL
 
-The idiomatic way to use hlcc is to treat it similar to other build tools such as Make, Maven, or Leiningen.  That is, by default it expects to be executed from within your [project root](#project-structure).  Subcommands such as _build_, _clean_, and _package_ fall into this category.  You can run it outside of a project root by using the "-p" switch to these commands to inform HLCC where your project root is when it is not the current directory.
+The idiomatic way to use chaintool is to treat it similar to other build tools such as Make, Maven, or Leiningen.  That is, by default it expects to be executed from within your [project root](#project-structure).  Subcommands such as _build_, _clean_, and _package_ fall into this category.  You can run it outside of a project root by using the "-p" switch to these commands to inform CHAINTOOL where your project root is when it is not the current directory.
 
 Other commands such as _buildcca_, _unpack_, and _lscca_ are designed to operate against a Chaincode Archive (CCA) from a previous _package_ operation.  These commands expect a path to a CCA file.
 
-In all cases, you may obtain subcommand specific help by invoking "hlcc _$subcommand_ -h".  For example:
+In all cases, you may obtain subcommand specific help by invoking "chaintool _$subcommand_ -h".  For example:
 
 ```
-$ hlcc package -h
-hlcc version: v0.4
+$ chaintool package -h
+chaintool version: v0.4
 
-Description: hlcc package - Package the chaincode into a CCA file for deployment
+Description: chaintool package - Package the chaincode into a CCA file for deployment
 
-Usage: hlcc package [options]
+Usage: chaintool package [options]
 
 Command Options:
   -o, --output NAME          path to the output destination
@@ -77,7 +77,7 @@ Command Options:
 
 ### Subcommand Details
 
-#### hlcc build
+#### chaintool build
 
 Builds your chaincode project into a binary ready for execution on a blockchain.  Various artifacts are emitted to ./build, depending on the platform.  For [org.hyperledger.chaincode.golang](./documentation/platforms/golang/README.md):
 
@@ -85,18 +85,18 @@ Builds your chaincode project into a binary ready for execution on a blockchain.
 - ./build/deps: direct and transitive dependencies of your chaincode, as retrieved by "go get".  NOTE: this option is likely to default to disabled in the future, since it is not a good idea for a validating peer to be pulling dependencies down.  Rather, there should be some fixed number of dependencies that are implicitly included with the platform.  For now, we pull things in dynamically.
 - ./build/bin: the default location for the binary generated (override with -o)
 
-#### hlcc clean
+#### chaintool clean
 
 Cleans a chaincode project.  This typically translates to removing the ./build directory, but platforms are free to define this as they see fit and may perform additional or alternative operations.
 
-#### hlcc package
+#### chaintool package
 
 Packages the sourcecode, interfaces, chaincode.yaml, and other project data into a .cca file suitable for deployment.  Note that any artifacts generated by commands such as _build_ and _buildcca_ are _not_ included but rather will be rebuilt locally by each validating peer in the network.
 
 Implicitly runs the "lscca" command on the result to display details about the package.
 
 ```
-vagrant@hyperledger-devenv:v0.0.7-2ec7137:~ $ hlcc package -p /opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/cca/example02/
+vagrant@hyperledger-devenv:v0.0.7-2ec7137:~ $ chaintool package -p /opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/cca/example02/
 Writing CCA to: /opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/cca/example02/build/org.hyperledger.chaincode.example02-0.1-SNAPSHOT.cca
 Using path /opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/cca/example02/ ["src" "chaincode.yaml"]
 |------+------------------------------------------+--------------------------------------------------------|
@@ -115,21 +115,21 @@ Compression Alg:     gzip
 Chaincode SHA3:      98493521a198d0a93cc07c4451616efebbe96eb2655dd38357c4e0c495bcae3ff3de14bc2287c70bc6c67968669871dc32164bb48e9765c97fb843a2cd7a0f78
 ```
 
-#### hlcc lscca
+#### chaintool lscca
 
-Displays the contents of an existing .cca file (see 'hlcc package' for an output example)
+Displays the contents of an existing .cca file (see 'chaintool package' for an output example)
 
-#### hlcc unpack
+#### chaintool unpack
 
 Unpacks a .cca archive into the filesystem as a chaincode project.
 
-#### hlcc buildcca
+#### chaintool buildcca
 
 Combines _unpack_ with _build_ by utilizing a temporary directory.  This allows a project to be built from a .cca file without explicitly unpacking it first, as a convenience.
 
 ## Project Structure
 
-Like many modern build tools, HLCC is opinionated.  It expects a specific structure to your project as follows:
+Like many modern build tools, CHAINTOOL is opinionated.  It expects a specific structure to your project as follows:
 
 - [chaincode.yaml](./testdata/example02/chaincode.yaml) in the top-level directory of your project (discussed below)
 - a chaincode entry-point in ./src/chaincode ([example](./testdata/example02/src/chaincode/chaincode_example02.go))
@@ -138,7 +138,7 @@ Like many modern build tools, HLCC is opinionated.  It expects a specific struct
 
 ### chaincode.yaml
 
-_chaincode.yaml_ is the central configuration file for a given hlcc-managed chaincode project.  An example looks like this:
+_chaincode.yaml_ is the central configuration file for a given chaintool-managed chaincode project.  An example looks like this:
 
 ```
 # ----------------------------------
@@ -180,7 +180,7 @@ It is here that a chaincode may declare the compatibility/conformity to a specif
 
 ##### Adding platforms
 
-The only core requirement is that both HLCC and the chosen Hyperledger network are in agreement to support said platform.  The details of implementing this are "coming soon".
+The only core requirement is that both CHAINTOOL and the chosen Hyperledger network are in agreement to support said platform.  The details of implementing this are "coming soon".
 
 #### Interface Declarations
 
