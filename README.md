@@ -273,9 +273,9 @@ The main purpose of the grammar is to define RPC functions.  For reasons of ABI 
 
 #### "Appinit" interface
 
-Every project has an implicit interface: appinit.cci.  This interface is intended to define the "appinit" or constructor for a given chaincode.  It is also generally assumed to be not something that needs to be shared with other projects in the same manner that application-level interfaces might, thus we are not concerned about "appinit.cci" name conflicting in the way we care about other interfaces.
+Every project has an implicit interface: appinit.cci.  This interface is intended to define the "init" or constructor function for a given chaincode.  It is also generally assumed to be not something that needs to be shared with other projects in the same manner that application-level interfaces might, thus we are not concerned about "appinit.cci" name conflicting in the way we care about other interfaces.
 
-The interface expected to define a message "Appinit" with no RPCs.  This message will be assumed to be the argument to the chaincode constructor.
+The interface expected to define a message "Init" with no RPCs.  This message will be assumed to be the argument to the chaincode constructor.
 
 # Platforms
 
