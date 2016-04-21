@@ -201,7 +201,8 @@
 
      ;; generate our client shims
      (dorun (for [name (intf/getconsumes config)]
-              (emit-shim name interfaces "client" srcdir "client-shim.go")))
+              (let [functions (intf/getallfunctions (interfaces name))]
+                (emit-shim name functions "client" srcdir "client-shim.go"))))
 
      ;; install go dependencies
      (go-cmd path {} "get" "-d" "-v" "chaincode")

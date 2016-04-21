@@ -33,7 +33,7 @@ type ChaincodeExample struct {
 }
 
 // Called to initialize the chaincode
-func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *project.Init) error {
+func (t *ChaincodeExample) Init(stub *shim.ChaincodeStub, param *appinit.Init) error {
 
 	var err error
 
