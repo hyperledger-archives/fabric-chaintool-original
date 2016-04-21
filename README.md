@@ -4,7 +4,7 @@
 
 ## Introduction
 
-chaintool is a proposal for a toolchain to assist in various phases of [hyperledger](https://github.com/hyperledger) chaincode development, such as compilation, test, packaging, and deployment.
+chaintool is a proposal for a toolchain to assist in various phases of [hyperledger](https://github.com/hyperledger) chaincode development, such as compilation, test, packaging, and deployment.  A chaincode app developer may express the interface in a highlevel protobuf structure and chaintool will generate (1) the chaincode with appropriate methods stub and (2) package it for the user so it can be directly deployed.
 
 ### Why?
 
