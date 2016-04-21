@@ -120,8 +120,12 @@ func (t *ChaincodeExample) CheckBalance(stub *shim.ChaincodeStub, param *example
 
 func main() {
 	self := &ChaincodeExample{}
-	handler := ccs.ShimHandler{Appinit: self, Example02: self}
-	err := ccs.Start(&handler) // Our one instance implements both Transactions and Queries interfaces
+	interfaces := ccs.Interfaces {
+		"org.hyperledger.chaincode.example02": self,
+		"appinit": self,
+	}
+
+	err := ccs.Start(interfaces) // Our one instance implements both Transactions and Queries interfaces
 	if err != nil {
 		fmt.Printf("Error starting example chaincode: %s", err)
 	}

@@ -127,6 +127,12 @@
     (render-golang "primary" [["provides" provides]])))
 
 ;;-----------------------------------------------------------------
+;; render stub output
+;;-----------------------------------------------------------------
+(defn render-stub [config]
+  (render-golang "stub" []))
+
+;;-----------------------------------------------------------------
 ;; write golang source to the filesystem, using gofmt to clean
 ;; up the generated code
 ;;-----------------------------------------------------------------
@@ -173,10 +179,14 @@
      (dorun (for [interface interfaces]
               (emit-proto srcdir interface)))
 
-     ;; generate our primary shim
-     (let [content (render-primary-shim config interfaces)
-           filename (io/file srcdir "hyperledger/ccs" "shim.go")]
-       (emit-golang filename content))
+     ;; generate our primary shim/stub
+     (let [path (io/file srcdir "hyperledger/ccs")]
+       (let [content (render-primary-shim config interfaces)
+             filename (io/file path "shim.go")]
+         (emit-golang filename content))
+       (let [content (render-stub config)
+             filename (io/file path "stub" "stub.go")]
+         (emit-golang filename content)))
 
      ;; generate our server shims
      (let [provides (->> config intf/getprovides (filter #(not= % "appinit")))]
