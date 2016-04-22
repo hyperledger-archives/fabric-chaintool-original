@@ -19,7 +19,7 @@ In addition to any packages imported as part of your application logic your chai
   - generated "shim" code produced by the chaintool compiler
 
 * hyperledger/cci/... - "chaincode interface"
-  - Go code which implements the interfaces defined in the application's .cci files including the required projiect.cci. The functions are placed in a package the name of which is generated from the name of the .cci file. The path to these files is likewise generated from the name of the .cci file. For example code generated from a file named "com.foo.bar.cci" is placed in the package "bar" under the path $PROJECT_ROOT/src/hyperledger/cci/com/foo/bar
+  - Go code which implements the interfaces defined in the application's .cci files including the required appinit.cci. The functions are placed in a package the name of which is generated from the name of the .cci file. The path to these files is likewise generated from the name of the .cci file. For example code generated from a file named "com.foo.bar.cci" is placed in the package "bar" under the path $PROJECT_ROOT/src/hyperledger/cci/com/foo/bar
 
 * github.com/golang/protobuf/proto - google protocol buffer support
   - Go implementation of Google Protocol Buffers. Protocol Buffers are used by the chaintool generated code to encode messages used by chaincode.
