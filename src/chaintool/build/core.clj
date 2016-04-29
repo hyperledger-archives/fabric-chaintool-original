@@ -15,13 +15,10 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 (ns chaintool.build.core
-  (:require [chaintool.build.interface :as intf]
-            [chaintool.build.golang :as golang])
+  (:require [chaintool.build.golang :as golang])
   (:refer-clojure :exclude [compile]))
 
-(defn compile [{:keys [path config output] :as params}]
-  (let [interfaces (intf/compile path config)]
-
-    ;; generate golang output (shim, protobufs, etc)
-    ;; FIXME: we need to switch on the Platform type
-    (golang/compile (assoc params :interfaces interfaces))))
+(defn compile [params]
+  ;; generate golang output (shim, protobufs, etc)
+  ;; FIXME: we need to switch on the Platform type
+  (golang/compile params))

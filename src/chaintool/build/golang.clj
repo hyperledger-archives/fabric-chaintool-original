@@ -170,10 +170,12 @@
 ;; compile - generates all golang platform artifacts within the
 ;; default location in the build area
 ;;-----------------------------------------------------------------
-(defn compile [{:keys [path config interfaces output]}]
+(defn compile [{:keys [path config output]}]
   (dorun
    (let [builddir (io/file path "build")
-         srcdir (io/file builddir "src")]
+         srcdir (io/file builddir "src")
+         intfdir (io/file path "src/interfaces")
+         interfaces (intf/compile intfdir config)]
 
      ;; generate protobuf output
      (dorun (for [interface interfaces]

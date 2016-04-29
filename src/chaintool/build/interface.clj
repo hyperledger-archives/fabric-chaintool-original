@@ -309,7 +309,7 @@
 ;; it to an AST.
 ;;-----------------------------------------------------------------
 (defn compileintf [path intf]
-  (let [file (open (io/file path "src/interfaces") intf)]
+  (let [file (open path intf)]
     (println (str "[CCI] parse " (.getName file)))
     (let [ast (->> file slurp parse)]
 
