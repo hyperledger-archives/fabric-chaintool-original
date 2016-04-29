@@ -1,4 +1,4 @@
-primary(provides) ::=
+primary(base, provides) ::=
 <<
 <!
 !-------------------------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ import (
         "strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-        "hyperledger/ccs/stub"
+        "<base>/ccs/stub"
 )
 
 type Interfaces map[string]interface{}
@@ -140,7 +140,7 @@ func Create(name string, intf interface{}) (Dispatcher, error) {
 }
 >>
 
-server(intf) ::=
+server(base, intf) ::=
 <<
 <!
 !-------------------------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ package <intf.package>
 import (
 	proto "github.com/golang/protobuf/jsonpb"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-        "hyperledger/ccs/stub"
+        "<base>/ccs/stub"
         "errors"
 )
 
@@ -214,7 +214,7 @@ func (self *StubImpl) DispatchQuery(stub *shim.ChaincodeStub, function int, para
 !>
 >>
 
-client(intf) ::=
+client(base, intf) ::=
 <<
 <!
 !-------------------------------------------------------------------------------------------------

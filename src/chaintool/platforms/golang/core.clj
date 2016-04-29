@@ -42,7 +42,7 @@
 ;;------------------------------------------------------------------
 (defn package-name [name] (-> name (string/split #"\.") last))
 (defn package-camel [name] (-> name package-name string/capitalize))
-(defn package-path [name] (str "hyperledger/cci/" (string/replace name "." "/")))
+(defn package-path [base name] (str base "/cci/" (string/replace name "." "/")))
 
 (defn conjpath [components]
   (.getCanonicalPath (apply io/file components)))
@@ -98,13 +98,13 @@
   (into {} (for [[k v] functions]
              (buildfunction v))))
 
-(defn buildinterface [name interface]
+(defn buildinterface [base name interface]
   (let [transactions (buildfunctions (:transactions interface))
         queries (buildfunctions (:queries interface))]
-    (vector name (->Interface name (package-name name) (package-camel name) (package-path name) transactions queries))))
+    (vector name (->Interface name (package-name name) (package-camel name) (package-path base name) transactions queries))))
 
-(defn build [interfaces]
-  (into {} (map (fn [[name interface]] (buildinterface name interface)) interfaces)))
+(defn build [base interfaces]
+  (into {} (map (fn [[name interface]] (buildinterface base name interface)) interfaces)))
 
 ;;-----------------------------------------------------------------
 ;; generic template rendering
@@ -120,11 +120,12 @@
 ;; render shim output - compiles the interfaces into the primary
 ;; golang shim, suitable for writing to a file
 ;;-----------------------------------------------------------------
-(defn render-primary-shim [config interfaces]
+(defn render-primary-shim [base config interfaces]
   (let [functions (algo/fmap intf/getallfunctions interfaces)
-        provides (build (select-keys functions (intf/getprovides config)))]
+        provides (build base (select-keys functions (intf/getprovides config)))]
 
-    (render-golang "primary" [["provides" provides]])))
+    (render-golang "primary" [["base" base]
+                              ["provides" provides]])))
 
 ;;-----------------------------------------------------------------
 ;; render stub output
@@ -143,21 +144,21 @@
 ;;-----------------------------------------------------------------
 ;; emit-shim
 ;;-----------------------------------------------------------------
-(defn emit-shim [name functions template srcdir filename]
-  (let [[_ interface] (buildinterface name functions)
-        content (render-golang template [["intf" interface]])
-        output (io/file srcdir (package-path name) filename)]
+(defn emit-shim [base name functions template srcdir filename]
+  (let [[_ interface] (buildinterface base name functions)
+        content (render-golang template [["base" base]["intf" interface]])
+        output (io/file srcdir (package-path base name) filename)]
 
     (emit-golang output content)))
 
-(defn emit-server-shim [name functions srcdir]
-  (emit-shim name functions "server" srcdir "server-shim.go"))
+(defn emit-server-shim [base name functions srcdir]
+  (emit-shim base name functions "server" srcdir "server-shim.go"))
 
 ;;-----------------------------------------------------------------
 ;; emit-proto
 ;;-----------------------------------------------------------------
-(defn emit-proto [srcdir [name ast :as interface]]
-  (let [outputdir (io/file srcdir (package-path name))
+(defn emit-proto [base srcdir [name ast :as interface]]
+  (let [outputdir (io/file srcdir (package-path base name))
         output (io/file outputdir "interface.proto")]
 
     ;; emit the .proto file
@@ -170,16 +171,16 @@
 ;; generate - generates all of our protobuf/go code based on the
 ;; config
 ;;-----------------------------------------------------------------
-(defn generate [{:keys [ipath opath config]}]
+(defn generate [{:keys [ipath opath config base]}]
   (let [interfaces (intf/compile ipath config)]
 
      ;; generate protobuf output
      (dorun (for [interface interfaces]
-              (emit-proto opath interface)))
+              (emit-proto base opath interface)))
 
      ;; generate our primary shim/stub
-     (let [path (io/file opath "hyperledger/ccs")]
-       (let [content (render-primary-shim config interfaces)
+     (let [path (io/file opath base "ccs")]
+       (let [content (render-primary-shim base config interfaces)
              filename (io/file path "shim.go")]
          (emit-golang filename content))
        (let [content (render-stub config)
@@ -192,15 +193,15 @@
        ;; first process all _except_ the appinit interface
        (dorun (for [name provides]
                 (let [functions (intf/getallfunctions (interfaces name))]
-                  (emit-server-shim name functions opath))))
+                  (emit-server-shim base name functions opath))))
 
        ;; and now special case the appinit  interface
-       (emit-server-shim "appinit" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} opath))
+       (emit-server-shim base "appinit" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} opath))
 
      ;; generate our client shims
      (dorun (for [name (intf/getconsumes config)]
               (let [functions (intf/getallfunctions (interfaces name))]
-                (emit-shim name functions "client" opath "client-shim.go"))))))
+                (emit-shim base name functions "client" opath "client-shim.go"))))))
 
 ;;-----------------------------------------------------------------
 ;; compile - generates all golang platform artifacts within the
@@ -210,7 +211,8 @@
   (let [builddir (io/file path "build")]
 
     ;; run our code generator
-    (generate {:ipath (io/file path "src/interfaces")
+    (generate {:base "hyperledger"
+               :ipath (io/file path "src/interfaces")
                :opath (io/file builddir "src")
                :config config})
 
