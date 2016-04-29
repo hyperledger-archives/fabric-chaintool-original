@@ -1,4 +1,4 @@
-primary(base, provides) ::=
+primary(base, system, provides) ::=
 <<
 <!
 !-------------------------------------------------------------------------------------------------
@@ -19,6 +19,7 @@ import (
         "regexp"
         "strconv"
 
+        <if(system)>"github.com/hyperledger/fabric/core/system_chaincode/api"<endif>
 	"github.com/hyperledger/fabric/core/chaincode/shim"
         "<base>/ccs/stub"
 )
@@ -79,11 +80,15 @@ func Start(interfaces Interfaces) error {
 
        // Validate all of the interfaces
        <provides.values:{intf | <validateinterface(intf)> }; separator="\n">
-       
+
+       <if(system)>
+       api.RegisterSysCC("<system>", handler)
+       <else>
        err := shim.Start(handler)
        if err != nil {
                return err
        }
+       <endif>
 
        return nil
 }

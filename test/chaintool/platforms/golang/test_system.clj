@@ -14,19 +14,18 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
-(ns chaintool.build.core
-  (:require [chaintool.platforms.golang.userspace :as golang]
-            [chaintool.platforms.golang.system :as syscc]
-            [chaintool.util :as util])
+
+(ns chaintool.platforms.golang.test_system
+  (:require [clojure.test :refer :all]
+            [chaintool.platforms.golang.system :refer :all])
   (:refer-clojure :exclude [compile]))
 
-(def handlers
-  {"org.hyperledger.chaincode.golang" golang/compile
-   "org.hyperledger.chaincode.system" syscc/compile})
+(deftest test-standalone-gopath-computation
+  (let [gopath (get-gopath "/local-dev/git/chaintool/testdata/sample_syscc"
+                           "_/local-dev/git/chaintool/testdata/sample_syscc")]
+    (is (= gopath "/"))))
 
-(defn compile [{:keys [config] :as params}]
-  ;; generate platform output (shim, protobufs, etc)
-  (let [platform (->> config :Platform :Name)]
-    (if-let [handler (handlers platform)]
-      (handler params)
-      (util/abort -1 (str "Unknown platform type: \"" platform "\"")))))
+(deftest test-gopath-computation
+  (let [gopath (get-gopath "/opt/gopath/src/github.com/hyperledger/fabric/core/system_chaincode/sample"
+                           "github.com/hyperledger/fabric/core/system_chaincode/sample")]
+    (is (= gopath "/opt/gopath/src"))))

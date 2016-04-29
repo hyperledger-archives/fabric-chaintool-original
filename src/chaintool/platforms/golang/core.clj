@@ -25,8 +25,7 @@
             [chaintool.protobuf.generate :as pb]
             [chaintool.util :as util])
   (:import (java.util ArrayList)
-           (org.stringtemplate.v4 STGroupFile))
-  (:refer-clojure :exclude [compile find]))
+           (org.stringtemplate.v4 STGroupFile)))
 
 (conch/programs protoc)
 (conch/programs gofmt)
@@ -40,9 +39,12 @@
 ;;------------------------------------------------------------------
 ;; helper functions
 ;;------------------------------------------------------------------
+(defn pkg-to-relpath [path]
+  (string/replace path #"^_/" ""))
+
 (defn package-name [name] (-> name (string/split #"\.") last))
 (defn package-camel [name] (-> name package-name string/capitalize))
-(defn package-path [base name] (str base "/cci/" (string/replace name "." "/")))
+(defn package-path [base name] (str (pkg-to-relpath base) "/cci/" (string/replace name "." "/")))
 
 (defn conjpath [components]
   (.getCanonicalPath (apply io/file components)))
@@ -120,11 +122,12 @@
 ;; render shim output - compiles the interfaces into the primary
 ;; golang shim, suitable for writing to a file
 ;;-----------------------------------------------------------------
-(defn render-primary-shim [base config interfaces]
+(defn render-primary-shim [base package config interfaces]
   (let [functions (algo/fmap intf/getallfunctions interfaces)
         provides (build base (select-keys functions (intf/getprovides config)))]
 
     (render-golang "primary" [["base" base]
+                              ["system" package]
                               ["provides" provides]])))
 
 ;;-----------------------------------------------------------------
@@ -171,7 +174,8 @@
 ;; generate - generates all of our protobuf/go code based on the
 ;; config
 ;;-----------------------------------------------------------------
-(defn generate [{:keys [ipath opath config base]}]
+(defn generate [{:keys [ipath opath config base package] :as params}]
+  (println params)
   (let [interfaces (intf/compile ipath config)]
 
      ;; generate protobuf output
@@ -179,8 +183,8 @@
               (emit-proto base opath interface)))
 
      ;; generate our primary shim/stub
-     (let [path (io/file opath base "ccs")]
-       (let [content (render-primary-shim base config interfaces)
+     (let [path (io/file opath (pkg-to-relpath base) "ccs")]
+       (let [content (render-primary-shim base package config interfaces)
              filename (io/file path "shim.go")]
          (emit-golang filename content))
        (let [content (render-stub config)
@@ -202,27 +206,3 @@
      (dorun (for [name (intf/getconsumes config)]
               (let [functions (intf/getallfunctions (interfaces name))]
                 (emit-shim base name functions "client" opath "client-shim.go"))))))
-
-;;-----------------------------------------------------------------
-;; compile - generates all golang platform artifacts within the
-;; default location in the build area
-;;-----------------------------------------------------------------
-(defn compile [{:keys [path config output]}]
-  (let [builddir (io/file path "build")]
-
-    ;; run our code generator
-    (generate {:base "hyperledger"
-               :ipath (io/file path "src/interfaces")
-               :opath (io/file builddir "src")
-               :config config})
-
-    ;; install go dependencies
-    (go-cmd path {} "get" "-d" "-v" "chaincode")
-
-    ;; build the actual code
-    (let [gobin (io/file builddir "bin")]
-      (io/make-parents (io/file gobin ".dummy"))
-      (io/make-parents output)
-      (go-cmd path {"GOBIN" (.getCanonicalPath gobin)} "build" "-o" (.getCanonicalPath output) "chaincode"))
-
-    (println "Compilation complete")))
