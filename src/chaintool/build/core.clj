@@ -15,7 +15,7 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 (ns chaintool.build.core
-  (:require [chaintool.build.golang :as golang]
+  (:require [chaintool.platforms.golang.core :as golang]
             [chaintool.util :as util])
   (:refer-clojure :exclude [compile]))
 

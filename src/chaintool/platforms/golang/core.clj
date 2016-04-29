@@ -15,7 +15,7 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns chaintool.build.golang
+(ns chaintool.platforms.golang.core
   (:require [clojure.algo.generic.functor :as algo]
             [clojure.java.io :as io]
             [clojure.string :as string]
