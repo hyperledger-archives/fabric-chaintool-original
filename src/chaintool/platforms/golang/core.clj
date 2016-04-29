@@ -167,22 +167,18 @@
     (protoc-cmd outputdir output)))
 
 ;;-----------------------------------------------------------------
-;; compile - generates all golang platform artifacts within the
-;; default location in the build area
+;; generate - generates all of our protobuf/go code based on the
+;; config
 ;;-----------------------------------------------------------------
-(defn compile [{:keys [path config output]}]
-  (dorun
-   (let [builddir (io/file path "build")
-         srcdir (io/file builddir "src")
-         intfdir (io/file path "src/interfaces")
-         interfaces (intf/compile intfdir config)]
+(defn generate [{:keys [ipath opath config]}]
+  (let [interfaces (intf/compile ipath config)]
 
      ;; generate protobuf output
      (dorun (for [interface interfaces]
-              (emit-proto srcdir interface)))
+              (emit-proto opath interface)))
 
      ;; generate our primary shim/stub
-     (let [path (io/file srcdir "hyperledger/ccs")]
+     (let [path (io/file opath "hyperledger/ccs")]
        (let [content (render-primary-shim config interfaces)
              filename (io/file path "shim.go")]
          (emit-golang filename content))
@@ -196,23 +192,35 @@
        ;; first process all _except_ the appinit interface
        (dorun (for [name provides]
                 (let [functions (intf/getallfunctions (interfaces name))]
-                  (emit-server-shim name functions srcdir))))
+                  (emit-server-shim name functions opath))))
 
        ;; and now special case the appinit  interface
-       (emit-server-shim "appinit" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} srcdir))
+       (emit-server-shim "appinit" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} opath))
 
      ;; generate our client shims
      (dorun (for [name (intf/getconsumes config)]
               (let [functions (intf/getallfunctions (interfaces name))]
-                (emit-shim name functions "client" srcdir "client-shim.go"))))
+                (emit-shim name functions "client" opath "client-shim.go"))))))
 
-     ;; install go dependencies
-     (go-cmd path {} "get" "-d" "-v" "chaincode")
+;;-----------------------------------------------------------------
+;; compile - generates all golang platform artifacts within the
+;; default location in the build area
+;;-----------------------------------------------------------------
+(defn compile [{:keys [path config output]}]
+  (let [builddir (io/file path "build")]
 
-     ;; build the actual code
-     (let [gobin (io/file builddir "bin")]
-       (io/make-parents (io/file gobin ".dummy"))
-       (io/make-parents output)
-       (go-cmd path {"GOBIN" (.getCanonicalPath gobin)} "build" "-o" (.getCanonicalPath output) "chaincode"))
+    ;; run our code generator
+    (generate {:ipath (io/file path "src/interfaces")
+               :opath (io/file builddir "src")
+               :config config})
 
-     (println "Compilation complete"))))
+    ;; install go dependencies
+    (go-cmd path {} "get" "-d" "-v" "chaincode")
+
+    ;; build the actual code
+    (let [gobin (io/file builddir "bin")]
+      (io/make-parents (io/file gobin ".dummy"))
+      (io/make-parents output)
+      (go-cmd path {"GOBIN" (.getCanonicalPath gobin)} "build" "-o" (.getCanonicalPath output) "chaincode"))
+
+    (println "Compilation complete")))
