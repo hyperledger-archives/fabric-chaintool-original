@@ -19,9 +19,9 @@
             [chaintool.build.golang :as golang])
   (:refer-clojure :exclude [compile]))
 
-(defn compile [path config output]
+(defn compile [{:keys [path config output] :as params}]
   (let [interfaces (intf/compile path config)]
 
     ;; generate golang output (shim, protobufs, etc)
     ;; FIXME: we need to switch on the Platform type
-    (golang/compile path config interfaces output)))
+    (golang/compile (assoc params :interfaces interfaces))))

@@ -170,7 +170,7 @@
 ;; compile - generates all golang platform artifacts within the
 ;; default location in the build area
 ;;-----------------------------------------------------------------
-(defn compile [path config interfaces output]
+(defn compile [{:keys [path config interfaces output]}]
   (dorun
    (let [builddir (io/file path "build")
          srcdir (io/file builddir "src")]

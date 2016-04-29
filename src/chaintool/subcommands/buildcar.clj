@@ -38,5 +38,5 @@
     (car.unpack/unpack index workingdir :false)
     (let [config (config.util/load workingdir)]
       (println "Building CAR" (.getCanonicalPath file))
-      (build.core/compile workingdir config output)
+      (build.core/compile {:path workingdir :config config :output output})
       (fileutils/recursive-delete (io/file workingdir)))))

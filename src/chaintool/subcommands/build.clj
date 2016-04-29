@@ -28,4 +28,4 @@
   (let [[path config] (config.util/load-from-options options)
         output (getoutput options path config)]
     (println "Build using configuration for " path)
-    (build.core/compile path config output)))
+    (build.core/compile {:path path :config config :output output})))
