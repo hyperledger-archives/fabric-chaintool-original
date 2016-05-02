@@ -161,7 +161,7 @@ server(base, intf) ::=
 package <intf.package>
 
 import (
-	proto "github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
         "<base>/ccs/stub"
         "errors"
@@ -235,7 +235,7 @@ client(base, intf) ::=
 package <intf.package>
 
 import (
-	proto "github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -300,7 +300,7 @@ implementserver(intf, func) ::=
 func (self *StubImpl) <func.name>Stub(stub *shim.ChaincodeStub, _params string) ([]byte, error) {
 
      params := &<func.param>{}
-     err := proto.UnmarshalString(_params, params)
+     err := proto.UnmarshalText(_params, params)
      if (err != nil) {
         return nil, err
      }
@@ -311,8 +311,7 @@ func (self *StubImpl) <func.name>Stub(stub *shim.ChaincodeStub, _params string) 
      }
 
      <if(func.rettype)>
-     marshaler := &proto.Marshaler{}
-     _result, err := marshaler.MarshalToString(result)
+     _result := proto.MarshalTextString(result)
      if (err != nil) {
           return nil, err
      }
@@ -330,11 +329,10 @@ implementclient(txn, intf, func) ::=
 func <func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.param>) <\\>
 <if(func.rettype)>(*<func.rettype>, error)<else>error<endif> {
 
-     marshaler := &proto.Marshaler{}
      args := make([]string, 1)
      var err error
 
-     args[0], err = marshaler.MarshalToString(params)
+     args[0] = proto.MarshalTextString(params)
      if (err != nil) {
         return <if(func.rettype)>nil, <endif>err
      }
@@ -343,7 +341,7 @@ func <func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.p
 
      <if(func.rettype)>
      result := &<func.rettype>{}
-     err = proto.UnmarshalString(string(_result), result)
+     err = proto.UnmarshalText(string(_result), result)
      if (err != nil) {
           return nil, err
      }
