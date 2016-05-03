@@ -14,13 +14,20 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
-(ns chaintool.subcommands.clean
-  (:require [chaintool.config.util :as config.util]
-            [chaintool.platforms.core :as platforms.core]
-            [chaintool.platforms.api :as platforms.api]))
+(ns chaintool.platforms.core
+  (:require [chaintool.platforms.golang.userspace :as golang]
+            [chaintool.platforms.golang.system :as syscc]
+            [chaintool.util :as util])
+  (:refer-clojure :exclude [find]))
 
-(defn run [options args]
-  (let [[path config] (config.util/load-from-options options)]
-    (when-let [platform (platforms.core/find config)]
-      (println "Cleaning project found at " path)
-      (platforms.api/clean platform {:path path}))))
+(def factories
+  {"org.hyperledger.chaincode.golang" golang/factory
+   "org.hyperledger.chaincode.system" syscc/factory})
+
+(defn find [config]
+  (let [platform (->> config :Platform)
+        name (:Name platform)
+        version (:Version platform)]
+    (if-let [factory (factories name)]
+      (factory version)
+      (util/abort -1 (str "Unknown platform type: \"" name "\"")))))

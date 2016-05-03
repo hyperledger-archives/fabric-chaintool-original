@@ -16,8 +16,8 @@
 ;; under the License.
 (ns chaintool.subcommands.package
   (:require [chaintool.config.util :as config]
-            [chaintool.car.write :as car]
-            [chaintool.car.ls :refer :all]
+            [chaintool.platforms.core :as platforms.core]
+            [chaintool.platforms.api :as platforms.api]
             [clojure.java.io :as io]
             [clojure.tools.cli :refer [parse-opts]]))
 
@@ -28,16 +28,11 @@
 
 (defn run [options args]
   (let [[path config] (config/load-from-options options)
-        filespec ["src" config/configname]
         compressiontype (:compress options)
-        outputfile (getoutputfile options path config)]
+        outputfile (getoutputfile options path config)
+        platform (platforms.core/find config)]
 
-    ;; emit header information after we know the file write was successful
-    (println "Writing CAR to:" (.getCanonicalPath outputfile))
-    (println "Using path" path (str filespec))
-
-    ;; generate the actual file
-    (car/write path filespec compressiontype outputfile)
-
-    ;; re-use the ls function to display the contents
-    (ls outputfile)))
+    (platforms.api/package platform {:path path
+                                     :config config
+                                     :compressiontype compressiontype
+                                     :outputfile outputfile})))

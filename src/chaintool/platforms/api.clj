@@ -14,13 +14,13 @@
 ;; KIND, either express or implied.  See the License for the
 ;; specific language governing permissions and limitations
 ;; under the License.
-(ns chaintool.subcommands.clean
-  (:require [chaintool.config.util :as config.util]
-            [chaintool.platforms.core :as platforms.core]
-            [chaintool.platforms.api :as platforms.api]))
 
-(defn run [options args]
-  (let [[path config] (config.util/load-from-options options)]
-    (when-let [platform (platforms.core/find config)]
-      (println "Cleaning project found at " path)
-      (platforms.api/clean platform {:path path}))))
+(ns chaintool.platforms.api)
+
+(defprotocol Platform
+  ;; Compiles the platform
+  (build [this params])
+  ;; Cleans any previous builds of the platform
+  (clean [this params])
+  ;; Packages the chaincode project according to the platform
+  (package [this params]))

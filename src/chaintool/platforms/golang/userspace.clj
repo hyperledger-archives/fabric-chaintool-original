@@ -16,31 +16,70 @@
 ;; under the License.
 
 (ns chaintool.platforms.golang.userspace
-  (:require [chaintool.platforms.golang.core :refer :all]
-            [clojure.java.io :as io])
+  (:require [chaintool.platforms.api :as platforms.api]
+            [chaintool.platforms.golang.core :refer :all]
+            [chaintool.util :as util]
+            [clojure.java.io :as io]
+            [chaintool.config.util :as config]
+            [chaintool.car.write :as car]
+            [chaintool.car.ls :refer :all]
+            [clojure.tools.file-utils :as fileutils])
   (:refer-clojure :exclude [compile]))
 
 ;;-----------------------------------------------------------------
-;; compile - generates all golang platform artifacts within the
-;; default location in the build area for standard chaincode
-;; applications.
+;; Supports "org.hyperledger.chaincode.golang" platform, a golang
+;; based environment for standard chaincode applications.
 ;;-----------------------------------------------------------------
-(defn compile [{:keys [path config output]}]
-  (let [builddir (io/file path "build")]
+(deftype GolangUserspacePlatform []
+  platforms.api/Platform
 
-    ;; run our code generator
-    (generate {:base "hyperledger"
-               :ipath (io/file path "src/interfaces")
-               :opath (io/file builddir "src")
-               :config config})
+  ;;-----------------------------------------------------------------
+  ;; build - generates all golang platform artifacts within the
+  ;; default location in the build area
+  ;;-----------------------------------------------------------------
+  (build [_ {:keys [path config output]}]
+    (let [builddir (io/file path "build")]
 
-    ;; install go dependencies
-    (go-cmd path {} "get" "-d" "-v" "chaincode")
+      ;; run our code generator
+      (generate {:base "hyperledger"
+                 :ipath (io/file path "src/interfaces")
+                 :opath (io/file builddir "src")
+                 :config config})
 
-    ;; build the actual code
-    (let [gobin (io/file builddir "bin")]
-      (io/make-parents (io/file gobin ".dummy"))
-      (io/make-parents output)
-      (go-cmd path {"GOBIN" (.getCanonicalPath gobin)} "build" "-o" (.getCanonicalPath output) "chaincode"))
+      ;; install go dependencies
+      (go-cmd path {} "get" "-d" "-v" "chaincode")
 
-    (println "Compilation complete")))
+      ;; build the actual code
+      (let [gobin (io/file builddir "bin")]
+        (io/make-parents (io/file gobin ".dummy"))
+        (io/make-parents output)
+        (go-cmd path {"GOBIN" (.getCanonicalPath gobin)} "build" "-o" (.getCanonicalPath output) "chaincode"))
+
+      (println "Compilation complete")))
+
+  ;;-----------------------------------------------------------------
+  ;; clean - cleans up any artifacts from a previous build, if any
+  ;;-----------------------------------------------------------------
+  (clean [_ {:keys [path]}]
+    (fileutils/recursive-delete (io/file path "build")))
+
+  ;;-----------------------------------------------------------------
+  ;; package - writes the chaincode package to the filesystem
+  ;;-----------------------------------------------------------------
+  (package [_ {:keys [path config outputfile compressiontype]}]
+    (let [filespec ["src" config/configname]]
+
+      ;; emit header information after we know the file write was successful
+      (println "Writing CAR to:" (.getCanonicalPath outputfile))
+      (println "Using path" path (str filespec))
+
+      ;; generate the actual file
+      (car/write path filespec compressiontype outputfile)
+
+      ;; re-use the ls function to display the contents
+      (ls outputfile))))
+
+(defn factory [version]
+  (if (= version 1)
+    (GolangUserspacePlatform.)
+    (util/abort -1 (str "Version " version " not supported"))))

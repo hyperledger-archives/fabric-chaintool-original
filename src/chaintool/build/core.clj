@@ -15,18 +15,11 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 (ns chaintool.build.core
-  (:require [chaintool.platforms.golang.userspace :as golang]
-            [chaintool.platforms.golang.system :as syscc]
-            [chaintool.util :as util])
+  (:require [chaintool.platforms.core :as platforms.core]
+            [chaintool.platforms.api :as platforms.api])
   (:refer-clojure :exclude [compile]))
 
-(def handlers
-  {"org.hyperledger.chaincode.golang" golang/compile
-   "org.hyperledger.chaincode.system" syscc/compile})
-
 (defn compile [{:keys [config] :as params}]
-  ;; generate platform output (shim, protobufs, etc)
-  (let [platform (->> config :Platform :Name)]
-    (if-let [handler (handlers platform)]
-      (handler params)
-      (util/abort -1 (str "Unknown platform type: \"" platform "\"")))))
+  (when-let [platform (platforms.core/find config)]
+    ;; generate platform output (shim, protobufs, etc)
+    (platforms.api/build platform params)))

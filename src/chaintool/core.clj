@@ -25,7 +25,7 @@
             [chaintool.subcommands.ls :as lscmd]
             [chaintool.subcommands.package :as packagecmd]
             [chaintool.subcommands.unpack :as unpackcmd]
-[chaintool.util :as util])
+            [chaintool.util :as util])
   (:gen-class))
 
 (defn option-merge [& args] (vec (apply concat args)))
