@@ -59,6 +59,26 @@ func (t *ShimHandler) Init(stub *shim.ChaincodeStub, function string, args []str
 // Callback representing the query of a chaincode
 <implementhandler(false)>
 
+func (t *ShimHandler) decodeFunction(re *regexp.Regexp, function string) (stub.Dispatcher, int, error) {
+
+        spec := re.FindAllStringSubmatch(function, -1)
+	if spec == nil {
+		return nil, 0, errors.New("Could not parse function name")
+	}
+
+	dispatcher, ok := t.dispatchers[spec[0][1]]
+	if !ok {
+		return nil, 0, errors.New("Interface not found")
+	}
+
+	index, err := strconv.Atoi(spec[0][2])
+	if err != nil {
+		return nil, 0, errors.New("Could not convert function index")
+	}
+
+	return dispatcher, index, nil
+}
+
 func (t *ShimHandler) addDispatcher(name string, interfaces Interfaces) error {
      intf, ok := interfaces[name]
      if !ok {
@@ -274,21 +294,10 @@ func (t *ShimHandler) <if(txn)>Invoke<else>Query<endif>(stub *shim.ChaincodeStub
 		return nil, errors.New("Expected exactly one argument")
 	}
 
-        re := <if(txn)>txnre<else>queryre<endif>
-        spec := re.FindAllStringSubmatch(function, -1)
-        if spec == nil {
-               return nil, errors.New("Could not parse function name")
-        }
-
-        dispatcher, ok := t.dispatchers[spec[0][1]]
-        if !ok {
-               return nil, errors.New("Interface not found")
-        }
-
-        index, err := strconv.Atoi(spec[0][2])
-        if err != nil {
-               return nil, errors.New("Could not convert function index")
-        }
+	dispatcher, index, err := t.decodeFunction(<if(txn)>txnre<else>queryre<endif>, function)
+	if err != nil {
+		return nil, err
+	}
 
         return dispatcher.Dispatch<if(txn)>Txn<else>Query<endif>(stub, index, args[0])
 }
