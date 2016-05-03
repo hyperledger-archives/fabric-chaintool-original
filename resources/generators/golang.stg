@@ -194,7 +194,7 @@ type CCInterface interface {
 
 
 type StubImpl struct {
-     Interface CCInterface
+     intf CCInterface
 }
 
 // Factory mechanics
@@ -207,7 +207,7 @@ func init() {
 }
 
 func (self *FactoryImpl) Create(intf interface{}) (stub.Dispatcher, error) {
-     return &StubImpl{Interface: intf.(CCInterface)}, nil
+     return &StubImpl{intf: intf.(CCInterface)}, nil
 }
 
 func (self *StubImpl) DispatchTxn(stub *shim.ChaincodeStub, function int, params string) ([]byte, error) {
@@ -314,7 +314,7 @@ func (self *StubImpl) <func.name>Stub(stub *shim.ChaincodeStub, _params string) 
         return nil, err
      }
 
-     <if(func.rettype)>result, err := <else>err = <endif>self.Interface.<func.name>(stub, params)
+     <if(func.rettype)>result, err := <else>err = <endif>self.intf.<func.name>(stub, params)
      if (err != nil) {
         return nil, err
      }
