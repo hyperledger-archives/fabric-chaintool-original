@@ -79,11 +79,7 @@ func (t *ShimHandler) decodeFunction(re *regexp.Regexp, function string) (stub.D
 	return dispatcher, index, nil
 }
 
-func (t *ShimHandler) addDispatcher(name string, interfaces Interfaces) error {
-     intf, ok := interfaces[name]
-     if !ok {
-             return errors.New("Interface not found")
-     }
+func (t *ShimHandler) addDispatcher(name string, intf interface{}) error {
 
      dispatcher, err := stub.Create(name, intf)
      if err != nil {
@@ -99,7 +95,11 @@ func Start(interfaces Interfaces) error {
        handler := &ShimHandler{dispatchers: make(Dispatchers)}
 
        // Validate all of the interfaces
-       <provides.values:{intf | <validateinterface(intf)> }; separator="\n">
+       for name, intf := range interfaces {
+           if err := handler.addDispatcher(name, intf); err != nil {
+              return err
+           }
+       }
 
        <if(system)>
        api.RegisterSysCC("<system>", handler)
@@ -362,9 +362,3 @@ func <func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.p
 
 >>
 
-validateinterface(intf) ::=
-<<
-if err := handler.addDispatcher("<intf.name>", interfaces); err != nil {
-   return err
-}
->>
