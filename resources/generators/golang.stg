@@ -283,7 +283,7 @@ declarefunctions(intf, functions) ::=
 dispatchfunction(txn, intf, func) ::=
 <<
 case function == <func.index>:
-     return self.<func.name>Stub(stub, params)
+     return self.proxy<func.name>(stub, params)
 >>
 
 implementhandler(txn) ::=
@@ -306,7 +306,7 @@ func (t *ShimHandler) <if(txn)>Invoke<else>Query<endif>(stub *shim.ChaincodeStub
 implementserver(intf, func) ::=
 <<
 
-func (self *StubImpl) <func.name>Stub(stub *shim.ChaincodeStub, _params string) ([]byte, error) {
+func (self *StubImpl) proxy<func.name>(stub *shim.ChaincodeStub, _params string) ([]byte, error) {
 
      params := &<func.param>{}
      err := proto.UnmarshalText(_params, params)
