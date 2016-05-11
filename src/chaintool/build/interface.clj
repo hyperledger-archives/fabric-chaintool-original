@@ -55,18 +55,6 @@
 (defn getinterfaces [config]
   (into '() (set/union (getprovides config) (getconsumes config))))
 
-(defn filename [intf]
-  (str intf ".cci"))
-
-(defn open [path intf]
-  (let [file (io/file path (filename intf))]
-    (cond
-      (.exists file)
-      file
-
-      :else
-      (util/abort -1 (str (.getCanonicalPath file) " not found")))))
-
 ;;-----------------------------------------------------------------
 ;; getX - helper functions to extract data from an interface AST
 ;;-----------------------------------------------------------------
@@ -305,19 +293,27 @@
           (recur (zip/next loc)))))))
 
 ;;-----------------------------------------------------------------
-;; takes an interface name, maps it to a file, and if present, compiles
-;; it to an AST.
+;; compileintf - Compile an interface to an AST.
 ;;-----------------------------------------------------------------
-(defn compileintf [path intf]
-  (let [file (open path intf)]
-    (println (str "[CCI] parse " (.getName file)))
-    (let [ast (->> file slurp parse)]
+(defn compileintf
 
-      (when-let [errors (verify-intf ast)]
-          (util/abort -1 (str "Errors parsing " (.getName file) ": " (string/join errors))))
+  ;; takes a path + interface name, maps it to a file, and compiles
+  ([path intf] (compileintf (io/file path (str intf ".cci"))))
 
-      ;; return the AST
-      ast)))
+  ;; pass an io/file in directly, and if present, compiles to AST
+  ([file]
+
+   (when (not (.exists file))
+     (util/abort -1 (str (.getCanonicalPath file) " not found")))
+
+   (println (str "[CCI] parse " (.getName file)))
+   (let [ast (->> file slurp parse)]
+
+     (when-let [errors (verify-intf ast)]
+       (util/abort -1 (str "Errors parsing " (.getName file) ": " (string/join errors))))
+
+     ;; return the AST
+     ast)))
 
 ;;-----------------------------------------------------------------
 ;; returns true if the interface contains a message named "Init"

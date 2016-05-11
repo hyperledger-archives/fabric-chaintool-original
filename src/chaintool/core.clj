@@ -23,6 +23,7 @@
             [chaintool.subcommands.buildcar :as buildcarcmd]
             [chaintool.subcommands.clean :as cleancmd]
             [chaintool.subcommands.ls :as lscmd]
+            [chaintool.subcommands.proto :as protocmd]
             [chaintool.subcommands.package :as packagecmd]
             [chaintool.subcommands.unpack :as unpackcmd]
             [chaintool.util :as util])
@@ -77,7 +78,14 @@
     :handler lscmd/run
     :arguments "path/to/file.car"
     :validate (fn [options arguments] (= (count arguments) 1))
-    :options common-options}])
+    :options common-options}
+
+   {:name "proto" :desc "Compiles a CCI file to a .proto"
+    :handler protocmd/run
+    :arguments "path/to/file.cci"
+    :validate (fn [options arguments] (= (count arguments) 1))
+    :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
+                           common-options)}])
 
 ;; N.B. the resulting map values are vectors each with a single map as an element
 ;;
