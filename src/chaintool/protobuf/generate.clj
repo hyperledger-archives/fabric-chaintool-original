@@ -28,8 +28,18 @@
 
 (deftype Field    [^String modifier ^String type ^String name ^String index])
 (deftype Message  [^String name ^ArrayList fields])
+(deftype Function [^String key ^String rettype ^String name ^String param])
 
 (defn typeconvert [[_ name]] name)
+
+(def function-class
+  {:transactions "txn"
+   :queries "query"})
+
+(defn getallfunctions [ast]
+  (flatten (for [[type functions] (intf/getallfunctions ast)]
+             (for [[_ func] functions]
+               (assoc func :type (function-class type))))))
 
 ;;-----------------------------------------------------------------
 ;; buildX - build our ST friendly objects from the AST
@@ -45,6 +55,14 @@
   (let [msgs (map buildmessage (intf/getmessages ast))]
     (into {} (map #(vector (.name %) %) msgs))))
 
+(defn buildfunction [name {:keys [rettype functionName param index type] :as ast}]
+  (let [key (str name "/" type "/" index)]
+    (->Function key rettype functionName param)))
+
+(defn buildfunctions [name ast]
+  (let [funcs (map #(buildfunction name %) (getallfunctions ast))]
+    (into {} (map #(vector (.key %) %) funcs))))
+
 ;;-----------------------------------------------------------------
 ;; to-string - compiles the interface into a protobuf
 ;; specification in a string, suitable for writing to a file or
@@ -52,11 +70,13 @@
 ;;-----------------------------------------------------------------
 (defn to-string [package [name ast]]
   (let [messages (buildmessages ast)
+        functions (buildfunctions name ast)
         stg  (STGroupFile. "generators/proto.stg")
         template (.getInstanceOf stg "protobuf")]
 
     (.add template "package" (if (nil? package) name package))
     (.add template "messages" messages)
+    (.add template "functions" functions)
     (.render template)))
 
 ;;-----------------------------------------------------------------
