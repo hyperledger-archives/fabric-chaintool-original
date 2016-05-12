@@ -184,6 +184,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
         "<base>/ccs/stub"
+        "encoding/base64"
         "errors"
 )
 
@@ -257,6 +258,7 @@ package <intf.package>
 import (
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+        "encoding/base64"
 )
 
 /* Client stubs */
@@ -309,7 +311,11 @@ implementserver(intf, func) ::=
 func (self *StubImpl) proxy<func.name>(stub *shim.ChaincodeStub, _params string) ([]byte, error) {
 
      params := &<func.param>{}
-     err := proto.UnmarshalText(_params, params)
+     _pbinput, err := base64.StdEncoding.DecodeString(_params)
+     if (err != nil) {
+        return nil, err
+     }
+     err = proto.Unmarshal(_pbinput, params)
      if (err != nil) {
         return nil, err
      }
@@ -320,7 +326,11 @@ func (self *StubImpl) proxy<func.name>(stub *shim.ChaincodeStub, _params string)
      }
 
      <if(func.rettype)>
-     _result := proto.MarshalTextString(result)
+     _pboutput, err := proto.Marshal(result)
+     if (err != nil) {
+        return nil, err
+     }
+     _result := base64.StdEncoding.EncodeToString(_pboutput)
      return []byte(_result), nil
      <else>
      return nil, nil
@@ -338,13 +348,18 @@ func <func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.p
      args := make([]string, 1)
      var err error
 
-     args[0] = proto.MarshalTextString(params)
+     _pboutput, err := proto.Marshal(params)
+     args[0] = base64.StdEncoding.EncodeToString(_pboutput)
 
      <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.<if(txn)>Invoke<else>Query<endif>Chaincode(chaincodeName, <compositename(txn, intf, func)>, args)
 
      <if(func.rettype)>
      result := &<func.rettype>{}
-     err = proto.UnmarshalText(string(_result), result)
+     _pbinput, err := base64.StdEncoding.DecodeString(_result)
+     if (err != nil) {
+          return nil, err
+     }
+     err = proto.Unmarshal(_pbinput, result)
      if (err != nil) {
           return nil, err
      }
