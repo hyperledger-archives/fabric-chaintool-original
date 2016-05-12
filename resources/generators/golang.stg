@@ -321,9 +321,6 @@ func (self *StubImpl) proxy<func.name>(stub *shim.ChaincodeStub, _params string)
 
      <if(func.rettype)>
      _result := proto.MarshalTextString(result)
-     if (err != nil) {
-          return nil, err
-     }
      return []byte(_result), nil
      <else>
      return nil, nil
@@ -342,9 +339,6 @@ func <func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.p
      var err error
 
      args[0] = proto.MarshalTextString(params)
-     if (err != nil) {
-        return <if(func.rettype)>nil, <endif>err
-     }
 
      <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.<if(txn)>Invoke<else>Query<endif>Chaincode(chaincodeName, <compositename(txn, intf, func)>, args)
 
