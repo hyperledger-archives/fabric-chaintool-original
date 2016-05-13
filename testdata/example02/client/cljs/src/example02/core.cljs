@@ -38,15 +38,19 @@
   (let [url (str "http://" host ":" port)]
     (println "Connecting to" url)
 
-    (deploy (assoc options
-                   :args #js {:partyA #js {
-                                           :entity "foo"
-                                           :value 100
-                                           }
-                              :partyB #js {
-                                           :entity "bar"
-                                           :value 100
-                                           }}
-                   :cb handler))
+    (deploy {:host host
+             :port port
+             :args #js {:partyA #js {
+                                     :entity "foo"
+                                     :value 100
+                                     }
+                        :partyB #js {
+                                     :entity "bar"
+                                     :value 100
+                                     }}
+             :cb handler})
 
-    (check-balance (assoc options :id "foo" :cb handler))))
+    (check-balance {:host host
+                    :port port
+                    :id "foo"
+                    :cb handler})))
