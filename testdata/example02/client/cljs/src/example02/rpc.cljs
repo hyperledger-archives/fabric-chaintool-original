@@ -1,13 +1,20 @@
-(ns example02.http
+(ns example02.rpc
   (:require [cljs.nodejs :as nodejs]))
 
 (def http (nodejs/require "http"))
 
-(defn stringify [json]
+(defn- stringify [json]
   (.stringify js/JSON json))
 
-(defn post [{:keys [host port path method id func args cb]}]
-  (let [meta #js {:host host
+(defn- response-handler [cb resp]
+  (.setEncoding resp "utf8")
+  (.on resp "data" (fn [data]
+                     (let [resp (js->clj (.parse js/JSON data) :keywordize-keys true)]
+                       (cb (select-keys resp [:error :result]))))))
+
+(defn- post [{:keys [host port path method id func args cb]}]
+  (let [url (str "http://" host ":" port)
+        meta #js {:host host
                   :port port
                   :path path
                   :method "POST"
@@ -20,10 +27,9 @@
                                 :ctorMsg #js {:function func
                                               :args #js [(.toBase64 args)]}}
                    :id "1"})
-        _ (println meta)
-        req (.request http meta cb)]
+        req (.request http meta (partial response-handler cb))]
 
-    (println data)
+    (println "HTTP POST:" url "-" data)
     (.write req data)
     (.end req)))
 
