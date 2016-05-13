@@ -10,16 +10,43 @@
     (.loadProtoFile pb (str "./" name ".proto") builder)
     (.build builder name)))
 
+(def init (loadproto "appinit"))
 (def app (loadproto "org.hyperledger.chaincode.example02"))
 
-(defn check-balance [{:keys [host port id cb]}]
-  (http/invoke {:host host
+(defn deploy [{:keys [host port args cb]}]
+  (http/deploy {:host host
                 :port port
                 :id #js {:name "mycc"}
-                :func "org.hyperledger.chaincode.example02/query/1"
-                :args (app/Entity. #js {:id id})}))
+                :func "init"
+                :args (init.Init. args)
+                :cb cb}))
+
+(defn check-balance [{:keys [host port id cb]}]
+  (http/query {:host host
+               :port port
+               :id #js {:name "mycc"}
+               :func "org.hyperledger.chaincode.example02/query/1"
+               :args (app.Entity. #js {:id id})
+               :cb cb}))
+
+(defn handler [resp]
+  (.setEncoding resp "utf8")
+  (.on resp "data" (fn [data]
+                     (println data))))
 
 (defn run [{:keys [host port] :as options}]
   (let [url (str "http://" host ":" port)]
     (println "Connecting to" url)
-    (check-balance (assoc options :id "foo" :cb (fn [resp] (println resp))))))
+
+    (deploy (assoc options
+                   :args #js {:partyA #js {
+                                           :entity "foo"
+                                           :value 100
+                                           }
+                              :partyB #js {
+                                           :entity "bar"
+                                           :value 100
+                                           }}
+                   :cb handler))
+
+    (check-balance (assoc options :id "foo" :cb handler))))
