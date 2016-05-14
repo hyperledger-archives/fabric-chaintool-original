@@ -9,6 +9,28 @@
 
 (nodejs/enable-util-print!)
 
+(def _commands
+  [["deploy"
+    (fn [{:keys [host port] :as options}]
+      (core/deploy {:host host
+                    :port port
+                    :args #js {:partyA #js {
+                                            :entity "foo"
+                                            :value 100
+                                            }
+                               :partyB #js {
+                                            :entity "bar"
+                                            :value 100
+                                            }}}))]
+   ["check-balance"
+    (fn [{:keys [host port] :as options}]
+      (core/check-balance {:host host
+                           :port port
+                           :id "foo"}))]])
+
+(def commands (into {} _commands))
+(defn print-commands [] (->> commands keys vec print-str))
+
 (def options
   [[nil "--host HOST" "Host name"
     :default "localhost"]
@@ -16,6 +38,9 @@
     :default 3000
     :parse-fn #(js/parseInt %)
     :validate [#(< 0 % 65536) "Must be a number between 0 and 65536"]]
+   ["-c" "--command CMD" (str "Command " (print-commands))
+    :default "check-balance"
+    :validate [#(contains? commands %) (str "Supported commands: " (print-commands))]]
    ["-h" "--help"]])
 
 (defn exit [status msg & rest]
@@ -33,6 +58,10 @@
                ""
                ]))
 
+(defn run [{:keys [command] :as options}]
+  (println (str "Running command \"" command "\""))
+  ((commands command) options))
+
 (defn -main [& args]
     (let [{:keys [options arguments errors summary]} (parse-opts args options)]
     (cond
@@ -44,6 +73,6 @@
       (exit -1 "Error: " (string/join errors))
 
       :else
-      (core/run options))))
+      (run options))))
 
 (set! *main-cli-fn* -main)

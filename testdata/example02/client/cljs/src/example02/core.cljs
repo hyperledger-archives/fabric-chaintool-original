@@ -33,19 +33,3 @@
                         (println "Success: Balance =" (.-balance result)))
                       ;; else
                       (println "Failure:" resp)))}))
-
-(defn run [{:keys [host port] :as options}]
-  (deploy {:host host
-           :port port
-           :args #js {:partyA #js {
-                                   :entity "foo"
-                                   :value 100
-                                   }
-                      :partyB #js {
-                                   :entity "bar"
-                                   :value 100
-                                   }}})
-
-  (check-balance {:host host
-                  :port port
-                  :id "foo"}))
