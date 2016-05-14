@@ -21,12 +21,12 @@
                :args (init.Init. args)
                :cb (fn [resp] (println "Response:" resp))}))
 
-(defn check-balance [{:keys [host port id]}]
+(defn check-balance [{:keys [host port args]}]
   (rpc/query {:host host
               :port port
               :id #js {:name "mycc"}
               :func "org.hyperledger.chaincode.example02/query/1"
-              :args (app.Entity. #js {:id id})
+              :args (app.Entity. args)
               :cb (fn [resp]
                     (if (= (->> resp :result :status) "OK")
                       (let [result (->> resp :result :message app.BalanceResult.decode64)]

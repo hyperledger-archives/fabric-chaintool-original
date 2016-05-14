@@ -26,7 +26,7 @@
     (fn [{:keys [host port] :as options}]
       (core/check-balance {:host host
                            :port port
-                           :id "foo"}))]])
+                           :args #js {:id "foo"}}))]])
 
 (def commands (into {} _commands))
 (defn print-commands [] (->> commands keys vec print-str))
