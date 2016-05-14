@@ -29,7 +29,9 @@
               :args (app.Entity. #js {:id id})
               :cb (fn [resp]
                     (if (= (->> resp :result :status) "OK")
-                      (println "Success: Balance =" (->> resp :result :message app.BalanceResult.decode64 .-balance))
+                      (let [result (->> resp :result :message app.BalanceResult.decode64)]
+                        (println "Success: Balance =" (.-balance result)))
+                      ;; else
                       (println "Failure:" resp)))}))
 
 (defn run [{:keys [host port] :as options}]
