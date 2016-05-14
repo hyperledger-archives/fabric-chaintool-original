@@ -13,8 +13,7 @@
                        (cb (select-keys resp [:error :result]))))))
 
 (defn- post [{:keys [host port path method id func args cb]}]
-  (let [url (str "http://" host ":" port)
-        meta #js {:host host
+  (let [meta #js {:host host
                   :port port
                   :path path
                   :method "POST"
@@ -29,7 +28,7 @@
                    :id "1"})
         req (.request http meta (partial response-handler cb))]
 
-    (println "HTTP POST:" url "-" data)
+    (println "HTTP POST:" (str "http://" host ":" port) "-" data)
     (.write req data)
     (.end req)))
 

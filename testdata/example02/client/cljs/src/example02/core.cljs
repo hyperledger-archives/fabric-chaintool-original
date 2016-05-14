@@ -27,7 +27,10 @@
               :id #js {:name "mycc"}
               :func "org.hyperledger.chaincode.example02/query/1"
               :args (app.Entity. #js {:id id})
-              :cb (fn [resp] (println "Response:" resp))}))
+              :cb (fn [resp]
+                    (if (= (->> resp :result :status) "OK")
+                      (println "Success: Balance =" (->> resp :result :message app.BalanceResult.decode64 .-balance))
+                      (println "Failure:" resp)))}))
 
 (defn run [{:keys [host port] :as options}]
   (deploy {:host host
