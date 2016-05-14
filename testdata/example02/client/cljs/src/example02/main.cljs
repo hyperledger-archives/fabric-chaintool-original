@@ -11,22 +11,18 @@
 
 (def _commands
   [["deploy"
-    (fn [{:keys [host port] :as options}]
-      (core/deploy {:host host
-                    :port port
-                    :args #js {:partyA #js {
-                                            :entity "foo"
-                                            :value 100
-                                            }
-                               :partyB #js {
-                                            :entity "bar"
-                                            :value 100
-                                            }}}))]
+    {:fn core/deploy
+     :default-args #js {:partyA #js {
+                                     :entity "foo"
+                                     :value 100
+                                     }
+                        :partyB #js {
+                                     :entity "bar"
+                                     :value 100
+                                     }}}]
    ["check-balance"
-    (fn [{:keys [host port] :as options}]
-      (core/check-balance {:host host
-                           :port port
-                           :args #js {:id "foo"}}))]])
+    {:fn core/check-balance
+     :default-args #js {:id "foo"}}]])
 
 (def commands (into {} _commands))
 (defn print-commands [] (->> commands keys vec print-str))
@@ -41,6 +37,7 @@
    ["-c" "--command CMD" (str "Command " (print-commands))
     :default "check-balance"
     :validate [#(contains? commands %) (str "Supported commands: " (print-commands))]]
+   ["-a" "--args ARGS" "JSON formatted arguments to submit"]
    ["-h" "--help"]])
 
 (defn exit [status msg & rest]
@@ -58,9 +55,11 @@
                ""
                ]))
 
-(defn run [{:keys [command] :as options}]
-  (println (str "Running command \"" command "\""))
-  ((commands command) options))
+(defn run [{:keys [command args] :as options}]
+  (let [desc (commands command)
+        _args (if (nil? args) (:default-args desc) (.parse js/JSON args))]
+    (println (str "Running " command "(" (.stringify js/JSON _args) ")"))
+    ((:fn desc) (assoc options :args _args))))
 
 (defn -main [& args]
     (let [{:keys [options arguments errors summary]} (parse-opts args options)]
