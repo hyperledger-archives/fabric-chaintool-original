@@ -3,8 +3,7 @@
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.34"]
-                 [org.clojure/tools.cli "0.3.3"]
-                 [org.clojure/core.async "0.2.374"]]
+                 [org.clojure/tools.cli "0.3.3"]]
   :jvm-opts ^:replace ["-Xmx1g" "-server"]
   :plugins [[lein-npm "0.6.1"]
             [lein-cljsbuild "1.1.3"]]

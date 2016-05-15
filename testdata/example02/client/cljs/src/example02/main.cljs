@@ -1,9 +1,7 @@
 (ns example02.main
-  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [clojure.string :as string]
             [cljs.nodejs :as nodejs]
             [cljs.tools.cli :refer [parse-opts]]
-            [cljs.core.async :refer [<!]]
             [example02.core :as core]))
 
 
