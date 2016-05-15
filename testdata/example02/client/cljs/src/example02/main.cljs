@@ -48,9 +48,9 @@
 (defn prep-usage [msg] (->> msg flatten (string/join \newline)))
 
 (defn usage [options-summary]
-  (prep-usage ["Usage: example02 [general-options]"
+  (prep-usage ["Usage: example02 [options]"
                ""
-               "General Options:"
+               "Options Summary:"
                options-summary
                ""
                ]))
