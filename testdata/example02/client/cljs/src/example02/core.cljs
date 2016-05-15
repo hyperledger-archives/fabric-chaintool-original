@@ -25,6 +25,12 @@
                      :args (app.PaymentParams. args)
                      :cb (fn [resp] (println "Response:" resp)))))
 
+(defn delete-account [{:keys [args] :as options}]
+  (rpc/invoke (assoc options
+                     :func "org.hyperledger.chaincode.example02/txn/2"
+                     :args (app.Entity. args)
+                     :cb (fn [resp] (println "Response:" resp)))))
+
 (defn check-balance [{:keys [args] :as options}]
   (rpc/query (assoc options
                     :func "org.hyperledger.chaincode.example02/query/1"

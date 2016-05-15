@@ -23,6 +23,9 @@
      :default-args #js {:partySrc "foo"
                         :partyDst "bar"
                         :amount 10}}]
+   ["delete-account"
+    {:fn core/delete-account
+     :default-args #js {:id "foo"}}]
    ["check-balance"
     {:fn core/check-balance
      :default-args #js {:id "foo"}}]])
