@@ -13,23 +13,19 @@
 (def init (loadproto "appinit"))
 (def app (loadproto "org.hyperledger.chaincode.example02"))
 
-(defn deploy [{:keys [host port args]}]
-  (rpc/deploy {:host host
-               :port port
-               :id #js {:name "mycc"}
-               :func "init"
-               :args (init.Init. args)
-               :cb (fn [resp] (println "Response:" resp))}))
+(defn deploy [{:keys [args] :as options}]
+  (rpc/deploy (assoc options
+                     :func "init"
+                     :args (init.Init. args)
+                     :cb (fn [resp] (println "Response:" resp)))))
 
-(defn check-balance [{:keys [host port args]}]
-  (rpc/query {:host host
-              :port port
-              :id #js {:name "mycc"}
-              :func "org.hyperledger.chaincode.example02/query/1"
-              :args (app.Entity. args)
-              :cb (fn [resp]
-                    (if (= (->> resp :result :status) "OK")
-                      (let [result (->> resp :result :message app.BalanceResult.decode64)]
-                        (println "Success: Balance =" (.-balance result)))
-                      ;; else
-                      (println "Failure:" resp)))}))
+(defn check-balance [{:keys [args] :as options}]
+  (rpc/query (assoc options
+                    :func "org.hyperledger.chaincode.example02/query/1"
+                    :args (app.Entity. args)
+                    :cb (fn [resp]
+                          (if (= (->> resp :result :status) "OK")
+                            (let [result (->> resp :result :message app.BalanceResult.decode64)]
+                              (println "Success: Balance =" (.-balance result)))
+                            ;; else
+                            (println "Failure:" resp))))))

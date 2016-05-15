@@ -30,10 +30,12 @@
 (def options
   [[nil "--host HOST" "Host name"
     :default "localhost"]
-   ["-p" "--port PORT" "Port number"
+   [nil "--port PORT" "Port number"
     :default 3000
     :parse-fn #(js/parseInt %)
     :validate [#(< 0 % 65536) "Must be a number between 0 and 65536"]]
+   ["-p" "--path PATH" "Path/URL to the chaincode (deploy only, mutually exclsive with -n)"]
+   ["-n" "--name NAME" "Name of the chaincode (mutually exclusive with -p)"]
    ["-c" "--command CMD" (str "Command " (print-commands))
     :default "check-balance"
     :validate [#(contains? commands %) (str "Supported commands: " (print-commands))]]
@@ -55,11 +57,24 @@
                ""
                ]))
 
-(defn run [{:keys [command args] :as options}]
+(defn run [{:keys [path name command args] :as options}]
   (let [desc (commands command)
         _args (if (nil? args) (:default-args desc) (.parse js/JSON args))]
-    (println (str "Running " command "(" (.stringify js/JSON _args) ")"))
-    ((:fn desc) (assoc options :args _args))))
+    (cond
+
+      (and (some? path) (some? name))
+      (println "ERROR: -p and -n are mutually exclusive")
+
+      (and (nil? path) (nil? name))
+      (println "ERROR: Must specify either -p or -n")
+
+      (and (some? path) (not= command "deploy"))
+      (println "ERROR: -p only valid with deploy command")
+
+      :else
+      (let [id (if (some? path) #js {:path path} #js {:name name})]
+        (println (str "Running " command "(" (.stringify js/JSON _args) ")"))
+        ((:fn desc) (assoc options :id id :args _args))))))
 
 (defn -main [& args]
     (let [{:keys [options arguments errors summary]} (parse-opts args options)]
