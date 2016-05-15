@@ -36,7 +36,7 @@
     :validate [#(< 0 % 65536) "Must be a number between 0 and 65536"]]
    ["-p" "--path PATH" "Path/URL to the chaincode (deploy only, mutually exclsive with -n)"]
    ["-n" "--name NAME" "Name of the chaincode (mutually exclusive with -p)"]
-   ["-c" "--command CMD" (str "Command " (print-commands))
+   ["-c" "--command CMD" (str "One of " (print-commands))
     :default "check-balance"
     :validate [#(contains? commands %) (str "Supported commands: " (print-commands))]]
    ["-a" "--args ARGS" "JSON formatted arguments to submit"]
@@ -50,7 +50,7 @@
 (defn prep-usage [msg] (->> msg flatten (string/join \newline)))
 
 (defn usage [options-summary]
-  (prep-usage ["Usage: hello [general-options]"
+  (prep-usage ["Usage: example02 [general-options]"
                ""
                "General Options:"
                options-summary
