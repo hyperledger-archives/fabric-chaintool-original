@@ -131,10 +131,10 @@ Combines _unpack_ with _build_ by utilizing a temporary directory.  This allows 
 
 Like many modern build tools, CHAINTOOL is opinionated.  It expects a specific structure to your project as follows:
 
-- [chaincode.yaml](./testdata/example02/chaincode.yaml) in the top-level directory of your project (discussed below)
-- a chaincode entry-point in ./src/chaincode ([example](./testdata/example02/src/chaincode/chaincode_example02.go))
-- interface files in ./src/interfaces ([example](./testdata/example02/src/interfaces/org.hyperledger.chaincode.example02.cci))
-   - every project must define an appinit interface ./src/interfaces/appinit.cci ([example](./testdata/example02/src/interfaces/appinit.cci))
+- [chaincode.yaml](./examples/example02/app/chaincode.yaml) in the top-level directory of your project (discussed below)
+- a chaincode entry-point in ./src/chaincode ([example](./examples/example02/app/src/chaincode/chaincode_example02.go))
+- interface files in ./src/interfaces ([example](./examples/example02/app/src/interfaces/org.hyperledger.chaincode.example02.cci))
+   - every project must define an appinit interface ./src/interfaces/appinit.cci ([example](./examples/example02/app/src/interfaces/appinit.cci))
 
 ### chaincode.yaml
 
