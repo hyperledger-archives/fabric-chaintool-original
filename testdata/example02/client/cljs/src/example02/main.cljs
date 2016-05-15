@@ -18,6 +18,11 @@
                                      :entity "bar"
                                      :value 100
                                      }}}]
+   ["make-payment"
+    {:fn core/make-payment
+     :default-args #js {:partySrc "foo"
+                        :partyDst "bar"
+                        :amount 10}}]
    ["check-balance"
     {:fn core/check-balance
      :default-args #js {:id "foo"}}]])

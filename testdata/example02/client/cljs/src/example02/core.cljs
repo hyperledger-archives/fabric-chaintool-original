@@ -19,6 +19,12 @@
                      :args (init.Init. args)
                      :cb (fn [resp] (println "Response:" resp)))))
 
+(defn make-payment [{:keys [args] :as options}]
+  (rpc/invoke (assoc options
+                     :func "org.hyperledger.chaincode.example02/txn/1"
+                     :args (app.PaymentParams. args)
+                     :cb (fn [resp] (println "Response:" resp)))))
+
 (defn check-balance [{:keys [args] :as options}]
   (rpc/query (assoc options
                     :func "org.hyperledger.chaincode.example02/query/1"
