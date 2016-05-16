@@ -343,4 +343,5 @@ message PaymentParams {
 # Platforms
 
 The following is a list of the currently supported chaincode platforms
-* [org.hyperledger.chaincode.golang](./documentation/platforms/golang/README.md)
+* [org.hyperledger.chaincode.golang](./documentation/platforms/golang/README.md) - The canonical platform for chaincode development, expressed as a chaintool managed superset.
+* org.hyperledger.chaincode.system - A special variant of [org.hyperledger.chaincode.golang](./documentation/platforms/golang/README.md) designed for system-chaincode development as an extension of the hyperledger fabric.  This platform is implicitly golang based and notably not compiled as system chaincode is compiled as part of the fabric build.
