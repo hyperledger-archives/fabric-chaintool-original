@@ -92,9 +92,15 @@ func (t *ShimHandler) addDispatcher(name string, intf interface{}) error {
 
 func Start(interfaces Interfaces) error {
 
+       metadata := &ChaincodeMetaData{}
        handler := &ShimHandler{dispatchers: make(Dispatchers)}
 
-       // Validate all of the interfaces
+       // Install our metadata impl first so that we give the user a chance to subclass and override
+       if err := handler.addDispatcher("org.hyperledger.chaintool.meta", metadata); err != nil {
+		return err
+       }
+
+       // Install all of the declared interfaces
        for name, intf := range interfaces {
            if err := handler.addDispatcher(name, intf); err != nil {
               return err
@@ -163,6 +169,61 @@ func Create(name string, intf interface{}) (Dispatcher, error) {
 
      return factory.Create(intf)
 }
+>>
+
+metadata(provides) ::=
+<<
+<!
+!-------------------------------------------------------------------------------------------------
+! metadata
+!-------------------------------------------------------------------------------------------------
+!
+! This template defines our metadata interface, allowing clients to query us for things like
+! a list of the interfaces we support
+!
+!-------------------------------------------------------------------------------------------------
+!>
+package ccs
+
+import (
+        "errors"
+	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"hyperledger/cci/org/hyperledger/chaintool/meta"
+)
+
+var interfaces = map[string][]byte {
+        <provides.values:{intf|"<intf.name>": []byte("<intf.bytes>"),}; separator="\n">
+}
+
+type ChaincodeMetaData struct {
+}
+
+func (t *ChaincodeMetaData) GetInterfaces(stub *shim.ChaincodeStub, params *meta.GetInterfacesParams) (*meta.Interfaces, error) {
+
+	response := &meta.Interfaces{}
+	for name, data := range interfaces {
+		desc := &meta.InterfaceDescriptor{Name: name}
+
+		if params.IncludeContent {
+			desc.Data = data
+		}
+
+		response.Descriptors = append(response.Descriptors, desc)
+	}
+
+	return response, nil
+}
+
+func (t *ChaincodeMetaData) GetInterface(stub *shim.ChaincodeStub, params *meta.GetInterfaceParams) (*meta.InterfaceDescriptor, error) {
+
+	intf, ok := interfaces[params.Name]
+	if !ok {
+		return nil, errors.New("Interface " + params.Name + " not found")
+	}
+
+	return &meta.InterfaceDescriptor{Data: intf}, nil
+}
+
 >>
 
 server(base, intf) ::=

@@ -23,9 +23,11 @@
             [me.raynes.conch.low-level :as sh]
             [chaintool.build.interface :as intf]
             [chaintool.protobuf.generate :as pb]
-            [chaintool.util :as util])
+            [chaintool.util :as util]
+            [chaintool.codecs :as codecs])
   (:import (java.util ArrayList)
-           (org.stringtemplate.v4 STGroupFile)))
+           (org.stringtemplate.v4 STGroupFile)
+           (org.apache.commons.io.output ByteArrayOutputStream)))
 
 (conch/programs protoc)
 (conch/programs gofmt)
@@ -35,6 +37,7 @@
 
 (deftype Function  [^String rettype ^String name ^String param ^Integer index])
 (deftype Interface  [^String name ^String package ^String packageCamel ^String packagepath ^ArrayList transactions ^ArrayList queries])
+(deftype CCI [^String name ^String bytes])
 
 ;;------------------------------------------------------------------
 ;; helper functions
@@ -108,6 +111,24 @@
 (defn build [base interfaces]
   (into {} (map (fn [[name interface]] (buildinterface base name interface)) interfaces)))
 
+(defn buildcci [ipath name]
+  (let [path (io/file ipath (str name ".cci"))
+        os (ByteArrayOutputStream.)]
+
+    (do
+      ;; first compress the file into memory
+      (with-open [is (io/input-stream path)
+                  compressor (codecs/compressor "gzip" os)]
+        (io/copy is compressor))
+
+      ;; compute our new string value for []byte
+      (let [data (string/join (for [i (seq (.toByteArray os))] (format "\\x%02x" i)))]
+        ;; finally, construct a new CCI object
+        (vector name (->CCI name data))))))
+
+(defn buildccis [ipath interfaces]
+  (into {} (map (fn [interface] (buildcci ipath interface)) interfaces)))
+
 ;;-----------------------------------------------------------------
 ;; generic template rendering
 ;;-----------------------------------------------------------------
@@ -131,10 +152,13 @@
                               ["provides" provides]])))
 
 ;;-----------------------------------------------------------------
-;; render stub output
+;; render metadata - compiles the interfaces into metadata
+;; structures suitable for surfacing via the
+;; org.hyperledger.chaintool.meta interface
 ;;-----------------------------------------------------------------
-(defn render-stub [config]
-  (render-golang "stub" []))
+(defn render-metadata [config ipath]
+  (let [provides (buildccis ipath (intf/getprovides config))]
+    (render-golang "metadata" [["provides" provides]])))
 
 ;;-----------------------------------------------------------------
 ;; write golang source to the filesystem, using gofmt to clean
@@ -170,12 +194,25 @@
     ;; execute the protoc compiler to generate golang
     (protoc-cmd outputdir output)))
 
+(def metadata-name "org.hyperledger.chaintool.meta")
+(defn compile-metadata []
+  (let [data (->> (str "metadata/" metadata-name ".cci") io/resource slurp)]
+    (intf/compileintf {:path metadata-name :data data})))
+
+;;-----------------------------------------------------------------
+;; compile interfaces
+;;-----------------------------------------------------------------
+(defn compile-interfaces [ipath config]
+  (let [interfaces (intf/compile ipath config)
+        metadata (compile-metadata)]
+    (assoc interfaces metadata-name metadata)))
+
 ;;-----------------------------------------------------------------
 ;; generate - generates all of our protobuf/go code based on the
 ;; config
 ;;-----------------------------------------------------------------
 (defn generate [{:keys [ipath opath config base package] :as params}]
-  (let [interfaces (intf/compile ipath config)]
+  (let [interfaces (compile-interfaces ipath config)]
 
      ;; generate protobuf output
      (dorun (for [interface interfaces]
@@ -186,12 +223,15 @@
        (let [content (render-primary-shim base package config interfaces)
              filename (io/file path "shim.go")]
          (emit-golang filename content))
-       (let [content (render-stub config)
+       (let [content (render-metadata config ipath)
+             filename (io/file path "metadata.go")]
+         (emit-golang filename content))
+       (let [content (render-golang "stub" [])
              filename (io/file path "stub" "stub.go")]
          (emit-golang filename content)))
 
      ;; generate our server shims
-     (let [provides (->> config intf/getprovides (filter #(not= % "appinit")))]
+     (let [provides (->> config intf/getprovides (filter #(not= % "appinit")) (cons metadata-name))]
 
        ;; first process all _except_ the appinit interface
        (dorun (for [name provides]
