@@ -1,14 +1,15 @@
 SRCS = $(shell find src -type f)
+LEIN = $(shell which lein || echo ../../../../lein)
 
 all: client
 
 client: ./out/example02.js
 
 node_modules: project.clj
-	lein npm install
+	$(LEIN) npm install
 
 ./out/example02.js: $(SRCS) node_modules Makefile
-	lein cljsbuild once
+	$(LEIN) cljsbuild once
 	@echo "Compilation complete: use \"node $@ --help\" for execution instructions"
 
 clean:
