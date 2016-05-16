@@ -338,7 +338,8 @@ message PaymentParams {
 // void DeleteAccount(Entity) -> org.hyperledger.chaincode.example02/txn/2
 // BalanceResult CheckBalance(Entity) -> org.hyperledger.chaincode.example02/query/1
 ```
-
+# Examples
+Explore our [examples](./examples) or visit the [documentation for example02](./examples/example02/README.md)
 
 # Platforms
 
