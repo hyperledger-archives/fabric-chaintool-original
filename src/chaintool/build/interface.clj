@@ -298,19 +298,18 @@
 (defn compileintf
 
   ;; takes a path + interface name, maps it to a file, and compiles
-  ([path intf] (compileintf (io/file path (str intf ".cci"))))
+  ([path intf]
+   (println (str "[CCI] parse " intf))
+   (let [path (io/file path (str intf ".cci"))
+         data (util/safe-slurp path)]
+     (compileintf {:path (.getCanonicalPath path) :data data})))
 
-  ;; pass an io/file in directly, and if present, compiles to AST
-  ([file]
-
-   (when (not (.exists file))
-     (util/abort -1 (str (.getCanonicalPath file) " not found")))
-
-   (println (str "[CCI] parse " (.getName file)))
-   (let [ast (->> file slurp parse)]
+  ;; pass the raw interface bytes in directly and compile to AST
+  ([{:keys [path data]}]
+   (let [ast (parse data)]
 
      (when-let [errors (verify-intf ast)]
-       (util/abort -1 (str "Errors parsing " (.getName file) ": " (string/join errors))))
+       (util/abort -1 (str "Errors parsing " path ": " (string/join errors))))
 
      ;; return the AST
      ast)))

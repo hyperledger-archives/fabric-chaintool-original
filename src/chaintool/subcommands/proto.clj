@@ -19,7 +19,8 @@
   (:require [clojure.java.io :as io]
             [me.raynes.fs :as fs]
             [chaintool.build.interface :as intf]
-            [chaintool.protobuf.generate :as pb]))
+            [chaintool.protobuf.generate :as pb]
+            [chaintool.util :as util]))
 
 (defn getoutputfile [options input name]
   (if-let [output (:output options)]
@@ -30,5 +31,5 @@
   (let [input (io/file (first args))
         name (fs/base-name input true)
         output (getoutputfile options input name)
-        intf (intf/compileintf input)]
+        intf (intf/compileintf {:path (.getCanonicalPath input) :data (util/safe-slurp input)})]
     (pb/to-file output name [name intf])))

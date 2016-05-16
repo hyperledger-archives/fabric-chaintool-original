@@ -34,3 +34,8 @@
 ;; function and exit cleanly with an error message rather than a stacktrace, etc
 (defn abort [retval msg]
   (slingshot/throw+ {:type :chaintoolabort :retval retval :msg msg}))
+
+(defn safe-slurp [file]
+  (if (.exists file)
+    (slurp file)
+    (abort -1 (str (.getCanonicalPath file) " not found"))))
