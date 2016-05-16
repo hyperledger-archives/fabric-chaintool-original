@@ -175,7 +175,6 @@
 ;; config
 ;;-----------------------------------------------------------------
 (defn generate [{:keys [ipath opath config base package] :as params}]
-  (println params)
   (let [interfaces (intf/compile ipath config)]
 
      ;; generate protobuf output
