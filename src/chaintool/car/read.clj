@@ -19,7 +19,7 @@
   (:require [flatland.protobuf.core :as fl]
             [chaintool.util :as util]
             [chaintool.car.types :refer :all]
-            [chaintool.car.codecs :as codecs]
+            [chaintool.codecs :as codecs]
             [chaintool.config.parser :as config.parser]
             [chaintool.config.util :as config.util]
             [pandect.algo.sha1 :refer :all])

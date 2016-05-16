@@ -15,7 +15,7 @@
 ;; specific language governing permissions and limitations
 ;; under the License.
 
-(ns chaintool.car.codecs
+(ns chaintool.codecs
   (:import (lzma.streams LzmaOutputStream$Builder)
            (org.apache.commons.compress.compressors.lzma LZMACompressorInputStream)
            (org.apache.commons.compress.compressors.bzip2 BZip2CompressorOutputStream

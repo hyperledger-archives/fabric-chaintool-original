@@ -21,7 +21,7 @@
             [clojure.string :as string]
             [flatland.protobuf.core :as fl]
             [chaintool.car.types :refer :all]
-            [chaintool.car.codecs :as codecs]
+            [chaintool.codecs :as codecs]
             [pandect.algo.sha1 :refer :all])
   (:import (org.apache.commons.io.input TeeInputStream)
            (org.apache.commons.io.output ByteArrayOutputStream
