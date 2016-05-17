@@ -49,7 +49,7 @@ func (t *ShimHandler) Init(stub *shim.ChaincodeStub, function string, args []str
         if !ok {
                return nil, errors.New("Interface not found")
         }
-        
+
         return dispatcher.DispatchTxn(stub, 1, args[0])
 }
 
@@ -370,4 +370,3 @@ func <func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.p
 }
 
 >>
-
