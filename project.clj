@@ -11,6 +11,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.cli "0.3.3"]
                  [org.clojure/algo.generic "0.1.2"]
+                 [org.clojure/data.codec "0.1.0"]
                  [instaparse "1.4.1"]
                  [clojure-tools "1.1.3"]
                  [org.antlr/ST4 "4.0.8"]
@@ -24,7 +25,9 @@
                  [pandect "0.5.4"]
                  [doric "0.9.0"]
                  [circleci/clj-yaml "0.5.5"]
-                 [slingshot "0.12.2"]]
+                 [slingshot "0.12.2"]
+                 [clj-http "2.2.0"]
+                 [cheshire "5.6.1"]]
   :main ^:skip-aot chaintool.core
   :bin {:name "chaintool"
         :bin-path "target"

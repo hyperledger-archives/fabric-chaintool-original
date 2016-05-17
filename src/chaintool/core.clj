@@ -26,6 +26,7 @@
             [chaintool.subcommands.proto :as protocmd]
             [chaintool.subcommands.package :as packagecmd]
             [chaintool.subcommands.unpack :as unpackcmd]
+            [chaintool.subcommands.inspect :as inspectcmd]
             [chaintool.util :as util])
   (:gen-class))
 
@@ -85,6 +86,19 @@
     :arguments "path/to/file.cci"
     :validate (fn [options arguments] (= (count arguments) 1))
     :options (option-merge [["-o" "--output NAME" "path to the output destination"]]
+                           common-options)}
+
+   {:name "inspect" :desc "Retrieves metadata from a running instance"
+    :handler inspectcmd/run
+    :validate (fn [options arguments] (:name options))
+    :options (option-merge [[nil "--host HOST" "The API hostname of the running fabric"
+                             :default "localhost"]
+                            [nil "--port PORT" "The API port of the running fabric"
+                             :default 3000
+                             :parse-fn #(Integer/parseInt %)
+                             :validate [#(< 0 % 65536) "Must be a number between 0 and 65536"]]
+                            ["-n" "--name NAME" "The name of the chaincode instance"]
+                            ["-i" "--interfaces PATH" "retrieve interfaces from endpoint and saves them to PATH"]]
                            common-options)}])
 
 ;; N.B. the resulting map values are vectors each with a single map as an element
