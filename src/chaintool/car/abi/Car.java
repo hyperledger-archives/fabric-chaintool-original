@@ -57,37 +57,29 @@ public final class Car {
   /**
    * Protobuf type {@code chaintool.car.abi.CompatibilityHeader}
    */
-  public static final class CompatibilityHeader extends
+  public  static final class CompatibilityHeader extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:chaintool.car.abi.CompatibilityHeader)
       CompatibilityHeaderOrBuilder {
     // Use CompatibilityHeader.newBuilder() to construct.
     private CompatibilityHeader(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private CompatibilityHeader(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final CompatibilityHeader defaultInstance;
-    public static CompatibilityHeader getDefaultInstance() {
-      return defaultInstance;
+    private CompatibilityHeader() {
+      magic_ = "";
+      version_ = 0;
+      features_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
 
-    public CompatibilityHeader getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private CompatibilityHeader(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -129,10 +121,11 @@ public final class Car {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
           features_ = features_.getUnmodifiableView();
@@ -153,24 +146,9 @@ public final class Car {
               chaintool.car.abi.Car.CompatibilityHeader.class, chaintool.car.abi.Car.CompatibilityHeader.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<CompatibilityHeader> PARSER =
-        new com.google.protobuf.AbstractParser<CompatibilityHeader>() {
-      public CompatibilityHeader parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new CompatibilityHeader(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<CompatibilityHeader> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int MAGIC_FIELD_NUMBER = 1;
-    private java.lang.Object magic_;
+    private volatile java.lang.Object magic_;
     /**
      * <code>required string magic = 1;</code>
      */
@@ -255,11 +233,6 @@ public final class Car {
       return features_.getByteString(index);
     }
 
-    private void initFields() {
-      magic_ = "";
-      version_ = 0;
-      features_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -280,28 +253,25 @@ public final class Car {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getMagicBytes());
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, magic_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt32(2, version_);
       }
       for (int i = 0; i < features_.size(); i++) {
-        output.writeBytes(3, features_.getByteString(i));
+        com.google.protobuf.GeneratedMessage.writeString(output, 3, features_.getRaw(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getMagicBytes());
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, magic_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -310,24 +280,17 @@ public final class Car {
       {
         int dataSize = 0;
         for (int i = 0; i < features_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(features_.getByteString(i));
+          dataSize += computeStringSizeNoTag(features_.getRaw(i));
         }
         size += dataSize;
         size += 1 * getFeaturesList().size();
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static chaintool.car.abi.Car.CompatibilityHeader parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -381,12 +344,17 @@ public final class Car {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(chaintool.car.abi.Car.CompatibilityHeader prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(chaintool.car.abi.Car.CompatibilityHeader prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -427,10 +395,6 @@ public final class Car {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         magic_ = "";
@@ -440,10 +404,6 @@ public final class Car {
         features_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000004);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -514,17 +474,16 @@ public final class Car {
           }
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
         if (!hasMagic()) {
-          
           return false;
         }
         if (!hasVersion()) {
-          
           return false;
         }
         return true;
@@ -753,12 +712,48 @@ public final class Car {
       // @@protoc_insertion_point(builder_scope:chaintool.car.abi.CompatibilityHeader)
     }
 
+    // @@protoc_insertion_point(class_scope:chaintool.car.abi.CompatibilityHeader)
+    private static final chaintool.car.abi.Car.CompatibilityHeader DEFAULT_INSTANCE;
     static {
-      defaultInstance = new CompatibilityHeader(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new chaintool.car.abi.Car.CompatibilityHeader();
     }
 
-    // @@protoc_insertion_point(class_scope:chaintool.car.abi.CompatibilityHeader)
+    public static chaintool.car.abi.Car.CompatibilityHeader getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<CompatibilityHeader>
+        PARSER = new com.google.protobuf.AbstractParser<CompatibilityHeader>() {
+      public CompatibilityHeader parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new CompatibilityHeader(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<CompatibilityHeader> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<CompatibilityHeader> getParserForType() {
+      return PARSER;
+    }
+
+    public chaintool.car.abi.Car.CompatibilityHeader getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface ArchiveOrBuilder extends
@@ -790,37 +785,27 @@ public final class Car {
   /**
    * Protobuf type {@code chaintool.car.abi.Archive}
    */
-  public static final class Archive extends
+  public  static final class Archive extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:chaintool.car.abi.Archive)
       ArchiveOrBuilder {
     // Use Archive.newBuilder() to construct.
     private Archive(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Archive(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Archive defaultInstance;
-    public static Archive getDefaultInstance() {
-      return defaultInstance;
+    private Archive() {
+      payload_ = com.google.protobuf.ByteString.EMPTY;
     }
 
-    public Archive getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Archive(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -844,7 +829,7 @@ public final class Car {
               if (((bitField0_ & 0x00000001) == 0x00000001)) {
                 subBuilder = signature_.toBuilder();
               }
-              signature_ = input.readMessage(chaintool.car.abi.Car.Archive.Signature.PARSER, extensionRegistry);
+              signature_ = input.readMessage(chaintool.car.abi.Car.Archive.Signature.parser(), extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(signature_);
                 signature_ = subBuilder.buildPartial();
@@ -860,10 +845,11 @@ public final class Car {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -879,21 +865,6 @@ public final class Car {
       return chaintool.car.abi.Car.internal_static_chaintool_car_abi_Archive_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               chaintool.car.abi.Car.Archive.class, chaintool.car.abi.Car.Archive.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<Archive> PARSER =
-        new com.google.protobuf.AbstractParser<Archive>() {
-      public Archive parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Archive(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Archive> getParserForType() {
-      return PARSER;
     }
 
     public interface SignatureOrBuilder extends
@@ -935,37 +906,29 @@ public final class Car {
     /**
      * Protobuf type {@code chaintool.car.abi.Archive.Signature}
      */
-    public static final class Signature extends
+    public  static final class Signature extends
         com.google.protobuf.GeneratedMessage implements
         // @@protoc_insertion_point(message_implements:chaintool.car.abi.Archive.Signature)
         SignatureOrBuilder {
       // Use Signature.newBuilder() to construct.
       private Signature(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
-        this.unknownFields = builder.getUnknownFields();
       }
-      private Signature(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final Signature defaultInstance;
-      public static Signature getDefaultInstance() {
-        return defaultInstance;
+      private Signature() {
+        type_ = 1;
+        description_ = "";
+        data_ = com.google.protobuf.ByteString.EMPTY;
       }
 
-      public Signature getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
       @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
+      getUnknownFields() {
         return this.unknownFields;
       }
       private Signature(
           com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+        this();
         int mutable_bitField0_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -991,7 +954,7 @@ public final class Car {
                   unknownFields.mergeVarintField(1, rawValue);
                 } else {
                   bitField0_ |= 0x00000001;
-                  type_ = value;
+                  type_ = rawValue;
                 }
                 break;
               }
@@ -1009,10 +972,11 @@ public final class Car {
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
+          throw new RuntimeException(e.setUnfinishedMessage(this));
         } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
+          throw new RuntimeException(
+              new com.google.protobuf.InvalidProtocolBufferException(
+                  e.getMessage()).setUnfinishedMessage(this));
         } finally {
           this.unknownFields = unknownFields.build();
           makeExtensionsImmutable();
@@ -1028,21 +992,6 @@ public final class Car {
         return chaintool.car.abi.Car.internal_static_chaintool_car_abi_Archive_Signature_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 chaintool.car.abi.Car.Archive.Signature.class, chaintool.car.abi.Car.Archive.Signature.Builder.class);
-      }
-
-      public static com.google.protobuf.Parser<Signature> PARSER =
-          new com.google.protobuf.AbstractParser<Signature>() {
-        public Signature parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Signature(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<Signature> getParserForType() {
-        return PARSER;
       }
 
       /**
@@ -1070,7 +1019,9 @@ public final class Car {
         public static final int RSA_VALUE = 2;
 
 
-        public final int getNumber() { return value; }
+        public final int getNumber() {
+          return value;
+        }
 
         public static Type valueOf(int value) {
           switch (value) {
@@ -1084,8 +1035,8 @@ public final class Car {
             internalGetValueMap() {
           return internalValueMap;
         }
-        private static com.google.protobuf.Internal.EnumLiteMap<Type>
-            internalValueMap =
+        private static final com.google.protobuf.Internal.EnumLiteMap<
+            Type> internalValueMap =
               new com.google.protobuf.Internal.EnumLiteMap<Type>() {
                 public Type findValueByNumber(int number) {
                   return Type.valueOf(number);
@@ -1129,7 +1080,7 @@ public final class Car {
 
       private int bitField0_;
       public static final int TYPE_FIELD_NUMBER = 1;
-      private chaintool.car.abi.Car.Archive.Signature.Type type_;
+      private int type_;
       /**
        * <code>optional .chaintool.car.abi.Archive.Signature.Type type = 1;</code>
        */
@@ -1140,11 +1091,12 @@ public final class Car {
        * <code>optional .chaintool.car.abi.Archive.Signature.Type type = 1;</code>
        */
       public chaintool.car.abi.Car.Archive.Signature.Type getType() {
-        return type_;
+        chaintool.car.abi.Car.Archive.Signature.Type result = chaintool.car.abi.Car.Archive.Signature.Type.valueOf(type_);
+        return result == null ? chaintool.car.abi.Car.Archive.Signature.Type.NONE : result;
       }
 
       public static final int DESCRIPTION_FIELD_NUMBER = 2;
-      private java.lang.Object description_;
+      private volatile java.lang.Object description_;
       /**
        * <code>optional string description = 2;</code>
        */
@@ -1200,11 +1152,6 @@ public final class Car {
         return data_;
       }
 
-      private void initFields() {
-        type_ = chaintool.car.abi.Car.Archive.Signature.Type.NONE;
-        description_ = "";
-        data_ = com.google.protobuf.ByteString.EMPTY;
-      }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -1217,49 +1164,40 @@ public final class Car {
 
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
-        getSerializedSize();
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          output.writeEnum(1, type_.getNumber());
+          output.writeEnum(1, type_);
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          output.writeBytes(2, getDescriptionBytes());
+          com.google.protobuf.GeneratedMessage.writeString(output, 2, description_);
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           output.writeBytes(3, data_);
         }
-        getUnknownFields().writeTo(output);
+        unknownFields.writeTo(output);
       }
 
-      private int memoizedSerializedSize = -1;
       public int getSerializedSize() {
-        int size = memoizedSerializedSize;
+        int size = memoizedSize;
         if (size != -1) return size;
 
         size = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeEnumSize(1, type_.getNumber());
+            .computeEnumSize(1, type_);
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(2, getDescriptionBytes());
+          size += com.google.protobuf.GeneratedMessage.computeStringSize(2, description_);
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           size += com.google.protobuf.CodedOutputStream
             .computeBytesSize(3, data_);
         }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
+        size += unknownFields.getSerializedSize();
+        memoizedSize = size;
         return size;
       }
 
       private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
       public static chaintool.car.abi.Car.Archive.Signature parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1313,12 +1251,17 @@ public final class Car {
         return PARSER.parseFrom(input, extensionRegistry);
       }
 
-      public static Builder newBuilder() { return Builder.create(); }
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(chaintool.car.abi.Car.Archive.Signature prototype) {
-        return newBuilder().mergeFrom(prototype);
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
       }
-      public Builder toBuilder() { return newBuilder(this); }
+      public static Builder newBuilder(chaintool.car.abi.Car.Archive.Signature prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
 
       @java.lang.Override
       protected Builder newBuilderForType(
@@ -1359,23 +1302,15 @@ public final class Car {
           if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           }
         }
-        private static Builder create() {
-          return new Builder();
-        }
-
         public Builder clear() {
           super.clear();
-          type_ = chaintool.car.abi.Car.Archive.Signature.Type.NONE;
+          type_ = 1;
           bitField0_ = (bitField0_ & ~0x00000001);
           description_ = "";
           bitField0_ = (bitField0_ & ~0x00000002);
           data_ = com.google.protobuf.ByteString.EMPTY;
           bitField0_ = (bitField0_ & ~0x00000004);
           return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
         }
 
         public com.google.protobuf.Descriptors.Descriptor
@@ -1438,7 +1373,8 @@ public final class Car {
           if (other.hasData()) {
             setData(other.getData());
           }
-          this.mergeUnknownFields(other.getUnknownFields());
+          this.mergeUnknownFields(other.unknownFields);
+          onChanged();
           return this;
         }
 
@@ -1465,7 +1401,7 @@ public final class Car {
         }
         private int bitField0_;
 
-        private chaintool.car.abi.Car.Archive.Signature.Type type_ = chaintool.car.abi.Car.Archive.Signature.Type.NONE;
+        private int type_ = 1;
         /**
          * <code>optional .chaintool.car.abi.Archive.Signature.Type type = 1;</code>
          */
@@ -1476,7 +1412,8 @@ public final class Car {
          * <code>optional .chaintool.car.abi.Archive.Signature.Type type = 1;</code>
          */
         public chaintool.car.abi.Car.Archive.Signature.Type getType() {
-          return type_;
+          chaintool.car.abi.Car.Archive.Signature.Type result = chaintool.car.abi.Car.Archive.Signature.Type.valueOf(type_);
+          return result == null ? chaintool.car.abi.Car.Archive.Signature.Type.NONE : result;
         }
         /**
          * <code>optional .chaintool.car.abi.Archive.Signature.Type type = 1;</code>
@@ -1486,7 +1423,7 @@ public final class Car {
             throw new NullPointerException();
           }
           bitField0_ |= 0x00000001;
-          type_ = value;
+          type_ = value.getNumber();
           onChanged();
           return this;
         }
@@ -1495,7 +1432,7 @@ public final class Car {
          */
         public Builder clearType() {
           bitField0_ = (bitField0_ & ~0x00000001);
-          type_ = chaintool.car.abi.Car.Archive.Signature.Type.NONE;
+          type_ = 1;
           onChanged();
           return this;
         }
@@ -1614,12 +1551,48 @@ public final class Car {
         // @@protoc_insertion_point(builder_scope:chaintool.car.abi.Archive.Signature)
       }
 
+      // @@protoc_insertion_point(class_scope:chaintool.car.abi.Archive.Signature)
+      private static final chaintool.car.abi.Car.Archive.Signature DEFAULT_INSTANCE;
       static {
-        defaultInstance = new Signature(true);
-        defaultInstance.initFields();
+        DEFAULT_INSTANCE = new chaintool.car.abi.Car.Archive.Signature();
       }
 
-      // @@protoc_insertion_point(class_scope:chaintool.car.abi.Archive.Signature)
+      public static chaintool.car.abi.Car.Archive.Signature getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      @java.lang.Deprecated public static final com.google.protobuf.Parser<Signature>
+          PARSER = new com.google.protobuf.AbstractParser<Signature>() {
+        public Signature parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          try {
+            return new Signature(input, extensionRegistry);
+          } catch (RuntimeException e) {
+            if (e.getCause() instanceof
+                com.google.protobuf.InvalidProtocolBufferException) {
+              throw (com.google.protobuf.InvalidProtocolBufferException)
+                  e.getCause();
+            }
+            throw e;
+          }
+        }
+      };
+
+      public static com.google.protobuf.Parser<Signature> parser() {
+        return PARSER;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<Signature> getParserForType() {
+        return PARSER;
+      }
+
+      public chaintool.car.abi.Car.Archive.Signature getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
     }
 
     public interface PayloadOrBuilder extends
@@ -1666,37 +1639,27 @@ public final class Car {
     /**
      * Protobuf type {@code chaintool.car.abi.Archive.Payload}
      */
-    public static final class Payload extends
+    public  static final class Payload extends
         com.google.protobuf.GeneratedMessage implements
         // @@protoc_insertion_point(message_implements:chaintool.car.abi.Archive.Payload)
         PayloadOrBuilder {
       // Use Payload.newBuilder() to construct.
       private Payload(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
-        this.unknownFields = builder.getUnknownFields();
       }
-      private Payload(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final Payload defaultInstance;
-      public static Payload getDefaultInstance() {
-        return defaultInstance;
+      private Payload() {
+        entries_ = java.util.Collections.emptyList();
       }
 
-      public Payload getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
       @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
+      getUnknownFields() {
         return this.unknownFields;
       }
       private Payload(
           com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+        this();
         int mutable_bitField0_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -1720,7 +1683,7 @@ public final class Car {
                 if (((bitField0_ & 0x00000001) == 0x00000001)) {
                   subBuilder = compression_.toBuilder();
                 }
-                compression_ = input.readMessage(chaintool.car.abi.Car.Archive.Payload.Compression.PARSER, extensionRegistry);
+                compression_ = input.readMessage(chaintool.car.abi.Car.Archive.Payload.Compression.parser(), extensionRegistry);
                 if (subBuilder != null) {
                   subBuilder.mergeFrom(compression_);
                   compression_ = subBuilder.buildPartial();
@@ -1733,16 +1696,17 @@ public final class Car {
                   entries_ = new java.util.ArrayList<chaintool.car.abi.Car.Archive.Payload.Entries>();
                   mutable_bitField0_ |= 0x00000002;
                 }
-                entries_.add(input.readMessage(chaintool.car.abi.Car.Archive.Payload.Entries.PARSER, extensionRegistry));
+                entries_.add(input.readMessage(chaintool.car.abi.Car.Archive.Payload.Entries.parser(), extensionRegistry));
                 break;
               }
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
+          throw new RuntimeException(e.setUnfinishedMessage(this));
         } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
+          throw new RuntimeException(
+              new com.google.protobuf.InvalidProtocolBufferException(
+                  e.getMessage()).setUnfinishedMessage(this));
         } finally {
           if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
             entries_ = java.util.Collections.unmodifiableList(entries_);
@@ -1761,21 +1725,6 @@ public final class Car {
         return chaintool.car.abi.Car.internal_static_chaintool_car_abi_Archive_Payload_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 chaintool.car.abi.Car.Archive.Payload.class, chaintool.car.abi.Car.Archive.Payload.Builder.class);
-      }
-
-      public static com.google.protobuf.Parser<Payload> PARSER =
-          new com.google.protobuf.AbstractParser<Payload>() {
-        public Payload parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Payload(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<Payload> getParserForType() {
-        return PARSER;
       }
 
       public interface CompressionOrBuilder extends
@@ -1808,37 +1757,28 @@ public final class Car {
       /**
        * Protobuf type {@code chaintool.car.abi.Archive.Payload.Compression}
        */
-      public static final class Compression extends
+      public  static final class Compression extends
           com.google.protobuf.GeneratedMessage implements
           // @@protoc_insertion_point(message_implements:chaintool.car.abi.Archive.Payload.Compression)
           CompressionOrBuilder {
         // Use Compression.newBuilder() to construct.
         private Compression(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
           super(builder);
-          this.unknownFields = builder.getUnknownFields();
         }
-        private Compression(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-        private static final Compression defaultInstance;
-        public static Compression getDefaultInstance() {
-          return defaultInstance;
+        private Compression() {
+          type_ = 1;
+          description_ = "";
         }
 
-        public Compression getDefaultInstanceForType() {
-          return defaultInstance;
-        }
-
-        private final com.google.protobuf.UnknownFieldSet unknownFields;
         @java.lang.Override
         public final com.google.protobuf.UnknownFieldSet
-            getUnknownFields() {
+        getUnknownFields() {
           return this.unknownFields;
         }
         private Compression(
             com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          initFields();
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+          this();
           int mutable_bitField0_ = 0;
           com.google.protobuf.UnknownFieldSet.Builder unknownFields =
               com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -1864,7 +1804,7 @@ public final class Car {
                     unknownFields.mergeVarintField(1, rawValue);
                   } else {
                     bitField0_ |= 0x00000001;
-                    type_ = value;
+                    type_ = rawValue;
                   }
                   break;
                 }
@@ -1877,10 +1817,11 @@ public final class Car {
               }
             }
           } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            throw e.setUnfinishedMessage(this);
+            throw new RuntimeException(e.setUnfinishedMessage(this));
           } catch (java.io.IOException e) {
-            throw new com.google.protobuf.InvalidProtocolBufferException(
-                e.getMessage()).setUnfinishedMessage(this);
+            throw new RuntimeException(
+                new com.google.protobuf.InvalidProtocolBufferException(
+                    e.getMessage()).setUnfinishedMessage(this));
           } finally {
             this.unknownFields = unknownFields.build();
             makeExtensionsImmutable();
@@ -1896,21 +1837,6 @@ public final class Car {
           return chaintool.car.abi.Car.internal_static_chaintool_car_abi_Archive_Payload_Compression_fieldAccessorTable
               .ensureFieldAccessorsInitialized(
                   chaintool.car.abi.Car.Archive.Payload.Compression.class, chaintool.car.abi.Car.Archive.Payload.Compression.Builder.class);
-        }
-
-        public static com.google.protobuf.Parser<Compression> PARSER =
-            new com.google.protobuf.AbstractParser<Compression>() {
-          public Compression parsePartialFrom(
-              com.google.protobuf.CodedInputStream input,
-              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-              throws com.google.protobuf.InvalidProtocolBufferException {
-            return new Compression(input, extensionRegistry);
-          }
-        };
-
-        @java.lang.Override
-        public com.google.protobuf.Parser<Compression> getParserForType() {
-          return PARSER;
         }
 
         /**
@@ -1962,7 +1888,9 @@ public final class Car {
           public static final int XZ_VALUE = 5;
 
 
-          public final int getNumber() { return value; }
+          public final int getNumber() {
+            return value;
+          }
 
           public static Type valueOf(int value) {
             switch (value) {
@@ -1979,8 +1907,8 @@ public final class Car {
               internalGetValueMap() {
             return internalValueMap;
           }
-          private static com.google.protobuf.Internal.EnumLiteMap<Type>
-              internalValueMap =
+          private static final com.google.protobuf.Internal.EnumLiteMap<
+              Type> internalValueMap =
                 new com.google.protobuf.Internal.EnumLiteMap<Type>() {
                   public Type findValueByNumber(int number) {
                     return Type.valueOf(number);
@@ -2024,7 +1952,7 @@ public final class Car {
 
         private int bitField0_;
         public static final int TYPE_FIELD_NUMBER = 1;
-        private chaintool.car.abi.Car.Archive.Payload.Compression.Type type_;
+        private int type_;
         /**
          * <code>optional .chaintool.car.abi.Archive.Payload.Compression.Type type = 1 [default = NONE];</code>
          */
@@ -2035,11 +1963,12 @@ public final class Car {
          * <code>optional .chaintool.car.abi.Archive.Payload.Compression.Type type = 1 [default = NONE];</code>
          */
         public chaintool.car.abi.Car.Archive.Payload.Compression.Type getType() {
-          return type_;
+          chaintool.car.abi.Car.Archive.Payload.Compression.Type result = chaintool.car.abi.Car.Archive.Payload.Compression.Type.valueOf(type_);
+          return result == null ? chaintool.car.abi.Car.Archive.Payload.Compression.Type.NONE : result;
         }
 
         public static final int DESCRIPTION_FIELD_NUMBER = 2;
-        private java.lang.Object description_;
+        private volatile java.lang.Object description_;
         /**
          * <code>optional string description = 2;</code>
          */
@@ -2080,10 +2009,6 @@ public final class Car {
           }
         }
 
-        private void initFields() {
-          type_ = chaintool.car.abi.Car.Archive.Payload.Compression.Type.NONE;
-          description_ = "";
-        }
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
           byte isInitialized = memoizedIsInitialized;
@@ -2096,42 +2021,33 @@ public final class Car {
 
         public void writeTo(com.google.protobuf.CodedOutputStream output)
                             throws java.io.IOException {
-          getSerializedSize();
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            output.writeEnum(1, type_.getNumber());
+            output.writeEnum(1, type_);
           }
           if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            output.writeBytes(2, getDescriptionBytes());
+            com.google.protobuf.GeneratedMessage.writeString(output, 2, description_);
           }
-          getUnknownFields().writeTo(output);
+          unknownFields.writeTo(output);
         }
 
-        private int memoizedSerializedSize = -1;
         public int getSerializedSize() {
-          int size = memoizedSerializedSize;
+          int size = memoizedSize;
           if (size != -1) return size;
 
           size = 0;
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
             size += com.google.protobuf.CodedOutputStream
-              .computeEnumSize(1, type_.getNumber());
+              .computeEnumSize(1, type_);
           }
           if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            size += com.google.protobuf.CodedOutputStream
-              .computeBytesSize(2, getDescriptionBytes());
+            size += com.google.protobuf.GeneratedMessage.computeStringSize(2, description_);
           }
-          size += getUnknownFields().getSerializedSize();
-          memoizedSerializedSize = size;
+          size += unknownFields.getSerializedSize();
+          memoizedSize = size;
           return size;
         }
 
         private static final long serialVersionUID = 0L;
-        @java.lang.Override
-        protected java.lang.Object writeReplace()
-            throws java.io.ObjectStreamException {
-          return super.writeReplace();
-        }
-
         public static chaintool.car.abi.Car.Archive.Payload.Compression parseFrom(
             com.google.protobuf.ByteString data)
             throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2185,12 +2101,17 @@ public final class Car {
           return PARSER.parseFrom(input, extensionRegistry);
         }
 
-        public static Builder newBuilder() { return Builder.create(); }
         public Builder newBuilderForType() { return newBuilder(); }
-        public static Builder newBuilder(chaintool.car.abi.Car.Archive.Payload.Compression prototype) {
-          return newBuilder().mergeFrom(prototype);
+        public static Builder newBuilder() {
+          return DEFAULT_INSTANCE.toBuilder();
         }
-        public Builder toBuilder() { return newBuilder(this); }
+        public static Builder newBuilder(chaintool.car.abi.Car.Archive.Payload.Compression prototype) {
+          return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+        }
+        public Builder toBuilder() {
+          return this == DEFAULT_INSTANCE
+              ? new Builder() : new Builder().mergeFrom(this);
+        }
 
         @java.lang.Override
         protected Builder newBuilderForType(
@@ -2231,21 +2152,13 @@ public final class Car {
             if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
             }
           }
-          private static Builder create() {
-            return new Builder();
-          }
-
           public Builder clear() {
             super.clear();
-            type_ = chaintool.car.abi.Car.Archive.Payload.Compression.Type.NONE;
+            type_ = 1;
             bitField0_ = (bitField0_ & ~0x00000001);
             description_ = "";
             bitField0_ = (bitField0_ & ~0x00000002);
             return this;
-          }
-
-          public Builder clone() {
-            return create().mergeFrom(buildPartial());
           }
 
           public com.google.protobuf.Descriptors.Descriptor
@@ -2301,7 +2214,8 @@ public final class Car {
               description_ = other.description_;
               onChanged();
             }
-            this.mergeUnknownFields(other.getUnknownFields());
+            this.mergeUnknownFields(other.unknownFields);
+            onChanged();
             return this;
           }
 
@@ -2328,7 +2242,7 @@ public final class Car {
           }
           private int bitField0_;
 
-          private chaintool.car.abi.Car.Archive.Payload.Compression.Type type_ = chaintool.car.abi.Car.Archive.Payload.Compression.Type.NONE;
+          private int type_ = 1;
           /**
            * <code>optional .chaintool.car.abi.Archive.Payload.Compression.Type type = 1 [default = NONE];</code>
            */
@@ -2339,7 +2253,8 @@ public final class Car {
            * <code>optional .chaintool.car.abi.Archive.Payload.Compression.Type type = 1 [default = NONE];</code>
            */
           public chaintool.car.abi.Car.Archive.Payload.Compression.Type getType() {
-            return type_;
+            chaintool.car.abi.Car.Archive.Payload.Compression.Type result = chaintool.car.abi.Car.Archive.Payload.Compression.Type.valueOf(type_);
+            return result == null ? chaintool.car.abi.Car.Archive.Payload.Compression.Type.NONE : result;
           }
           /**
            * <code>optional .chaintool.car.abi.Archive.Payload.Compression.Type type = 1 [default = NONE];</code>
@@ -2349,7 +2264,7 @@ public final class Car {
               throw new NullPointerException();
             }
             bitField0_ |= 0x00000001;
-            type_ = value;
+            type_ = value.getNumber();
             onChanged();
             return this;
           }
@@ -2358,7 +2273,7 @@ public final class Car {
            */
           public Builder clearType() {
             bitField0_ = (bitField0_ & ~0x00000001);
-            type_ = chaintool.car.abi.Car.Archive.Payload.Compression.Type.NONE;
+            type_ = 1;
             onChanged();
             return this;
           }
@@ -2442,12 +2357,48 @@ public final class Car {
           // @@protoc_insertion_point(builder_scope:chaintool.car.abi.Archive.Payload.Compression)
         }
 
+        // @@protoc_insertion_point(class_scope:chaintool.car.abi.Archive.Payload.Compression)
+        private static final chaintool.car.abi.Car.Archive.Payload.Compression DEFAULT_INSTANCE;
         static {
-          defaultInstance = new Compression(true);
-          defaultInstance.initFields();
+          DEFAULT_INSTANCE = new chaintool.car.abi.Car.Archive.Payload.Compression();
         }
 
-        // @@protoc_insertion_point(class_scope:chaintool.car.abi.Archive.Payload.Compression)
+        public static chaintool.car.abi.Car.Archive.Payload.Compression getDefaultInstance() {
+          return DEFAULT_INSTANCE;
+        }
+
+        @java.lang.Deprecated public static final com.google.protobuf.Parser<Compression>
+            PARSER = new com.google.protobuf.AbstractParser<Compression>() {
+          public Compression parsePartialFrom(
+              com.google.protobuf.CodedInputStream input,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws com.google.protobuf.InvalidProtocolBufferException {
+            try {
+              return new Compression(input, extensionRegistry);
+            } catch (RuntimeException e) {
+              if (e.getCause() instanceof
+                  com.google.protobuf.InvalidProtocolBufferException) {
+                throw (com.google.protobuf.InvalidProtocolBufferException)
+                    e.getCause();
+              }
+              throw e;
+            }
+          }
+        };
+
+        public static com.google.protobuf.Parser<Compression> parser() {
+          return PARSER;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<Compression> getParserForType() {
+          return PARSER;
+        }
+
+        public chaintool.car.abi.Car.Archive.Payload.Compression getDefaultInstanceForType() {
+          return DEFAULT_INSTANCE;
+        }
+
       }
 
       public interface EntriesOrBuilder extends
@@ -2503,37 +2454,30 @@ public final class Car {
       /**
        * Protobuf type {@code chaintool.car.abi.Archive.Payload.Entries}
        */
-      public static final class Entries extends
+      public  static final class Entries extends
           com.google.protobuf.GeneratedMessage implements
           // @@protoc_insertion_point(message_implements:chaintool.car.abi.Archive.Payload.Entries)
           EntriesOrBuilder {
         // Use Entries.newBuilder() to construct.
         private Entries(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
           super(builder);
-          this.unknownFields = builder.getUnknownFields();
         }
-        private Entries(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-        private static final Entries defaultInstance;
-        public static Entries getDefaultInstance() {
-          return defaultInstance;
-        }
-
-        public Entries getDefaultInstanceForType() {
-          return defaultInstance;
+        private Entries() {
+          path_ = "";
+          size_ = 0L;
+          sha1_ = "";
+          data_ = com.google.protobuf.ByteString.EMPTY;
         }
 
-        private final com.google.protobuf.UnknownFieldSet unknownFields;
         @java.lang.Override
         public final com.google.protobuf.UnknownFieldSet
-            getUnknownFields() {
+        getUnknownFields() {
           return this.unknownFields;
         }
         private Entries(
             com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          initFields();
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+          this();
           int mutable_bitField0_ = 0;
           com.google.protobuf.UnknownFieldSet.Builder unknownFields =
               com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -2577,10 +2521,11 @@ public final class Car {
               }
             }
           } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            throw e.setUnfinishedMessage(this);
+            throw new RuntimeException(e.setUnfinishedMessage(this));
           } catch (java.io.IOException e) {
-            throw new com.google.protobuf.InvalidProtocolBufferException(
-                e.getMessage()).setUnfinishedMessage(this);
+            throw new RuntimeException(
+                new com.google.protobuf.InvalidProtocolBufferException(
+                    e.getMessage()).setUnfinishedMessage(this));
           } finally {
             this.unknownFields = unknownFields.build();
             makeExtensionsImmutable();
@@ -2598,24 +2543,9 @@ public final class Car {
                   chaintool.car.abi.Car.Archive.Payload.Entries.class, chaintool.car.abi.Car.Archive.Payload.Entries.Builder.class);
         }
 
-        public static com.google.protobuf.Parser<Entries> PARSER =
-            new com.google.protobuf.AbstractParser<Entries>() {
-          public Entries parsePartialFrom(
-              com.google.protobuf.CodedInputStream input,
-              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-              throws com.google.protobuf.InvalidProtocolBufferException {
-            return new Entries(input, extensionRegistry);
-          }
-        };
-
-        @java.lang.Override
-        public com.google.protobuf.Parser<Entries> getParserForType() {
-          return PARSER;
-        }
-
         private int bitField0_;
         public static final int PATH_FIELD_NUMBER = 1;
-        private java.lang.Object path_;
+        private volatile java.lang.Object path_;
         /**
          * <code>optional string path = 1;</code>
          */
@@ -2672,7 +2602,7 @@ public final class Car {
         }
 
         public static final int SHA1_FIELD_NUMBER = 3;
-        private java.lang.Object sha1_;
+        private volatile java.lang.Object sha1_;
         /**
          * <code>optional string sha1 = 3;</code>
          */
@@ -2728,12 +2658,6 @@ public final class Car {
           return data_;
         }
 
-        private void initFields() {
-          path_ = "";
-          size_ = 0L;
-          sha1_ = "";
-          data_ = com.google.protobuf.ByteString.EMPTY;
-        }
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
           byte isInitialized = memoizedIsInitialized;
@@ -2746,56 +2670,46 @@ public final class Car {
 
         public void writeTo(com.google.protobuf.CodedOutputStream output)
                             throws java.io.IOException {
-          getSerializedSize();
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            output.writeBytes(1, getPathBytes());
+            com.google.protobuf.GeneratedMessage.writeString(output, 1, path_);
           }
           if (((bitField0_ & 0x00000002) == 0x00000002)) {
             output.writeUInt64(2, size_);
           }
           if (((bitField0_ & 0x00000004) == 0x00000004)) {
-            output.writeBytes(3, getSha1Bytes());
+            com.google.protobuf.GeneratedMessage.writeString(output, 3, sha1_);
           }
           if (((bitField0_ & 0x00000008) == 0x00000008)) {
             output.writeBytes(16, data_);
           }
-          getUnknownFields().writeTo(output);
+          unknownFields.writeTo(output);
         }
 
-        private int memoizedSerializedSize = -1;
         public int getSerializedSize() {
-          int size = memoizedSerializedSize;
+          int size = memoizedSize;
           if (size != -1) return size;
 
           size = 0;
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            size += com.google.protobuf.CodedOutputStream
-              .computeBytesSize(1, getPathBytes());
+            size += com.google.protobuf.GeneratedMessage.computeStringSize(1, path_);
           }
           if (((bitField0_ & 0x00000002) == 0x00000002)) {
             size += com.google.protobuf.CodedOutputStream
               .computeUInt64Size(2, size_);
           }
           if (((bitField0_ & 0x00000004) == 0x00000004)) {
-            size += com.google.protobuf.CodedOutputStream
-              .computeBytesSize(3, getSha1Bytes());
+            size += com.google.protobuf.GeneratedMessage.computeStringSize(3, sha1_);
           }
           if (((bitField0_ & 0x00000008) == 0x00000008)) {
             size += com.google.protobuf.CodedOutputStream
               .computeBytesSize(16, data_);
           }
-          size += getUnknownFields().getSerializedSize();
-          memoizedSerializedSize = size;
+          size += unknownFields.getSerializedSize();
+          memoizedSize = size;
           return size;
         }
 
         private static final long serialVersionUID = 0L;
-        @java.lang.Override
-        protected java.lang.Object writeReplace()
-            throws java.io.ObjectStreamException {
-          return super.writeReplace();
-        }
-
         public static chaintool.car.abi.Car.Archive.Payload.Entries parseFrom(
             com.google.protobuf.ByteString data)
             throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2849,12 +2763,17 @@ public final class Car {
           return PARSER.parseFrom(input, extensionRegistry);
         }
 
-        public static Builder newBuilder() { return Builder.create(); }
         public Builder newBuilderForType() { return newBuilder(); }
-        public static Builder newBuilder(chaintool.car.abi.Car.Archive.Payload.Entries prototype) {
-          return newBuilder().mergeFrom(prototype);
+        public static Builder newBuilder() {
+          return DEFAULT_INSTANCE.toBuilder();
         }
-        public Builder toBuilder() { return newBuilder(this); }
+        public static Builder newBuilder(chaintool.car.abi.Car.Archive.Payload.Entries prototype) {
+          return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+        }
+        public Builder toBuilder() {
+          return this == DEFAULT_INSTANCE
+              ? new Builder() : new Builder().mergeFrom(this);
+        }
 
         @java.lang.Override
         protected Builder newBuilderForType(
@@ -2895,10 +2814,6 @@ public final class Car {
             if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
             }
           }
-          private static Builder create() {
-            return new Builder();
-          }
-
           public Builder clear() {
             super.clear();
             path_ = "";
@@ -2910,10 +2825,6 @@ public final class Car {
             data_ = com.google.protobuf.ByteString.EMPTY;
             bitField0_ = (bitField0_ & ~0x00000008);
             return this;
-          }
-
-          public Builder clone() {
-            return create().mergeFrom(buildPartial());
           }
 
           public com.google.protobuf.Descriptors.Descriptor
@@ -2985,7 +2896,8 @@ public final class Car {
             if (other.hasData()) {
               setData(other.getData());
             }
-            this.mergeUnknownFields(other.getUnknownFields());
+            this.mergeUnknownFields(other.unknownFields);
+            onChanged();
             return this;
           }
 
@@ -3234,12 +3146,48 @@ public final class Car {
           // @@protoc_insertion_point(builder_scope:chaintool.car.abi.Archive.Payload.Entries)
         }
 
+        // @@protoc_insertion_point(class_scope:chaintool.car.abi.Archive.Payload.Entries)
+        private static final chaintool.car.abi.Car.Archive.Payload.Entries DEFAULT_INSTANCE;
         static {
-          defaultInstance = new Entries(true);
-          defaultInstance.initFields();
+          DEFAULT_INSTANCE = new chaintool.car.abi.Car.Archive.Payload.Entries();
         }
 
-        // @@protoc_insertion_point(class_scope:chaintool.car.abi.Archive.Payload.Entries)
+        public static chaintool.car.abi.Car.Archive.Payload.Entries getDefaultInstance() {
+          return DEFAULT_INSTANCE;
+        }
+
+        @java.lang.Deprecated public static final com.google.protobuf.Parser<Entries>
+            PARSER = new com.google.protobuf.AbstractParser<Entries>() {
+          public Entries parsePartialFrom(
+              com.google.protobuf.CodedInputStream input,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws com.google.protobuf.InvalidProtocolBufferException {
+            try {
+              return new Entries(input, extensionRegistry);
+            } catch (RuntimeException e) {
+              if (e.getCause() instanceof
+                  com.google.protobuf.InvalidProtocolBufferException) {
+                throw (com.google.protobuf.InvalidProtocolBufferException)
+                    e.getCause();
+              }
+              throw e;
+            }
+          }
+        };
+
+        public static com.google.protobuf.Parser<Entries> parser() {
+          return PARSER;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<Entries> getParserForType() {
+          return PARSER;
+        }
+
+        public chaintool.car.abi.Car.Archive.Payload.Entries getDefaultInstanceForType() {
+          return DEFAULT_INSTANCE;
+        }
+
       }
 
       private int bitField0_;
@@ -3255,13 +3203,13 @@ public final class Car {
        * <code>optional .chaintool.car.abi.Archive.Payload.Compression compression = 1;</code>
        */
       public chaintool.car.abi.Car.Archive.Payload.Compression getCompression() {
-        return compression_;
+        return compression_ == null ? chaintool.car.abi.Car.Archive.Payload.Compression.getDefaultInstance() : compression_;
       }
       /**
        * <code>optional .chaintool.car.abi.Archive.Payload.Compression compression = 1;</code>
        */
       public chaintool.car.abi.Car.Archive.Payload.CompressionOrBuilder getCompressionOrBuilder() {
-        return compression_;
+        return compression_ == null ? chaintool.car.abi.Car.Archive.Payload.Compression.getDefaultInstance() : compression_;
       }
 
       public static final int ENTRIES_FIELD_NUMBER = 16;
@@ -3299,10 +3247,6 @@ public final class Car {
         return entries_.get(index);
       }
 
-      private void initFields() {
-        compression_ = chaintool.car.abi.Car.Archive.Payload.Compression.getDefaultInstance();
-        entries_ = java.util.Collections.emptyList();
-      }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -3315,42 +3259,34 @@ public final class Car {
 
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
-        getSerializedSize();
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          output.writeMessage(1, compression_);
+          output.writeMessage(1, getCompression());
         }
         for (int i = 0; i < entries_.size(); i++) {
           output.writeMessage(16, entries_.get(i));
         }
-        getUnknownFields().writeTo(output);
+        unknownFields.writeTo(output);
       }
 
-      private int memoizedSerializedSize = -1;
       public int getSerializedSize() {
-        int size = memoizedSerializedSize;
+        int size = memoizedSize;
         if (size != -1) return size;
 
         size = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(1, compression_);
+            .computeMessageSize(1, getCompression());
         }
         for (int i = 0; i < entries_.size(); i++) {
           size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(16, entries_.get(i));
         }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
+        size += unknownFields.getSerializedSize();
+        memoizedSize = size;
         return size;
       }
 
       private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
       public static chaintool.car.abi.Car.Archive.Payload parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -3404,12 +3340,17 @@ public final class Car {
         return PARSER.parseFrom(input, extensionRegistry);
       }
 
-      public static Builder newBuilder() { return Builder.create(); }
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(chaintool.car.abi.Car.Archive.Payload prototype) {
-        return newBuilder().mergeFrom(prototype);
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
       }
-      public Builder toBuilder() { return newBuilder(this); }
+      public static Builder newBuilder(chaintool.car.abi.Car.Archive.Payload prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
 
       @java.lang.Override
       protected Builder newBuilderForType(
@@ -3452,14 +3393,10 @@ public final class Car {
             getEntriesFieldBuilder();
           }
         }
-        private static Builder create() {
-          return new Builder();
-        }
-
         public Builder clear() {
           super.clear();
           if (compressionBuilder_ == null) {
-            compression_ = chaintool.car.abi.Car.Archive.Payload.Compression.getDefaultInstance();
+            compression_ = null;
           } else {
             compressionBuilder_.clear();
           }
@@ -3471,10 +3408,6 @@ public final class Car {
             entriesBuilder_.clear();
           }
           return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
         }
 
         public com.google.protobuf.Descriptors.Descriptor
@@ -3560,7 +3493,8 @@ public final class Car {
               }
             }
           }
-          this.mergeUnknownFields(other.getUnknownFields());
+          this.mergeUnknownFields(other.unknownFields);
+          onChanged();
           return this;
         }
 
@@ -3587,7 +3521,7 @@ public final class Car {
         }
         private int bitField0_;
 
-        private chaintool.car.abi.Car.Archive.Payload.Compression compression_ = chaintool.car.abi.Car.Archive.Payload.Compression.getDefaultInstance();
+        private chaintool.car.abi.Car.Archive.Payload.Compression compression_ = null;
         private com.google.protobuf.SingleFieldBuilder<
             chaintool.car.abi.Car.Archive.Payload.Compression, chaintool.car.abi.Car.Archive.Payload.Compression.Builder, chaintool.car.abi.Car.Archive.Payload.CompressionOrBuilder> compressionBuilder_;
         /**
@@ -3601,7 +3535,7 @@ public final class Car {
          */
         public chaintool.car.abi.Car.Archive.Payload.Compression getCompression() {
           if (compressionBuilder_ == null) {
-            return compression_;
+            return compression_ == null ? chaintool.car.abi.Car.Archive.Payload.Compression.getDefaultInstance() : compression_;
           } else {
             return compressionBuilder_.getMessage();
           }
@@ -3642,6 +3576,7 @@ public final class Car {
         public Builder mergeCompression(chaintool.car.abi.Car.Archive.Payload.Compression value) {
           if (compressionBuilder_ == null) {
             if (((bitField0_ & 0x00000001) == 0x00000001) &&
+                compression_ != null &&
                 compression_ != chaintool.car.abi.Car.Archive.Payload.Compression.getDefaultInstance()) {
               compression_ =
                 chaintool.car.abi.Car.Archive.Payload.Compression.newBuilder(compression_).mergeFrom(value).buildPartial();
@@ -3660,7 +3595,7 @@ public final class Car {
          */
         public Builder clearCompression() {
           if (compressionBuilder_ == null) {
-            compression_ = chaintool.car.abi.Car.Archive.Payload.Compression.getDefaultInstance();
+            compression_ = null;
             onChanged();
           } else {
             compressionBuilder_.clear();
@@ -3683,7 +3618,8 @@ public final class Car {
           if (compressionBuilder_ != null) {
             return compressionBuilder_.getMessageOrBuilder();
           } else {
-            return compression_;
+            return compression_ == null ?
+                chaintool.car.abi.Car.Archive.Payload.Compression.getDefaultInstance() : compression_;
           }
         }
         /**
@@ -3946,12 +3882,48 @@ public final class Car {
         // @@protoc_insertion_point(builder_scope:chaintool.car.abi.Archive.Payload)
       }
 
+      // @@protoc_insertion_point(class_scope:chaintool.car.abi.Archive.Payload)
+      private static final chaintool.car.abi.Car.Archive.Payload DEFAULT_INSTANCE;
       static {
-        defaultInstance = new Payload(true);
-        defaultInstance.initFields();
+        DEFAULT_INSTANCE = new chaintool.car.abi.Car.Archive.Payload();
       }
 
-      // @@protoc_insertion_point(class_scope:chaintool.car.abi.Archive.Payload)
+      public static chaintool.car.abi.Car.Archive.Payload getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      @java.lang.Deprecated public static final com.google.protobuf.Parser<Payload>
+          PARSER = new com.google.protobuf.AbstractParser<Payload>() {
+        public Payload parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          try {
+            return new Payload(input, extensionRegistry);
+          } catch (RuntimeException e) {
+            if (e.getCause() instanceof
+                com.google.protobuf.InvalidProtocolBufferException) {
+              throw (com.google.protobuf.InvalidProtocolBufferException)
+                  e.getCause();
+            }
+            throw e;
+          }
+        }
+      };
+
+      public static com.google.protobuf.Parser<Payload> parser() {
+        return PARSER;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<Payload> getParserForType() {
+        return PARSER;
+      }
+
+      public chaintool.car.abi.Car.Archive.Payload getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
     }
 
     private int bitField0_;
@@ -3967,13 +3939,13 @@ public final class Car {
      * <code>optional .chaintool.car.abi.Archive.Signature signature = 1;</code>
      */
     public chaintool.car.abi.Car.Archive.Signature getSignature() {
-      return signature_;
+      return signature_ == null ? chaintool.car.abi.Car.Archive.Signature.getDefaultInstance() : signature_;
     }
     /**
      * <code>optional .chaintool.car.abi.Archive.Signature signature = 1;</code>
      */
     public chaintool.car.abi.Car.Archive.SignatureOrBuilder getSignatureOrBuilder() {
-      return signature_;
+      return signature_ == null ? chaintool.car.abi.Car.Archive.Signature.getDefaultInstance() : signature_;
     }
 
     public static final int PAYLOAD_FIELD_NUMBER = 2;
@@ -3991,10 +3963,6 @@ public final class Car {
       return payload_;
     }
 
-    private void initFields() {
-      signature_ = chaintool.car.abi.Car.Archive.Signature.getDefaultInstance();
-      payload_ = com.google.protobuf.ByteString.EMPTY;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -4007,42 +3975,34 @@ public final class Car {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeMessage(1, signature_);
+        output.writeMessage(1, getSignature());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, payload_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, signature_);
+          .computeMessageSize(1, getSignature());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, payload_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static chaintool.car.abi.Car.Archive parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -4096,12 +4056,17 @@ public final class Car {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(chaintool.car.abi.Car.Archive prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(chaintool.car.abi.Car.Archive prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -4143,14 +4108,10 @@ public final class Car {
           getSignatureFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         if (signatureBuilder_ == null) {
-          signature_ = chaintool.car.abi.Car.Archive.Signature.getDefaultInstance();
+          signature_ = null;
         } else {
           signatureBuilder_.clear();
         }
@@ -4158,10 +4119,6 @@ public final class Car {
         payload_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -4219,7 +4176,8 @@ public final class Car {
         if (other.hasPayload()) {
           setPayload(other.getPayload());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -4246,7 +4204,7 @@ public final class Car {
       }
       private int bitField0_;
 
-      private chaintool.car.abi.Car.Archive.Signature signature_ = chaintool.car.abi.Car.Archive.Signature.getDefaultInstance();
+      private chaintool.car.abi.Car.Archive.Signature signature_ = null;
       private com.google.protobuf.SingleFieldBuilder<
           chaintool.car.abi.Car.Archive.Signature, chaintool.car.abi.Car.Archive.Signature.Builder, chaintool.car.abi.Car.Archive.SignatureOrBuilder> signatureBuilder_;
       /**
@@ -4260,7 +4218,7 @@ public final class Car {
        */
       public chaintool.car.abi.Car.Archive.Signature getSignature() {
         if (signatureBuilder_ == null) {
-          return signature_;
+          return signature_ == null ? chaintool.car.abi.Car.Archive.Signature.getDefaultInstance() : signature_;
         } else {
           return signatureBuilder_.getMessage();
         }
@@ -4301,6 +4259,7 @@ public final class Car {
       public Builder mergeSignature(chaintool.car.abi.Car.Archive.Signature value) {
         if (signatureBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              signature_ != null &&
               signature_ != chaintool.car.abi.Car.Archive.Signature.getDefaultInstance()) {
             signature_ =
               chaintool.car.abi.Car.Archive.Signature.newBuilder(signature_).mergeFrom(value).buildPartial();
@@ -4319,7 +4278,7 @@ public final class Car {
        */
       public Builder clearSignature() {
         if (signatureBuilder_ == null) {
-          signature_ = chaintool.car.abi.Car.Archive.Signature.getDefaultInstance();
+          signature_ = null;
           onChanged();
         } else {
           signatureBuilder_.clear();
@@ -4342,7 +4301,8 @@ public final class Car {
         if (signatureBuilder_ != null) {
           return signatureBuilder_.getMessageOrBuilder();
         } else {
-          return signature_;
+          return signature_ == null ?
+              chaintool.car.abi.Car.Archive.Signature.getDefaultInstance() : signature_;
         }
       }
       /**
@@ -4400,40 +4360,76 @@ public final class Car {
       // @@protoc_insertion_point(builder_scope:chaintool.car.abi.Archive)
     }
 
+    // @@protoc_insertion_point(class_scope:chaintool.car.abi.Archive)
+    private static final chaintool.car.abi.Car.Archive DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Archive(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new chaintool.car.abi.Car.Archive();
     }
 
-    // @@protoc_insertion_point(class_scope:chaintool.car.abi.Archive)
+    public static chaintool.car.abi.Car.Archive getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<Archive>
+        PARSER = new com.google.protobuf.AbstractParser<Archive>() {
+      public Archive parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Archive(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<Archive> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Archive> getParserForType() {
+      return PARSER;
+    }
+
+    public chaintool.car.abi.Car.Archive getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_chaintool_car_abi_CompatibilityHeader_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_chaintool_car_abi_CompatibilityHeader_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_chaintool_car_abi_Archive_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_chaintool_car_abi_Archive_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_chaintool_car_abi_Archive_Signature_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_chaintool_car_abi_Archive_Signature_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_chaintool_car_abi_Archive_Payload_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_chaintool_car_abi_Archive_Payload_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_chaintool_car_abi_Archive_Payload_Compression_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_chaintool_car_abi_Archive_Payload_Compression_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_chaintool_car_abi_Archive_Payload_Entries_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
