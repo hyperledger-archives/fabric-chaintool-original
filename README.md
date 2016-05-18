@@ -46,6 +46,7 @@ Actions:
   unpack -> Unpackage a CAR file
   ls -> List the contents of a CAR file
   proto -> Compiles a CCI file to a .proto
+  inspect -> Retrieves metadata from a running instance
 
 (run "chaintool <action> -h" for action specific help)
 ```
@@ -126,6 +127,12 @@ Combines _unpack_ with _build_ by utilizing a temporary directory.  This allows 
 #### chaintool proto
 
 Compiles a .cci file into a .proto file, suitable for developing clients using standard protobuf-based tooling.
+
+#### chaintool inspect
+
+Retrieves metadata from a running instance
+
+# Chaincode Application Development
 
 ## Project Structure
 
@@ -277,9 +284,15 @@ Every project has an implicit interface: appinit.cci.  This interface is intende
 
 The interface expected to define a message "Init" with no RPCs.  This message will be assumed to be the argument to the chaincode constructor.
 
-# Protocol
+# Interacting With Chaintool Managed Applications
 
-_chaintool_ tunnels its protobuf-based protocol into the standard chaincode protocol.  This standard protocol consists of a single "function" string, and an array of string "args".  This protobuf schema for the standard chaincode protocol is:
+## Protocol
+
+_chaintool_ tunnels its protobuf-based protocol into the standard chaincode protocol already defined.
+
+### Input Protocol
+
+The standard protocol consists of a single "function" string, and an array of string "args".  This protobuf schema for the standard chaincode protocol is:
 ```
 message ChaincodeInput {
 
@@ -288,23 +301,29 @@ message ChaincodeInput {
 
 }
 ```
+Chaintool deterministically maps transactions/queries declared within a CCI to an [encoded function name](#function-encoding), and expects the corresponding input parameter to be a base64 encoded protobuf message as the first and only arg string.
 
-## Function Naming
+Example:
+```
+{"function":"org.hyperledger.chaincode.example02/query/1","args":["CgNmb28="]}}
+```
+
+#### Function Encoding
 
 Function naming follows the convention *interface-name/method-type/method-index*.  For instance, invoking *MakePayment* from our [example](./examples/example02/app/src/interfaces/org.hyperledger.chaincode.example02.cci) would be *org.hyperledger.chaintool.example02/txn/1*.  Because its transaction #1 in the org.hyperledger.chaintool.example02 interface.
 
-### Method Types
+##### Method Types
 
 There are two types of methods: transactions and queries.  We therefore have two values in the function name that correspond to the underlying method type:
 
 - "txn" - transactions
 - "query" - queries
 
-## Data encoding
+### Output Protocol
 
-Every function takes 0 or 1 input message, and 0 (via "void") or 1 output message.  These messages are standard protobuf *Message* structures using base64 encoding.  Input parameters are passed via arg[0] of the standard chaincode protocol.
+Standard chaincode protocol allows chaincode applications to return a string to a caller.  Chaintool managed applications will encode this string with a base64 encoded protobuf structure (when applicable).
 
-## Protobuf "hints"
+### Protobuf "hints"
 
 The .proto file generated from *chaintool* (such as *chaintool proto*) contains hints to help developers understand the protocol.  For instance, see the comments at the bottom of this .proto generated from example02:
 
@@ -338,6 +357,38 @@ message PaymentParams {
 // void DeleteAccount(Entity) -> org.hyperledger.chaincode.example02/txn/2
 // BalanceResult CheckBalance(Entity) -> org.hyperledger.chaincode.example02/query/1
 ```
+## Metadata
+
+Every chaincode application built with chaintool includes metadata which may be queried with _chaintool inspect_.  This metadata contains various details about a running application, such as the surfaced interfaces provided by the endpoint.  The caller may optionally request to download the CCI schemas for these interfaces to facilitate application-specific client interaction.
+
+### Details
+
+Chaintool emits a shadow interface _org.hyperledger.chaintool.meta_ in every application that supports queries.  This interface has the following CCI at the time of writing:
+```
+message InterfaceDescriptor {
+        string name = 1;
+        bytes  data = 2;
+}
+
+message Interfaces {
+        repeated InterfaceDescriptor descriptors = 1;
+}
+
+message GetInterfacesParams {
+        bool IncludeContent = 1;
+}
+
+message GetInterfaceParams {
+        string name = 1;
+}
+
+queries {
+        Interfaces GetInterfaces(GetInterfacesParams) = 1;
+        InterfaceDescriptor GetInterface(GetInterfaceParams) = 2;
+}
+```
+This means that clients may optionally interact with this CCI using the same protocol discussed above to learn further details about the running application.  This includes obtaining the CCI specifications of the application which may be consumed in other projects.  Alternatively, users may simply use the _chaintool inspect_ command to obtain the desired information.
+
 # Examples
 Explore our [examples](./examples) or visit the [documentation for example02](./examples/example02/README.md)
 
