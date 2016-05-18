@@ -130,7 +130,7 @@ Compiles a .cci file into a .proto file, suitable for developing clients using s
 
 #### chaintool inspect
 
-Retrieves metadata from a running instance
+Retrieves [metadata](#metadata) from a running instance
 
 # Chaincode Application Development
 
