@@ -171,7 +171,9 @@ func Create(name string, intf interface{}) (Dispatcher, error) {
 }
 >>
 
-metadata(provides) ::=
+metafact(fact) ::= "&meta.Fact{Name: \"<fact.name>\", Value: \"<fact.value>\"},"
+
+metadata(facts, provides) ::=
 <<
 <!
 !-------------------------------------------------------------------------------------------------
@@ -192,7 +194,14 @@ import (
 )
 
 var interfaces = map[string][]byte {
+
         <provides.values:{intf|"<intf.name>": []byte("<intf.bytes>"),}; separator="\n">
+}
+
+var facts = &meta.Facts {
+        Facts: []*meta.Fact {
+               <facts.values:{fact|<metafact(fact)>}; separator="\n">
+        },
 }
 
 type ChaincodeMetaData struct {
@@ -224,6 +233,10 @@ func (t *ChaincodeMetaData) GetInterface(stub *shim.ChaincodeStub, params *meta.
 	return &meta.InterfaceDescriptor{Data: intf}, nil
 }
 
+func (t *ChaincodeMetaData) GetFacts(stub *shim.ChaincodeStub, params *meta.GetFactsParams) (*meta.Facts, error) {
+
+	return facts, nil
+}
 >>
 
 server(base, intf) ::=

@@ -132,6 +132,23 @@ Compiles a .cci file into a .proto file, suitable for developing clients using s
 
 Retrieves [metadata](#metadata) from a running instance
 
+```
+$ chaintool inspect -n mycc
+Connecting to http://localhost:3000/chaincode
+|---------------------+--------------------------------------------|
+|         Fact        |                    Value                   |
+|---------------------+--------------------------------------------|
+| Application Name    | org.hyperledger.chaincode.example02        |
+| Application Version | 0.1-SNAPSHOT                               |
+| Platform            | org.hyperledger.chaincode.golang version 1 |
+| Chaintool Version   | 0.7                                        |
+|---------------------+--------------------------------------------|
+Exported Interfaces:
+	- appinit
+	- org.hyperledger.chaincode.example02
+
+```
+
 # Chaincode Application Development
 
 ## Project Structure

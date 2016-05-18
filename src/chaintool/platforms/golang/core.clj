@@ -35,6 +35,7 @@
 (deftype Function  [^String rettype ^String name ^String param ^Integer index])
 (deftype Interface  [^String name ^String package ^String packageCamel ^String packagepath ^ArrayList transactions ^ArrayList queries])
 (deftype CCI [^String name ^String bytes])
+(deftype Fact [^String name ^String value])
 
 ;;------------------------------------------------------------------
 ;; helper functions
@@ -126,6 +127,13 @@
 (defn buildccis [ipath interfaces]
   (into {} (map (fn [interface] (buildcci ipath interface)) interfaces)))
 
+(defn buildfacts [config]
+  (let [facts [["Application Name" (:Name config)]
+               ["Application Version" (:Version config)]
+               ["Platform" (str (-> config :Platform :Name) " version " (-> config :Platform :Version))]
+               ["Chaintool Version" util/app-version]]]
+      (into {} (map (fn [[name value]] (vector name (->Fact name value))) facts))))
+
 ;;-----------------------------------------------------------------
 ;; generic template rendering
 ;;-----------------------------------------------------------------
@@ -154,8 +162,10 @@
 ;; org.hyperledger.chaintool.meta interface
 ;;-----------------------------------------------------------------
 (defn render-metadata [config ipath]
-  (let [provides (buildccis ipath (intf/getprovides config))]
-    (render-golang "metadata" [["provides" provides]])))
+  (let [facts (buildfacts config)
+        provides (buildccis ipath (intf/getprovides config))]
+    (render-golang "metadata" [["facts" facts]
+                               ["provides" provides]])))
 
 ;;-----------------------------------------------------------------
 ;; write golang source to the filesystem, using gofmt to clean

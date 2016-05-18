@@ -16,39 +16,52 @@
   (:import [org.hyperledger.chaintool.meta
             OrgHyperledgerChaintoolMeta$GetInterfacesParams
             OrgHyperledgerChaintoolMeta$Interfaces
-            OrgHyperledgerChaintoolMeta$InterfaceDescriptor])
+            OrgHyperledgerChaintoolMeta$InterfaceDescriptor
+            OrgHyperledgerChaintoolMeta$GetFactsParams
+            OrgHyperledgerChaintoolMeta$Facts])
   (:require [clojure.java.io :as io]
             [clj-http.client :as http]
             [flatland.protobuf.core :as fl]
             [clojure.data.codec.base64 :as base64]
             [cheshire.core :as json]
-            [chaintool.codecs :as codecs]))
+            [chaintool.codecs :as codecs]
+            [chaintool.util :as util]
+            [doric.core :as doric]))
 
 (def GetInterfacesParams (fl/protodef OrgHyperledgerChaintoolMeta$GetInterfacesParams))
 (def Interfaces          (fl/protodef OrgHyperledgerChaintoolMeta$Interfaces))
 (def InterfaceDescriptor (fl/protodef OrgHyperledgerChaintoolMeta$InterfaceDescriptor))
+(def GetFactsParams      (fl/protodef OrgHyperledgerChaintoolMeta$GetFactsParams))
+(def Facts               (fl/protodef OrgHyperledgerChaintoolMeta$Facts))
 
 (defn- encode [item] (-> item fl/protobuf-dump base64/encode (String. "UTF-8")))
 (defn- decode [type item] (->> item .getBytes base64/decode (fl/protobuf-load type)))
 
-(defn- post [{:keys [host port method name func args]}]
-  (let [url (str "http://" host ":" port "/chaincode")
-        body {:jsonrpc "2.0"
+(defn- url [{:keys [host port]}]
+  (str "http://" host ":" port "/chaincode"))
+
+(defn- post [{:keys [method name func args] :as options}]
+  (let [body {:jsonrpc "2.0"
               :method method
               :params {:type 3
                        :chaincodeID {:name name}
                        :ctorMsg {:function func
                                  :args [(encode args)]}}
               :id "1"}]
-    ;; (println (str "HTTP POST:" url " - " body))
-    (println "Connecting to" url)
-    (http/post url
+
+    (http/post (url options)
                {:content-type :json
                 :accept :json
                 :form-params body})))
 
 (defn- query [args]
-  (post (assoc args :method "query")))
+  (let [{:keys [body]} (post (assoc args :method "query"))
+        response (-> body (json/parse-string true) (select-keys [:result :error]))]
+
+    (if (= (-> response :result :status) "OK")
+      (->> response :result :message)
+      ;; else
+      (util/abort -1 (str response)))))
 
 ;;--------------------------------------------------------------------------------------
 ;; make-input-stream - factory function for creating an input-stream for a specific entry
@@ -56,30 +69,41 @@
 ;; We install the necessary decompressor such that the output of this stream represents
 ;; raw, uncompressed original data
 ;;--------------------------------------------------------------------------------------
-(defn make-input-stream [data]
+(defn- make-input-stream [data]
   (let [is (.newInput data)]
     (codecs/decompressor "gzip" is)))
 
-(defn run [{:keys [host port] :as options}]
-  (let [{:keys [body]} (query (assoc options
+(defn- get-interfaces [{:keys [host port] :as options}]
+  (let [response (query (assoc options
                                :func "org.hyperledger.chaintool.meta/query/1"
-                               :args (fl/protobuf GetInterfacesParams :IncludeContent (some? (:interfaces options)))))
-        response (-> body (json/parse-string true) (select-keys [:result :error]))]
+                               :args (fl/protobuf GetInterfacesParams :IncludeContent (some? (:interfaces options)))))]
 
-    (if (= (-> response :result :status) "OK")
+    (decode Interfaces response)))
 
-      (let [interfaces (->> response :result :message (decode Interfaces))]
-        (println "Exported Interfaces:")
-        (dorun (for [{:keys [name data]} (:descriptors interfaces)]
-                 (do
-                   (println "\t-" name)
-                   (when-let [path (:interfaces options)]
-                     (let [is (make-input-stream data)
-                           file (io/file path (str name ".cci"))]
+(defn- get-facts [{:keys [host port] :as options}]
+  (let [response (query (assoc options
+                               :func "org.hyperledger.chaintool.meta/query/3"
+                               :args (fl/protobuf GetFactsParams)))]
 
-                       (io/make-parents file)
-                       (with-open [os (io/output-stream file)]
-                         (io/copy is os))))))))
+    (decode Facts response)))
 
-      ;; else
-      (println "Error:" response))))
+(defn run [options]
+
+  (println "Connecting to" (url options))
+
+  (let [{:keys [facts]} (get-facts options)
+        interfaces (get-interfaces options)]
+
+    (println (doric/table [{:name :name :title "Fact"} {:name :value}] facts))
+
+    (println "Exported Interfaces:")
+    (dorun (for [{:keys [name data]} (:descriptors interfaces)]
+             (do
+               (println "\t-" name)
+               (when-let [path (:interfaces options)]
+                 (let [is (make-input-stream data)
+                       file (io/file path (str name ".cci"))]
+
+                   (io/make-parents file)
+                   (with-open [os (io/output-stream file)]
+                     (io/copy is os)))))))))

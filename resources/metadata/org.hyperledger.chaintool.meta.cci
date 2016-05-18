@@ -16,7 +16,20 @@ message GetInterfaceParams {
         string name = 1;
 }
 
+message GetFactsParams {
+}
+
+message Fact {
+        string name = 1;
+        string value = 2;
+}
+
+message Facts {
+        repeated Fact facts = 1;
+}
+
 queries {
         Interfaces GetInterfaces(GetInterfacesParams) = 1;
         InterfaceDescriptor GetInterface(GetInterfaceParams) = 2;
+        Facts GetFacts(GetFactsParams) = 3;
 }
