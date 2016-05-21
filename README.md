@@ -81,7 +81,9 @@ Command Options:
 
 #### chaintool build
 
-Builds your chaincode project into a binary ready for execution on a blockchain.  Various artifacts are emitted to ./build, depending on the platform.  For [org.hyperledger.chaincode.golang](./documentation/platforms/golang/README.md):
+Builds your chaincode project into a executable.  When used locally, _chaintool build_ allows a developer to verify that their project compiles without errors or warnings before deployment.  Validating peers also each use _chaintool build_ to prepare a chaincode archive for execution on the actual blockchain.  Developers achieve fidelity in chaincode development workflows because they have access to the same build environment that will eventually be used when their application is deployed.
+
+Various artifacts are emitted to ./build, depending on the platform.  For [org.hyperledger.chaincode.golang](./documentation/platforms/golang/README.md):
 
 - ./build/src: shim, protobufs, etc
 - ./build/deps: direct and transitive dependencies of your chaincode, as retrieved by "go get".  NOTE: this option is likely to default to disabled in the future, since it is not a good idea for a validating peer to be pulling dependencies down.  Rather, there should be some fixed number of dependencies that are implicitly included with the platform.  For now, we pull things in dynamically.
@@ -97,7 +99,7 @@ Packages the sourcecode, interfaces, chaincode.yaml, and other project data into
 
 #### chaintool ls
 
-Displays the contents of an existing .car file
+Displays the contents of an existing .car file.
 ```
 $ chaintool ls ./build/org.hyperledger.chaincode.example02-0.1-SNAPSHOT.car
 |------+------------------------------------------+--------------------------------------------------------|
@@ -130,7 +132,7 @@ Compiles a .cci file into a .proto file, suitable for developing clients using s
 
 #### chaintool inspect
 
-Retrieves [metadata](#metadata) from a running instance
+Retrieves [metadata](#metadata) from a running instance, optionally saving the interface definitions to a local directory.
 
 ```
 $ chaintool inspect -n mycc
