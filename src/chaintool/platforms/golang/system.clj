@@ -22,8 +22,6 @@
             [clojure.string :as string])
   (:refer-clojure :exclude [compile]))
 
-(conch/programs go)
-
 (defn get-package-name [path]
   ;; FIXME: This will only work when chaintool is in CWD, need to "cd $path" first
   (string/trim-newline (go "list")))

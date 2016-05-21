@@ -28,6 +28,7 @@
 
 (conch/programs protoc)
 (conch/programs gofmt)
+(conch/programs go)
 
 ;; types to map to java objects that string template expects.
 ;;
@@ -131,8 +132,9 @@
   (let [facts [["Application Name" (:Name config)]
                ["Application Version" (:Version config)]
                ["Platform" (str (-> config :Platform :Name) " version " (-> config :Platform :Version))]
+               ["Go Version" (-> (go "version") string/trim-newline (string/replace "go version " ""))]
                ["Chaintool Version" util/app-version]]]
-      (into {} (map (fn [[name value]] (vector name (->Fact name value))) facts))))
+    (into {} (map (fn [[name value]] (vector name (->Fact name value))) facts))))
 
 ;;-----------------------------------------------------------------
 ;; generic template rendering
