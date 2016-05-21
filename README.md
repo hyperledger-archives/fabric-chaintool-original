@@ -382,7 +382,7 @@ Every chaincode application built with chaintool includes metadata which may be 
 
 ### Details
 
-Chaintool emits a shadow interface _org.hyperledger.chaintool.meta_ in every application that supports queries.  This interface has the following CCI at the time of writing:
+Chaintool emits a shadow interface _org.hyperledger.chaintool.meta_ that supports meta queries in every application built with chaintool.  This interface has the following CCI at the time of writing:
 ```
 message InterfaceDescriptor {
         string name = 1;
@@ -401,9 +401,22 @@ message GetInterfaceParams {
         string name = 1;
 }
 
+message GetFactsParams {
+}
+
+message Fact {
+        string name = 1;
+        string value = 2;
+}
+
+message Facts {
+        repeated Fact facts = 1;
+}
+
 queries {
         Interfaces GetInterfaces(GetInterfacesParams) = 1;
         InterfaceDescriptor GetInterface(GetInterfaceParams) = 2;
+        Facts GetFacts(GetFactsParams) = 3;
 }
 ```
 This means that clients may optionally interact with this CCI using the same protocol discussed above to learn further details about the running application.  This includes obtaining the CCI specifications of the application which may be consumed in other projects.  Alternatively, users may simply use the _chaintool inspect_ command to obtain the desired information.
