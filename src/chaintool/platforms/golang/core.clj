@@ -48,9 +48,6 @@
 (defn package-camel [name] (-> name package-name string/capitalize))
 (defn package-path [base name] (str (pkg-to-relpath base) "/cci/" (string/replace name "." "/")))
 
-(defn conjpath [components]
-  (.getCanonicalPath (apply io/file components)))
-
 ;;------------------------------------------------------------------
 ;; return a string with composite GOPATH elements, separated by ":"
 ;;
@@ -58,9 +55,10 @@
 ;; retrived by "go get")
 ;;------------------------------------------------------------------
 (defn buildgopath [path]
-  (let [gopath (map conjpath [[path "build/deps"][path "build"][path][(System/getenv "GOPATH")]])]
-
-    (clojure.string/join ":" gopath)))
+  (->> [[path "build/deps"][path "build"][path][(System/getenv "GOPATH")]]
+       (filter #(not= % [nil]))
+       (map #(.getCanonicalPath (apply io/file %)))
+       (clojure.string/join ":")))
 
 ;;------------------------------------------------------------------
 ;; X-cmd interfaces: Invoke external commands
