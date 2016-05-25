@@ -112,16 +112,15 @@
   (let [path (io/file ipath (str name ".cci"))
         os (ByteArrayOutputStream.)]
 
-    (do
-      ;; first compress the file into memory
-      (with-open [is (io/input-stream path)
-                  compressor (codecs/compressor "gzip" os)]
-        (io/copy is compressor))
+    ;; first compress the file into memory
+    (with-open [is (io/input-stream path)
+                compressor (codecs/compressor "gzip" os)]
+      (io/copy is compressor))
 
-      ;; compute our new string value for []byte
-      (let [data (string/join (for [i (seq (.toByteArray os))] (format "\\x%02x" i)))]
-        ;; finally, construct a new definition object
-        (vector name (->InterfaceDefinition name data))))))
+    ;; compute our new string value for []byte
+    (let [data (string/join (for [i (seq (.toByteArray os))] (format "\\x%02x" i)))]
+      ;; finally, construct a new definition object
+      (vector name (->InterfaceDefinition name data)))))
 
 (defn- build-interface-definitions [ipath interfaces]
   (into {} (map (fn [interface] (build-interface-definition ipath interface)) interfaces)))

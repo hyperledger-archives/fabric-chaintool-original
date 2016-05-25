@@ -118,7 +118,7 @@
        (mapv build-toplevel-entry)
        (interleave (range))
        (partition 2)
-       (map #(vec %))
+       (map vec)
        vec
        (into {})))
 

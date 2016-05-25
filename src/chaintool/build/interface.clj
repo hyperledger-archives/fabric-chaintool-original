@@ -191,7 +191,7 @@
 ;;-----------------------------------------------------------------
 (defn verify-usertype [ast]
   (let [{:keys [typeName fieldName type]} (getattrs ast)]
-    (loop [loc (->> ast zip/up)]
+    (loop [loc (zip/up ast)]
       (cond
 
         (nil? loc)

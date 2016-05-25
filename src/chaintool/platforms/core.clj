@@ -22,7 +22,7 @@
    "org.hyperledger.chaincode.system" syscc/factory})
 
 (defn find [config]
-  (let [platform (->> config :Platform)
+  (let [platform (:Platform config)
         name (:Name platform)
         version (:Version platform)]
     (if-let [factory (factories name)]
