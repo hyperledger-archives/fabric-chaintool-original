@@ -93,22 +93,22 @@
 ;; buildX - build our ST friendly objects
 ;;-----------------------------------------------------------------
 
-(defn- buildfunction [{:keys [rettype functionName param index]}]
+(defn- build-function [{:keys [rettype functionName param index]}]
   (vector functionName (->Function (when (not= rettype "void") rettype) functionName param index)))
 
-(defn- buildfunctions [functions]
+(defn- build-functions [functions]
   (into {} (for [[k v] functions]
-             (buildfunction v))))
+             (build-function v))))
 
-(defn- buildinterface [base name interface]
-  (let [transactions (buildfunctions (:transactions interface))
-        queries (buildfunctions (:queries interface))]
+(defn- build-interface [base name interface]
+  (let [transactions (build-functions (:transactions interface))
+        queries (build-functions (:queries interface))]
     (vector name (->Interface name (package-name name) (package-camel name) (package-path base name) transactions queries))))
 
 (defn- build [base interfaces]
-  (into {} (map (fn [[name interface]] (buildinterface base name interface)) interfaces)))
+  (into {} (map (fn [[name interface]] (build-interface base name interface)) interfaces)))
 
-(defn- buildcci [ipath name]
+(defn- build-cci [ipath name]
   (let [path (io/file ipath (str name ".cci"))
         os (ByteArrayOutputStream.)]
 
@@ -123,10 +123,10 @@
         ;; finally, construct a new CCI object
         (vector name (->CCI name data))))))
 
-(defn- buildccis [ipath interfaces]
-  (into {} (map (fn [interface] (buildcci ipath interface)) interfaces)))
+(defn- build-ccis [ipath interfaces]
+  (into {} (map (fn [interface] (build-cci ipath interface)) interfaces)))
 
-(defn- buildfacts [config]
+(defn- build-facts [config]
   (let [facts [["Application Name" (:Name config)]
                ["Application Version" (:Version config)]
                ["Platform" (str (-> config :Platform :Name) " version " (-> config :Platform :Version))]
@@ -162,8 +162,8 @@
 ;; org.hyperledger.chaintool.meta interface
 ;;-----------------------------------------------------------------
 (defn- render-metadata [config ipath]
-  (let [facts (buildfacts config)
-        provides (buildccis ipath (intf/getprovides config))]
+  (let [facts (build-facts config)
+        provides (build-ccis ipath (intf/getprovides config))]
     (render-golang "metadata" [["facts" facts]
                                ["provides" provides]])))
 
@@ -179,12 +179,15 @@
 ;; emit-stub
 ;;-----------------------------------------------------------------
 (defn- emit-stub [base name functions template srcdir filename]
-  (let [[_ interface] (buildinterface base name functions)
+  (let [[_ interface] (build-interface base name functions)
         content (render-golang template [["base" base]["intf" interface]])
         output (io/file srcdir (package-path base name) filename)]
 
     (emit-golang output content)))
 
+;;-----------------------------------------------------------------
+;; emit-server-stub
+;;-----------------------------------------------------------------
 (defn- emit-server-stub [base name functions srcdir]
   (emit-stub base name functions "server" srcdir "server-stub.go"))
 
