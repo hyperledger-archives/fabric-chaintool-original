@@ -120,7 +120,7 @@
                options-summary
                ""
                "Actions:"
-               (map (fn[[ _ [{:keys [name desc]}] ]] (str "  " name " -> " desc)) subcommands)
+               (map (fn [[_ [{:keys [name desc]}]]] (str "  " name " -> " desc)) subcommands)
                ""
                "(run \"chaintool <action> -h\" for action specific help)"]))
 
@@ -152,7 +152,7 @@
       (exit -1 (usage summary))
 
       :else
-      (if-let [ [subcommand] (subcommands (first arguments))]
+      (if-let [[subcommand] (subcommands (first arguments))]
         (let [{:keys [options arguments errors summary]} (parse-opts (rest arguments) (:options subcommand))]
           (cond
 
@@ -167,10 +167,10 @@
 
             :else
             (slingshot/try+
-              ((:handler subcommand) options arguments)
-              (exit 0 "")
-              (catch [:type :chaintoolabort] {:keys [msg retval]}
-                (exit retval (str "Error: " msg))))))
+             ((:handler subcommand) options arguments)
+             (exit 0 "")
+             (catch [:type :chaintoolabort] {:keys [msg retval]}
+               (exit retval (str "Error: " msg))))))
 
         ;; unrecognized subcommand
         (exit 1 (usage summary))))))

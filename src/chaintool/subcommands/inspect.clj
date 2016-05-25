@@ -23,4 +23,4 @@
 
 (defn run [options args]
   (let [output (getoutputdir options)]
-      (inspect/run (assoc options :output output))))
+    (inspect/run (assoc options :output output))))

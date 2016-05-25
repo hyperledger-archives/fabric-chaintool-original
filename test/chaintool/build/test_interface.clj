@@ -33,8 +33,7 @@
   //message CommentedMessage {
   //   int32 param1 = 1;
   //}
-  "
-  )
+  ")
 
 (def example1-expected-result
   [[:interface [:message "ActiveMessage" [:field [:type [:scalar "string"]] [:fieldName "param1"] [:index "1"]] [:field [:type [:scalar "int32"]] [:fieldName "param2"] [:index "2"]] [:field [:type [:scalar "int64"]] [:fieldName "param3"] [:index "3"]]]] nil])
@@ -50,8 +49,7 @@
     repeated Entry entries = 1;
   }
 
-  "
-  )
+  ")
 
 (def example2-expected-result
   [[:interface [:message "NestedMessage" [:message "Entry" [:field [:type [:scalar "string"]] [:fieldName "key"] [:index "1"]] [:field [:type [:scalar "int32"]] [:fieldName "value"] [:index "2"]]] [:field [:modifier "repeated"] [:type [:userType "Entry"]] [:fieldName "entries"] [:index "1"]]]] nil])
@@ -71,8 +69,7 @@
     repeated Entry entries = 1;
   }
 
-  "
-  )
+  ")
 
 (deftest test-parser-validation
   (let [intf (parse example-undefined-type-cci)]
@@ -89,8 +86,7 @@
         Party partyA = 1;
         Party partyB = 2;
   }
-  "
-  )
+  ")
 
 (deftest test-type-resolution
   (let [intf (parse example-type-resolution)]
@@ -104,8 +100,7 @@
         int32  baz    = 1;
   }
 
-  "
-  )
+  ")
 
 (deftest test-conflict-detection
   (let [intf (parse example-conflicting-index)]

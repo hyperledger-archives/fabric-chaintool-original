@@ -55,7 +55,7 @@
 ;; retrived by "go get")
 ;;------------------------------------------------------------------
 (defn buildgopath [path]
-  (->> [[path "build/deps"][path "build"][path][(System/getenv "GOPATH")]]
+  (->> [[path "build/deps"] [path "build"] [path] [(System/getenv "GOPATH")]]
        (filter #(not= % [nil]))
        (map #(.getCanonicalPath (apply io/file %)))
        (clojure.string/join ":")))
@@ -179,7 +179,7 @@
 ;;-----------------------------------------------------------------
 (defn- emit-stub [base name functions template srcdir filename]
   (let [[_ interface] (build-interface base name functions)
-        content (render-golang template [["base" base]["intf" interface]])
+        content (render-golang template [["base" base] ["intf" interface]])
         output (io/file srcdir (package-path base name) filename)]
 
     (emit-golang output content)))
@@ -227,33 +227,33 @@
   (let [interfaces (compile-interfaces ipath config)]
 
      ;; generate protobuf output
-     (dorun (for [interface interfaces]
-              (emit-proto base opath interface)))
+    (dorun (for [interface interfaces]
+             (emit-proto base opath interface)))
 
      ;; generate our primary stub
-     (let [path (io/file opath (pkg-to-relpath base) "ccs")]
-       (let [content (render-primary-stub base package config interfaces)
-             filename (io/file path "entrypoint.go")]
-         (emit-golang filename content))
-       (let [content (render-metadata config ipath)
-             filename (io/file path "metadata.go")]
-         (emit-golang filename content))
-       (let [content (render-golang "api" [])
-             filename (io/file path "api" "api.go")]
-         (emit-golang filename content)))
+    (let [path (io/file opath (pkg-to-relpath base) "ccs")]
+      (let [content (render-primary-stub base package config interfaces)
+            filename (io/file path "entrypoint.go")]
+        (emit-golang filename content))
+      (let [content (render-metadata config ipath)
+            filename (io/file path "metadata.go")]
+        (emit-golang filename content))
+      (let [content (render-golang "api" [])
+            filename (io/file path "api" "api.go")]
+        (emit-golang filename content)))
 
      ;; generate our server stubs
-     (let [provides (->> config intf/getprovides (filter #(not= % "appinit")) (cons metadata-name))]
+    (let [provides (->> config intf/getprovides (filter #(not= % "appinit")) (cons metadata-name))]
 
        ;; first process all _except_ the appinit interface
-       (dorun (for [name provides]
-                (let [functions (intf/getallfunctions (interfaces name))]
-                  (emit-server-stub base name functions opath))))
+      (dorun (for [name provides]
+               (let [functions (intf/getallfunctions (interfaces name))]
+                 (emit-server-stub base name functions opath))))
 
        ;; and now special case the appinit  interface
-       (emit-server-stub base "appinit" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} opath))
+      (emit-server-stub base "appinit" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} opath))
 
      ;; generate our client stubs
-     (dorun (for [name (intf/getconsumes config)]
-              (let [functions (intf/getallfunctions (interfaces name))]
-                (emit-stub base name functions "client" opath "client-stub.go"))))))
+    (dorun (for [name (intf/getconsumes config)]
+             (let [functions (intf/getallfunctions (interfaces name))]
+               (emit-stub base name functions "client" opath "client-stub.go"))))))

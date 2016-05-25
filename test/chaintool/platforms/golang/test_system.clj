@@ -19,10 +19,10 @@
 
 (deftest test-standalone-gopath-computation
   (let [gopath (compute-gopath "/local-dev/git/chaintool/testdata/sample_syscc"
-                           "_/local-dev/git/chaintool/testdata/sample_syscc")]
+                               "_/local-dev/git/chaintool/testdata/sample_syscc")]
     (is (= gopath "/"))))
 
 (deftest test-gopath-computation
   (let [gopath (compute-gopath "/opt/gopath/src/github.com/hyperledger/fabric/core/system_chaincode/sample"
-                           "github.com/hyperledger/fabric/core/system_chaincode/sample")]
+                               "github.com/hyperledger/fabric/core/system_chaincode/sample")]
     (is (= gopath "/opt/gopath/src"))))

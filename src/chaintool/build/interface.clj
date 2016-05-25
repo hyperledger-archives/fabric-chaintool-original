@@ -230,8 +230,8 @@
 ;;-----------------------------------------------------------------
 (defn verify-field [ast indices]
   (let [[_ error] (err->> ast
-                      verify-fieldtype
-                      #(verify-index indices %))
+                          verify-fieldtype
+                          #(verify-index indices %))
         lineno (->> ast zip/up zip/node get-lineno)]
     (if (nil? error)
       ;; add our index to the table
@@ -267,7 +267,7 @@
 ;;-----------------------------------------------------------------
 (defn verify-enum [ast]
   ;;FIXME
-  )
+)
 
 ;;-----------------------------------------------------------------
 ;; verify-intf: scan the entire interface and validate various

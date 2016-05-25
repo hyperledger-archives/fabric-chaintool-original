@@ -17,7 +17,7 @@
             [chaintool.util :as util]
             [chaintool.car.read :as car.read]
             [chaintool.car.unpack :as car.unpack]
-[clojure.java.io :as io]))
+            [clojure.java.io :as io]))
 
 (defn getoutputdir [options config]
   (if-let [dir (:directory options)]
