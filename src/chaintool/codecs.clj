@@ -39,7 +39,7 @@
 
    {:name "lzma"
     :output #(-> (LzmaOutputStream$Builder. %) .build)
-    :input #(-> (LZMACompressorInputStream. %))}
+    :input #(LZMACompressorInputStream. %)}
 
    {:name "bzip2"
     :output #(BZip2CompressorOutputStream. %)
