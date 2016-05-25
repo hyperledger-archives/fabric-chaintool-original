@@ -105,7 +105,7 @@
         queries (build-functions (:queries interface))]
     (vector name (->Interface name (package-name name) (package-camel name) (package-path base name) transactions queries))))
 
-(defn- build [base interfaces]
+(defn- build-interfaces [base interfaces]
   (into {} (map (fn [[name interface]] (build-interface base name interface)) interfaces)))
 
 (defn- build-cci [ipath name]
@@ -150,7 +150,7 @@
 ;;-----------------------------------------------------------------
 (defn- render-primary-stub [base package config interfaces]
   (let [functions (algo/fmap intf/getallfunctions interfaces)
-        provides (build base (select-keys functions (intf/getprovides config)))]
+        provides (build-interfaces base (select-keys functions (intf/getprovides config)))]
 
     (render-golang "primary" [["base" base]
                               ["system" package]
