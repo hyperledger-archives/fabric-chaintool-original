@@ -118,8 +118,7 @@
        (mapv build-toplevel-entry)
        (interleave (range))
        (partition 2)
-       (map vec)
-       vec
+       (mapv vec)
        (into {})))
 
 (defn- buildfunction [name {:keys [rettype functionName param index type] :as ast}]
