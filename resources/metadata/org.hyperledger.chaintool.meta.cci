@@ -19,12 +19,12 @@ message GetInterfaceParams {
 message GetFactsParams {
 }
 
-message Fact {
-        string name = 1;
-        string value = 2;
-}
-
 message Facts {
+	message Fact {
+		string name = 1;
+		string value = 2;
+	}
+
         repeated Fact facts = 1;
 }
 
