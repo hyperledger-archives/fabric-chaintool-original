@@ -33,10 +33,10 @@
 ;; types to map to java objects that string template expects.
 ;;
 
-(deftype Function  [^String rettype ^String name ^String param ^Integer index])
-(deftype Interface  [^String name ^String package ^String packageCamel ^String packagepath ^ArrayList transactions ^ArrayList queries])
-(deftype CCI [^String name ^String bytes])
-(deftype Fact [^String name ^String value])
+(deftype Function            [^String rettype ^String name ^String param ^Integer index])
+(deftype Interface           [^String name ^String package ^String packageCamel ^String packagepath ^ArrayList transactions ^ArrayList queries])
+(deftype InterfaceDefinition [^String name ^String bytes])
+(deftype Fact                [^String name ^String value])
 
 ;;------------------------------------------------------------------
 ;; helper functions
@@ -108,7 +108,7 @@
 (defn- build-interfaces [base interfaces]
   (into {} (map (fn [[name interface]] (build-interface base name interface)) interfaces)))
 
-(defn- build-cci [ipath name]
+(defn- build-interface-definition [ipath name]
   (let [path (io/file ipath (str name ".cci"))
         os (ByteArrayOutputStream.)]
 
@@ -120,11 +120,11 @@
 
       ;; compute our new string value for []byte
       (let [data (string/join (for [i (seq (.toByteArray os))] (format "\\x%02x" i)))]
-        ;; finally, construct a new CCI object
-        (vector name (->CCI name data))))))
+        ;; finally, construct a new definition object
+        (vector name (->InterfaceDefinition name data))))))
 
-(defn- build-ccis [ipath interfaces]
-  (into {} (map (fn [interface] (build-cci ipath interface)) interfaces)))
+(defn- build-interface-definitions [ipath interfaces]
+  (into {} (map (fn [interface] (build-interface-definition ipath interface)) interfaces)))
 
 (defn- build-facts [config]
   (let [facts [["Application Name" (:Name config)]
@@ -163,7 +163,7 @@
 ;;-----------------------------------------------------------------
 (defn- render-metadata [config ipath]
   (let [facts (build-facts config)
-        provides (build-ccis ipath (intf/getprovides config))]
+        provides (->> config intf/getprovides (build-interface-definitions ipath))]
     (render-golang "metadata" [["facts" facts]
                                ["provides" provides]])))
 
