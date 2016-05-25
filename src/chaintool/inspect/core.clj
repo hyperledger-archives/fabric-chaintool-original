@@ -40,6 +40,9 @@
 (defn- url [{:keys [host port]}]
   (str "http://" host ":" port "/chaincode"))
 
+;;--------------------------------------------------------------------------------------
+;; post - performs a synchronous http/jsonrpc to the server, evaluating to the response
+;;--------------------------------------------------------------------------------------
 (defn- post [{:keys [method name func args] :as options}]
   (let [body {:jsonrpc "2.0"
               :method method
@@ -54,6 +57,10 @@
                 :accept :json
                 :form-params body})))
 
+;;--------------------------------------------------------------------------------------
+;; invokes a "query" operation on top of (post) and evaluates to a successful response
+;; or throws an exception
+;;--------------------------------------------------------------------------------------
 (defn- query [args]
   (let [{:keys [body]} (post (assoc args :method "query"))
         response (-> body (json/parse-string true) (select-keys [:result :error]))]
@@ -64,30 +71,30 @@
       (util/abort -1 (str response)))))
 
 ;;--------------------------------------------------------------------------------------
-;; make-input-stream - factory function for creating an input-stream for a specific entry
-;;
-;; We install the necessary decompressor such that the output of this stream represents
-;; raw, uncompressed original data
+;; get-* operations invoke specific query operations
 ;;--------------------------------------------------------------------------------------
-(defn- make-input-stream [data]
-  (let [is (.newInput data)]
-    (codecs/decompressor "gzip" is)))
-
-(defn- get-interfaces [{:keys [host port] :as options}]
+(defn- get-interfaces
+  "gets all interface names declared, optionally with a request to include cci content"
+  [{:keys [host port] :as options}]
   (let [response (query (assoc options
                                :func "org.hyperledger.chaintool.meta/query/1"
                                :args (fl/protobuf GetInterfacesParams :IncludeContent (some? (:interfaces options)))))]
 
     (decode Interfaces response)))
 
-(defn- get-facts [{:keys [host port] :as options}]
+(defn- get-facts
+  "gets all fact name/value pairs from the running instance"
+  [{:keys [host port] :as options}]
   (let [response (query (assoc options
                                :func "org.hyperledger.chaintool.meta/query/3"
                                :args (fl/protobuf GetFactsParams)))]
 
     (decode Facts response)))
 
-(defn run [options]
+;;--------------------------------------------------------------------------------------
+(defn run
+  "main entrypoint for inspection function"
+  [options]
 
   (println "Connecting to" (url options))
 
@@ -101,7 +108,7 @@
              (do
                (println "\t-" name)
                (when-let [path (:interfaces options)]
-                 (let [is (make-input-stream data)
+                 (let [is (->> data .newInput (codecs/decompressor "gzip"))
                        file (io/file path (str name ".cci"))]
 
                    (io/make-parents file)
