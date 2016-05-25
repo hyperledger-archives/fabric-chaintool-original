@@ -363,13 +363,13 @@ case function == <func.index>:
 
 implementhandler(txn) ::=
 <<
-func (t *stubHandler) <if(txn)>Invoke<else>Query<endif>(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+func (self *stubHandler) <if(txn)>Invoke<else>Query<endif>(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 
 	if len(args) != 1 {
 		return nil, errors.New("Expected exactly one argument")
 	}
 
-	dispatcher, index, err := t.decodeFunction(<if(txn)>txnre<else>queryre<endif>, function)
+	dispatcher, index, err := self.decodeFunction(<if(txn)>txnre<else>queryre<endif>, function)
 	if err != nil {
 		return nil, err
 	}
