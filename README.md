@@ -12,7 +12,7 @@ Current chaincode development is rather unstructured outside of the coarse-level
 
 Consider that some chaincode applications may employ confidentiality to hide their source, while others may wish to employ alternative programming languages.  This aside, chaincode deployment lifecycles may be long enough to require us to be aware of managing potential API incompatibilities between the chaincode and its clients.  It starts to become clear that there are some advantages to allowing chaincode to express its API interfaces in a way that is independent from the underlying implementation/language and in a manner that supports some form of schema management.
 
-_chaintool_ helps in this regard by allowing applications to declare/consume one or more language neutral interface-definitions and package it with the project.  It helps the developer by generating shim/stub code in their chosen programming language that helps them implement and/or consume the interfaces declared.  This means that external parties may introspect a given instance for its interface(s) in a language neutral manner without requiring access to and/or an ability to decipher the underlying code.  It also means that we can use [protobufs](https://developers.google.com/protocol-buffers/) to help with various API features such as managing forwards/backwards compatibility, endian neutrality, basic type validation, etc in a largely transparent manner.
+_chaintool_ helps in this regard by allowing applications to declare/consume one or more language neutral interface-definitions and package it with the project.  It helps the developer by generating stub code in their chosen programming language that helps them implement and/or consume the interfaces declared.  This means that external parties may introspect a given instance for its interface(s) in a language neutral manner without requiring access to and/or an ability to decipher the underlying code.  It also means that we can use [protobufs](https://developers.google.com/protocol-buffers/) to help with various API features such as managing forwards/backwards compatibility, endian neutrality, basic type validation, etc in a largely transparent manner.
 
 _chaintool_ provides some other benefits too, such as consistent language-neutral packaging and chaincode hashing, which help to simplify both the hyperledger fabric implementation and developer burden.
 
@@ -85,7 +85,7 @@ Builds your chaincode project into a executable.  When used locally, _chaintool 
 
 Various artifacts are emitted to ./build, depending on the platform.  For [org.hyperledger.chaincode.golang](./documentation/platforms/golang/README.md):
 
-- ./build/src: shim, protobufs, etc
+- ./build/src: stub, protobufs, etc
 - ./build/deps: direct and transitive dependencies of your chaincode, as retrieved by "go get".  NOTE: this option is likely to default to disabled in the future, since it is not a good idea for a validating peer to be pulling dependencies down.  Rather, there should be some fixed number of dependencies that are implicitly included with the platform.  For now, we pull things in dynamically.
 - ./build/bin: the default location for the binary generated (override with -o)
 

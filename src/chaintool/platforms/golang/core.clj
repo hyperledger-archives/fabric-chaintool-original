@@ -145,10 +145,10 @@
     (.render template)))
 
 ;;-----------------------------------------------------------------
-;; render shim output - compiles the interfaces into the primary
-;; golang shim, suitable for writing to a file
+;; render stub output - compiles the interfaces into the primary
+;; golang stub, suitable for writing to a file
 ;;-----------------------------------------------------------------
-(defn render-primary-shim [base package config interfaces]
+(defn render-primary-stub [base package config interfaces]
   (let [functions (algo/fmap intf/getallfunctions interfaces)
         provides (build base (select-keys functions (intf/getprovides config)))]
 
@@ -176,17 +176,17 @@
   (gofmt "-w" (.getCanonicalPath outputfile)))
 
 ;;-----------------------------------------------------------------
-;; emit-shim
+;; emit-stub
 ;;-----------------------------------------------------------------
-(defn emit-shim [base name functions template srcdir filename]
+(defn emit-stub [base name functions template srcdir filename]
   (let [[_ interface] (buildinterface base name functions)
         content (render-golang template [["base" base]["intf" interface]])
         output (io/file srcdir (package-path base name) filename)]
 
     (emit-golang output content)))
 
-(defn emit-server-shim [base name functions srcdir]
-  (emit-shim base name functions "server" srcdir "server-shim.go"))
+(defn emit-server-stub [base name functions srcdir]
+  (emit-stub base name functions "server" srcdir "server-stub.go"))
 
 ;;-----------------------------------------------------------------
 ;; emit-proto
@@ -225,30 +225,30 @@
      (dorun (for [interface interfaces]
               (emit-proto base opath interface)))
 
-     ;; generate our primary shim/stub
+     ;; generate our primary stub
      (let [path (io/file opath (pkg-to-relpath base) "ccs")]
-       (let [content (render-primary-shim base package config interfaces)
-             filename (io/file path "shim.go")]
+       (let [content (render-primary-stub base package config interfaces)
+             filename (io/file path "entrypoint.go")]
          (emit-golang filename content))
        (let [content (render-metadata config ipath)
              filename (io/file path "metadata.go")]
          (emit-golang filename content))
-       (let [content (render-golang "stub" [])
-             filename (io/file path "stub" "stub.go")]
+       (let [content (render-golang "api" [])
+             filename (io/file path "api" "api.go")]
          (emit-golang filename content)))
 
-     ;; generate our server shims
+     ;; generate our server stubs
      (let [provides (->> config intf/getprovides (filter #(not= % "appinit")) (cons metadata-name))]
 
        ;; first process all _except_ the appinit interface
        (dorun (for [name provides]
                 (let [functions (intf/getallfunctions (interfaces name))]
-                  (emit-server-shim base name functions opath))))
+                  (emit-server-stub base name functions opath))))
 
        ;; and now special case the appinit  interface
-       (emit-server-shim base "appinit" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} opath))
+       (emit-server-stub base "appinit" {:transactions {1 {:rettype "void", :functionName "Init", :param "Init", :index 1, :subType nil, :typeName nil}}} opath))
 
-     ;; generate our client shims
+     ;; generate our client stubs
      (dorun (for [name (intf/getconsumes config)]
               (let [functions (intf/getallfunctions (interfaces name))]
-                (emit-shim base name functions "client" opath "client-shim.go"))))))
+                (emit-stub base name functions "client" opath "client-stub.go"))))))
