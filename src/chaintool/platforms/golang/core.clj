@@ -44,9 +44,9 @@
 (defn pkg-to-relpath [path]
   (string/replace path #"^_/" ""))
 
-(defn package-name [name] (-> name (string/split #"\.") last))
-(defn package-camel [name] (-> name package-name string/capitalize))
-(defn package-path [base name] (str (pkg-to-relpath base) "/cci/" (string/replace name "." "/")))
+(defn- package-name [name] (-> name (string/split #"\.") last))
+(defn- package-camel [name] (-> name package-name string/capitalize))
+(defn- package-path [base name] (str (pkg-to-relpath base) "/cci/" (string/replace name "." "/")))
 
 ;;------------------------------------------------------------------
 ;; return a string with composite GOPATH elements, separated by ":"
@@ -63,7 +63,7 @@
 ;;------------------------------------------------------------------
 ;; X-cmd interfaces: Invoke external commands
 ;;------------------------------------------------------------------
-(defn protoc-cmd [_path _proto]
+(defn- protoc-cmd [_path _proto]
   (let [path (->> _path io/file .getCanonicalPath)
         go_out (str "--go_out=" path)
         proto_path (str "--proto_path=" path)
@@ -93,22 +93,22 @@
 ;; buildX - build our ST friendly objects
 ;;-----------------------------------------------------------------
 
-(defn buildfunction [{:keys [rettype functionName param index]}]
+(defn- buildfunction [{:keys [rettype functionName param index]}]
   (vector functionName (->Function (when (not= rettype "void") rettype) functionName param index)))
 
-(defn buildfunctions [functions]
+(defn- buildfunctions [functions]
   (into {} (for [[k v] functions]
              (buildfunction v))))
 
-(defn buildinterface [base name interface]
+(defn- buildinterface [base name interface]
   (let [transactions (buildfunctions (:transactions interface))
         queries (buildfunctions (:queries interface))]
     (vector name (->Interface name (package-name name) (package-camel name) (package-path base name) transactions queries))))
 
-(defn build [base interfaces]
+(defn- build [base interfaces]
   (into {} (map (fn [[name interface]] (buildinterface base name interface)) interfaces)))
 
-(defn buildcci [ipath name]
+(defn- buildcci [ipath name]
   (let [path (io/file ipath (str name ".cci"))
         os (ByteArrayOutputStream.)]
 
@@ -123,10 +123,10 @@
         ;; finally, construct a new CCI object
         (vector name (->CCI name data))))))
 
-(defn buildccis [ipath interfaces]
+(defn- buildccis [ipath interfaces]
   (into {} (map (fn [interface] (buildcci ipath interface)) interfaces)))
 
-(defn buildfacts [config]
+(defn- buildfacts [config]
   (let [facts [["Application Name" (:Name config)]
                ["Application Version" (:Version config)]
                ["Platform" (str (-> config :Platform :Name) " version " (-> config :Platform :Version))]
@@ -137,7 +137,7 @@
 ;;-----------------------------------------------------------------
 ;; generic template rendering
 ;;-----------------------------------------------------------------
-(defn render-golang [templatename params]
+(defn- render-golang [templatename params]
   (let [stg  (STGroupFile. "generators/golang.stg")
         template (.getInstanceOf stg templatename)]
 
@@ -148,7 +148,7 @@
 ;; render stub output - compiles the interfaces into the primary
 ;; golang stub, suitable for writing to a file
 ;;-----------------------------------------------------------------
-(defn render-primary-stub [base package config interfaces]
+(defn- render-primary-stub [base package config interfaces]
   (let [functions (algo/fmap intf/getallfunctions interfaces)
         provides (build base (select-keys functions (intf/getprovides config)))]
 
@@ -161,7 +161,7 @@
 ;; structures suitable for surfacing via the
 ;; org.hyperledger.chaintool.meta interface
 ;;-----------------------------------------------------------------
-(defn render-metadata [config ipath]
+(defn- render-metadata [config ipath]
   (let [facts (buildfacts config)
         provides (buildccis ipath (intf/getprovides config))]
     (render-golang "metadata" [["facts" facts]
@@ -171,27 +171,27 @@
 ;; write golang source to the filesystem, using gofmt to clean
 ;; up the generated code
 ;;-----------------------------------------------------------------
-(defn emit-golang [outputfile content]
+(defn- emit-golang [outputfile content]
   (util/truncate-file outputfile content)
   (gofmt "-w" (.getCanonicalPath outputfile)))
 
 ;;-----------------------------------------------------------------
 ;; emit-stub
 ;;-----------------------------------------------------------------
-(defn emit-stub [base name functions template srcdir filename]
+(defn- emit-stub [base name functions template srcdir filename]
   (let [[_ interface] (buildinterface base name functions)
         content (render-golang template [["base" base]["intf" interface]])
         output (io/file srcdir (package-path base name) filename)]
 
     (emit-golang output content)))
 
-(defn emit-server-stub [base name functions srcdir]
+(defn- emit-server-stub [base name functions srcdir]
   (emit-stub base name functions "server" srcdir "server-stub.go"))
 
 ;;-----------------------------------------------------------------
 ;; emit-proto
 ;;-----------------------------------------------------------------
-(defn emit-proto [base srcdir [name ast :as interface]]
+(defn- emit-proto [base srcdir [name ast :as interface]]
   (let [outputdir (io/file srcdir (package-path base name))
         output (io/file outputdir "interface.proto")]
 
@@ -201,15 +201,18 @@
     ;; execute the protoc compiler to generate golang
     (protoc-cmd outputdir output)))
 
+;;-----------------------------------------------------------------
+;; compile-metadata
+;;-----------------------------------------------------------------
 (def metadata-name "org.hyperledger.chaintool.meta")
-(defn compile-metadata []
+(defn- compile-metadata []
   (let [data (->> (str "metadata/" metadata-name ".cci") io/resource slurp)]
     (intf/compileintf {:path metadata-name :data data})))
 
 ;;-----------------------------------------------------------------
 ;; compile interfaces
 ;;-----------------------------------------------------------------
-(defn compile-interfaces [ipath config]
+(defn- compile-interfaces [ipath config]
   (let [interfaces (intf/compile ipath config)
         metadata (compile-metadata)]
     (assoc interfaces metadata-name metadata)))
