@@ -422,13 +422,17 @@ func <func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.p
      var err error
 
      _pboutput, err := proto.Marshal(params)
+     if (err != nil) {
+          return <if(func.rettype)>nil, <endif>err
+     }
+
      args[0] = base64.StdEncoding.EncodeToString(_pboutput)
 
      <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.<if(txn)>Invoke<else>Query<endif>Chaincode(chaincodeName, <compositename(txn, intf, func)>, args)
 
      <if(func.rettype)>
      result := &<func.rettype>{}
-     _pbinput, err := base64.StdEncoding.DecodeString(_result)
+     _pbinput, err := base64.StdEncoding.DecodeString(string(_result))
      if (err != nil) {
           return nil, err
      }
