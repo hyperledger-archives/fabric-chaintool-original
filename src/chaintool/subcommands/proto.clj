@@ -13,11 +13,11 @@
 ;; limitations under the License.
 
 (ns chaintool.subcommands.proto
-  (:require [clojure.java.io :as io]
-            [me.raynes.fs :as fs]
-            [chaintool.build.interface :as intf]
+  (:require [chaintool.build.interface :as intf]
             [chaintool.protobuf.generate :as pb]
-            [chaintool.util :as util]))
+            [chaintool.util :as util]
+            [clojure.java.io :as io]
+            [me.raynes.fs :as fs]))
 
 (defn getoutputfile [options input name]
   (if-let [output (:output options)]

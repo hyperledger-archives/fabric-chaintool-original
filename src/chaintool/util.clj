@@ -13,8 +13,7 @@
 ;; limitations under the License.
 
 (ns chaintool.util
-  (:require [clojure.string :as string]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [slingshot.slingshot :as slingshot]))
 
 (def app-version (System/getProperty "chaintool.version"))

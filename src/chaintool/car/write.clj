@@ -13,16 +13,15 @@
 ;; limitations under the License.
 
 (ns chaintool.car.write
-  (:require [chaintool.util :as util]
+  (:require [chaintool.car.types :refer :all]
+            [chaintool.codecs :as codecs]
+            [chaintool.util :as util]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [flatland.protobuf.core :as fl]
-            [chaintool.car.types :refer :all]
-            [chaintool.codecs :as codecs]
             [pandect.algo.sha1 :refer :all])
   (:import (org.apache.commons.io.input TeeInputStream)
-           (org.apache.commons.io.output ByteArrayOutputStream
-                                         ProxyOutputStream))
+           (org.apache.commons.io.output ByteArrayOutputStream))
   (:refer-clojure :exclude [import]))
 
 (defn findfiles [path]

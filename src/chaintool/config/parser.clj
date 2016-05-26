@@ -13,9 +13,7 @@
 ;; limitations under the License.
 
 (ns chaintool.config.parser
-  (:require [clojure.java.io :as io]
-            [chaintool.util :as util]
-            [clojure.zip :as zip]
+  (:require [chaintool.util :as util]
             [clj-yaml.core :as yaml]))
 
 (def supported-schema 1)

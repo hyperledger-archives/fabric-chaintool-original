@@ -13,9 +13,9 @@
 ;; limitations under the License.
 
 (ns chaintool.car.ls
-  (:require [clojure.java.io :as io]
+  (:require [chaintool.car.read :as car]
+            [clojure.java.io :as io]
             [doric.core :as doric]
-            [chaintool.car.read :as car]
             [pandect.algo.sha3-512 :refer :all]))
 
 (defn platform-version [config]

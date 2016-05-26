@@ -13,15 +13,14 @@
 ;; limitations under the License.
 
 (ns chaintool.build.interface
-  (:require [clojure.string :as string]
+  (:require [chaintool.ast :as ast]
+            [chaintool.util :as util]
             [clojure.java.io :as io]
             [clojure.set :as set]
+            [clojure.string :as string]
             [clojure.walk :as walk]
             [clojure.zip :as zip]
-            [clojure.pprint :refer :all]
-            [instaparse.core :as insta]
-            [chaintool.ast :as ast]
-            [chaintool.util :as util])
+            [instaparse.core :as insta])
   (:refer-clojure :exclude [compile]))
 
 (def skipper (insta/parser (io/resource "parsers/interface/skip.bnf")))

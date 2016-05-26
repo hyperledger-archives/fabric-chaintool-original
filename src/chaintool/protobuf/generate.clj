@@ -13,12 +13,10 @@
 ;; limitations under the License.
 
 (ns chaintool.protobuf.generate
-  (:require [clojure.java.io :as io]
-            [clojure.zip :as zip]
-            [chaintool.build.interface :as intf]
-            [chaintool.util :as util])
+  (:require [chaintool.build.interface :as intf]
+            [chaintool.util :as util]
+            [clojure.zip :as zip])
   (:import (java.util ArrayList)
-           (java.lang Object)
            (org.stringtemplate.v4 STGroupFile))
   (:refer-clojure :exclude [compile]))
 

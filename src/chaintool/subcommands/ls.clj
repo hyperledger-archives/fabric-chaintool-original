@@ -13,8 +13,8 @@
 ;; limitations under the License.
 
 (ns chaintool.subcommands.ls
-  (:require [clojure.java.io :as io]
-            [chaintool.car.ls :as car]))
+  (:require [chaintool.car.ls :as car]
+            [clojure.java.io :as io]))
 
 (defn run [options args]
   (let [file (io/file (first args))]

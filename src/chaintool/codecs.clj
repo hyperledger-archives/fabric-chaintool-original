@@ -14,16 +14,16 @@
 
 (ns chaintool.codecs
   (:import (lzma.streams LzmaOutputStream$Builder)
-           (org.apache.commons.compress.compressors.lzma LZMACompressorInputStream)
-           (org.apache.commons.compress.compressors.bzip2 BZip2CompressorOutputStream
-                                                          BZip2CompressorInputStream)
-           (org.apache.commons.compress.compressors.gzip GzipCompressorOutputStream
-                                                         GzipCompressorInputStream
+           (org.apache.commons.compress.compressors.bzip2 BZip2CompressorInputStream
+                                                          BZip2CompressorOutputStream)
+           (org.apache.commons.compress.compressors.gzip GzipCompressorInputStream
+                                                         GzipCompressorOutputStream
                                                          GzipParameters)
-           (org.apache.commons.compress.compressors.xz XZCompressorOutputStream
-                                                       XZCompressorInputStream)
-           (org.apache.commons.io.output ProxyOutputStream)
-           (org.apache.commons.io.input ProxyInputStream)))
+           (org.apache.commons.compress.compressors.lzma LZMACompressorInputStream)
+           (org.apache.commons.compress.compressors.xz XZCompressorInputStream
+                                                       XZCompressorOutputStream)
+           (org.apache.commons.io.input ProxyInputStream)
+           (org.apache.commons.io.output ProxyOutputStream)))
 
 ;;--------------------------------------------------------------------------------------
 ;; compression support

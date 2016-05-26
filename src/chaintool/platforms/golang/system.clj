@@ -16,10 +16,9 @@
   (:require [chaintool.platforms.api :as platforms.api]
             [chaintool.platforms.golang.core :refer :all]
             [chaintool.util :as util]
-            [me.raynes.conch :as conch]
-            [clojure.tools.file-utils :as fileutils]
             [clojure.java.io :as io]
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [clojure.tools.file-utils :as fileutils])
   (:refer-clojure :exclude [compile]))
 
 (defn get-package-name [path]

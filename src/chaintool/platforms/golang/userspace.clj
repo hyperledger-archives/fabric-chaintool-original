@@ -13,13 +13,13 @@
 ;; limitations under the License.
 
 (ns chaintool.platforms.golang.userspace
-  (:require [chaintool.platforms.api :as platforms.api]
+  (:require [chaintool.car.ls :refer :all]
+            [chaintool.car.write :as car]
+            [chaintool.config.util :as config]
+            [chaintool.platforms.api :as platforms.api]
             [chaintool.platforms.golang.core :refer :all]
             [chaintool.util :as util]
             [clojure.java.io :as io]
-            [chaintool.config.util :as config]
-            [chaintool.car.write :as car]
-            [chaintool.car.ls :refer :all]
             [clojure.tools.file-utils :as fileutils])
   (:refer-clojure :exclude [compile]))
 

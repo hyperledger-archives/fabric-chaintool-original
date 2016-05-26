@@ -11,9 +11,10 @@
 ;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
+
 (ns chaintool.platforms.core
-  (:require [chaintool.platforms.golang.userspace :as golang]
-            [chaintool.platforms.golang.system :as syscc]
+  (:require [chaintool.platforms.golang.system :as syscc]
+            [chaintool.platforms.golang.userspace :as golang]
             [chaintool.util :as util])
   (:refer-clojure :exclude [find]))
 

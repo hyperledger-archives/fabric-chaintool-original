@@ -13,18 +13,18 @@
 ;; limitations under the License.
 
 (ns chaintool.core
-  (:require [clojure.string :as string]
-            [clojure.tools.cli :refer [parse-opts]]
-            [slingshot.slingshot :as slingshot]
-            [chaintool.subcommands.build :as buildcmd]
+  (:require [chaintool.subcommands.build :as buildcmd]
             [chaintool.subcommands.buildcar :as buildcarcmd]
             [chaintool.subcommands.clean :as cleancmd]
-            [chaintool.subcommands.ls :as lscmd]
-            [chaintool.subcommands.proto :as protocmd]
-            [chaintool.subcommands.package :as packagecmd]
-            [chaintool.subcommands.unpack :as unpackcmd]
             [chaintool.subcommands.inspect :as inspectcmd]
-            [chaintool.util :as util])
+            [chaintool.subcommands.ls :as lscmd]
+            [chaintool.subcommands.package :as packagecmd]
+            [chaintool.subcommands.proto :as protocmd]
+            [chaintool.subcommands.unpack :as unpackcmd]
+            [chaintool.util :as util]
+            [clojure.string :as string]
+            [clojure.tools.cli :refer [parse-opts]]
+            [slingshot.slingshot :as slingshot])
   (:gen-class))
 
 (defn option-merge [& args] (vec (apply concat args)))

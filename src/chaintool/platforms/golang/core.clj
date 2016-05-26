@@ -13,18 +13,18 @@
 ;; limitations under the License.
 
 (ns chaintool.platforms.golang.core
-  (:require [clojure.algo.generic.functor :as algo]
+  (:require [chaintool.build.interface :as intf]
+            [chaintool.codecs :as codecs]
+            [chaintool.protobuf.generate :as pb]
+            [chaintool.util :as util]
+            [clojure.algo.generic.functor :as algo]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [me.raynes.conch :as conch]
-            [me.raynes.conch.low-level :as sh]
-            [chaintool.build.interface :as intf]
-            [chaintool.protobuf.generate :as pb]
-            [chaintool.util :as util]
-            [chaintool.codecs :as codecs])
+            [me.raynes.conch.low-level :as sh])
   (:import (java.util ArrayList)
-           (org.stringtemplate.v4 STGroupFile)
-           (org.apache.commons.io.output ByteArrayOutputStream)))
+           (org.apache.commons.io.output ByteArrayOutputStream)
+           (org.stringtemplate.v4 STGroupFile)))
 
 (conch/programs protoc)
 (conch/programs gofmt)
