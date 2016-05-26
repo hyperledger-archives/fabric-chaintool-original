@@ -8,9 +8,11 @@ packageName ::= #"[A-Za-z_.]*"
 
 message ::= <"message"> ident messageBody
 
-enum ::= <"enum"> ident <"{"> ( enumField | ";" )* <"}">
+enum ::= <"enum"> ident <"{"> ( enumField | <";"> )* <"}">
 
-enumField ::= ident "=" intLit ";"
+enumField ::= enumName <"="> enumValue <";">
+<enumName> ::= ident
+<enumValue> ::= intLit
 
 optionBody ::= ident ( "." ident )* "=" constant
 

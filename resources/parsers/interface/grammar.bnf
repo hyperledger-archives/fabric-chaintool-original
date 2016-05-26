@@ -3,9 +3,11 @@ interface  ::= ( message | enum )* transactions? queries?
 
 message ::= <"message"> ident messageBody
 
-enum ::= <"enum"> ident <"{"> ( enumField | ";" )* <"}">
+enum ::= <"enum"> ident <"{"> ( enumField | <";"> )* <"}">
 
-enumField ::= ident "=" intLit ";"
+enumField ::= enumName <"="> enumValue <";">
+<enumName> ::= ident
+<enumValue> ::= intLit
 
 transactions ::= <"transactions"> functions
 queries ::= <"queries"> functions

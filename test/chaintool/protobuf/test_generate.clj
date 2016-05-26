@@ -17,6 +17,7 @@
             [clojure.java.io :as io]
             [clojure.zip :as zip]
             [instaparse.core :as insta]
+            [chaintool.ast :as ast]
             [chaintool.protobuf.generate :as pb]
             [slingshot.slingshot :as slingshot])
   (:refer-clojure :exclude [compile]))
@@ -76,3 +77,13 @@
         level4 (find result (fn [loc] (= (zip/node loc) "Level4")))]
     (is level4)
     (is (= (tree-depth level4) 7))))
+
+(def enum-input
+  (zip/vector-zip
+   [:interface [:enum "MyEnum" [:enumField "ZERO" 0] [:enumField "ONE" 1] [:enumField "TWO" 2]]]))
+
+(deftest enum-test
+  (let [result (->> ["fictional.interface" enum-input] (pb/to-string "fictional.package") parse)]
+    (is (= (->> result zip/down zip/node) :proto))
+    (is (= (->> result (ast/find :syntax) zip/down zip/right zip/node) "proto3"))
+    (is (= (->> result (ast/find :enum) zip/down zip/right zip/right zip/node) [:enumField "ZERO" "0"]))))

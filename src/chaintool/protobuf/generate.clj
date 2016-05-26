@@ -63,8 +63,9 @@
 
 (defn- build-enumfield [ast]
   (let [field (zip/down ast)
-        {:keys [fieldName index]} field]
-    (->Entry nil nil (->Field nil nil fieldName index))))
+        name (->> field zip/right zip/node)
+        index (->> field zip/right zip/right zip/node)]
+    (->Field nil nil name index)))
 
 (declare build-message)
 (declare build-enum)
@@ -102,7 +103,7 @@
 
                     :else
                     (recur (zip/right loc) (assoc entries index (build-enumfield loc)) (inc index))))]
-    (->Entry nil (->Definition "enum" name nil) nil)))
+    (->Entry nil (->Definition "enum" name entries) nil)))
 
 (defn- build-toplevel-entry [ast]
   (let [type (->> ast zip/down zip/node)]

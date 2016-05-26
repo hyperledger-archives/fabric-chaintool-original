@@ -105,3 +105,31 @@
 (deftest test-conflict-detection
   (let [intf (parse example-conflicting-index)]
     (is (some? (verify-intf intf)))))
+
+(def example-enum
+  "
+  enum MyEnum {
+         ZERO = 0;
+         ONE  = 1;
+         TWO  = 2;
+  }
+
+  ")
+
+(deftest test-enum
+  (let [intf (parse example-enum)]
+    (is (nil? (verify-intf intf)))))
+
+(def example-conflicting-enum
+  "
+  enum ConflictingEnum {
+         ZERO = 0;
+         ONE  = 1;
+         TWO  = 1;
+  }
+
+  ")
+
+(deftest test-conflicting-enum
+  (let [intf (parse example-conflicting-enum)]
+    (is (some? (verify-intf intf)))))

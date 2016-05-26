@@ -72,6 +72,11 @@
   (let [{:keys [index]} (getattrs ast)]
     index))
 
+(defn get-enum-index [ast]
+  (let [name (->> ast zip/right zip/node)
+        value (->> ast zip/right zip/right zip/node)]
+    value))
+
 (defn getentries [ast]
   (loop [loc ast fields {}]
     (cond
@@ -83,11 +88,11 @@
       (let [attrs (->> loc zip/down getattrs)]
         (recur (zip/right loc) (assoc fields (:index attrs) attrs))))))
 
-(defn get-message-name [ast]
+(defn get-definition-name [ast]
   (->> ast zip/right zip/node))
 
 (defn getmessage [ast]
-  (let [name (get-message-name ast)
+  (let [name (get-definition-name ast)
         fields (getentries (->> ast zip/right zip/right))]
     (vector name fields)))
 
@@ -118,16 +123,9 @@
 (defn getqueries [ast] (getgeneric ast :queries))
 (defn getallfunctions [ast] (into {} (vector (gettransactions ast) (getqueries ast))))
 
-(defn get-definition-name [ast]
-  (let [node (zip/down ast)
-        type (zip/node node)]
-    (when (or (= type :message) (= type :enum))
-      (->> node zip/right zip/node))))
-
 (defn find-definition-in-local [name ast]
-  (let [start (zip/leftmost ast)
-        type (zip/node start)]
-    (loop [loc (case type
+  (let [start (zip/leftmost ast)]
+    (loop [loc (case (zip/node start)
                  ;; each :message entry looks like [:message $name fields...],
                  ;; so "start + right + right" gets the first field
                  :message (->> start zip/right zip/right)
@@ -140,12 +138,18 @@
                  nil)]
       (cond
 
+        ;; end of the line?
         (nil? loc)
         nil
 
-        (= name (get-definition-name loc))
+        ;; name matches?
+        (= name (let [node (zip/down loc)
+                      type (zip/node node)]
+                  (when (or (= type :message) (= type :enum))
+                    (get-definition-name node))))
         true
 
+        ;; otherwise, keep searching
         :else
         (recur (zip/right loc))))))
 
@@ -214,23 +218,22 @@
 ;;-----------------------------------------------------------------
 ;; verify-index: ensures we do not have any duplicate indices
 ;;-----------------------------------------------------------------
-(defn verify-index [indices ast]
-  (let [index (get-index ast)]
-    (if (contains? indices index)
-      (let [node (->> ast zip/up zip/node)]
-        [nil (str "line " (get-lineno node) ": duplicate index " index ", previously seen on line " (indices index))])
-      ;; else
-      [ast nil])))
+(defn verify-index [index indices ast]
+  (if (contains? indices index)
+    (let [node (->> ast zip/up zip/node)]
+      [nil (str "line " (get-lineno node) ": duplicate index " index ", previously seen on line " (indices index))])
+    ;; else
+    [ast nil]))
 
 ;;-----------------------------------------------------------------
 ;; verify-field: ensure a field is valid by running various
 ;; verifications such as checking scope resolution for any custom
 ;; types, and ensuring our indices do not conflict
 ;;-----------------------------------------------------------------
-(defn verify-field [ast indices]
+(defn verify-msg-field [ast indices]
   (let [[_ error] (err->> ast
                           verify-fieldtype
-                          #(verify-index indices %))
+                          #(verify-index (get-index ast) indices %))
         lineno (->> ast zip/up zip/node get-lineno)]
     (if (nil? error)
       ;; add our index to the table
@@ -239,11 +242,26 @@
       [indices error])))
 
 ;;-----------------------------------------------------------------
+;; verify-enumfield: ensure a enum field is valid by running various
+;; verifications such as checking for duplicate names and ensuring
+;; our indices do not conflict
+;;-----------------------------------------------------------------
+(defn verify-enum-field [ast indices]
+  (let [[_ error] (err->> ast
+                          #(verify-index (get-enum-index ast) indices %))
+        lineno (->> ast zip/up zip/node get-lineno)]
+    (if (nil? error)
+      ;; add our index to the table
+      [(assoc indices (get-enum-index ast) lineno) nil]
+      ;; else, stop on error
+      [indices error])))
+
+;;-----------------------------------------------------------------
 ;; verify-message: verify the fields of a message by scanning through
 ;; all fields in the AST, skipping non :field types
 ;;-----------------------------------------------------------------
 (defn verify-message [ast]
-  (let [name (get-message-name ast)]
+  (let [name (get-definition-name ast)]
     (loop [loc (->> ast zip/right zip/right) _indices {}]
       (cond
 
@@ -254,7 +272,7 @@
         (let [node (zip/down loc)
               type (zip/node node)
               [indices error] (if (= type :field)
-                                (verify-field node _indices)
+                                (verify-msg-field node _indices)
                                 [_indices nil])]
 
           (if (nil? error)
@@ -265,8 +283,23 @@
 ;; verify-enum: ensure enum entries do not have any conflicting indices
 ;;-----------------------------------------------------------------
 (defn verify-enum [ast]
-  ;;FIXME
-)
+  (let [name (get-definition-name ast)]
+    (loop [loc (->> ast zip/right zip/right) _indices {}]
+      (cond
+
+        (nil? loc)
+        nil
+
+        :else
+        (let [node (zip/down loc)
+              type (zip/node node)
+              [indices error] (if (= type :enumField)
+                                (verify-enum-field node _indices)
+                                [_indices nil])]
+
+          (if (nil? error)
+            (recur (zip/right loc) indices)
+            error))))))
 
 ;;-----------------------------------------------------------------
 ;; verify-intf: scan the entire interface and validate various
