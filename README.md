@@ -374,7 +374,7 @@ message PaymentParams {
 ```
 ## Metadata
 
-Every chaincode application built with chaintool includes metadata which may be queried with _chaintool inspect_.  This metadata contains various details about a running application, such as the surfaced interfaces provided by the endpoint.  The caller may optionally request to download the CCI schemas for these interfaces to facilitate application-specific client interaction.
+Every chaincode application built with chaintool includes metadata which may be queried with _chaintool inspect_.  This metadata contains various details about a running application, such as enumerating the interfaces surfaced by the endpoint.  The caller may optionally request to download the CCI schemas for these interfaces to facilitate application-specific client interaction.
 
 ### Details
 
