@@ -37,7 +37,7 @@
   [[nil "--host HOST" "Host name"
     :default "localhost"]
    [nil "--port PORT" "Port number"
-    :default 3000
+    :default 5000
     :parse-fn #(js/parseInt %)
     :validate [#(< 0 % 65536) "Must be a number between 0 and 65536"]]
    ["-p" "--path PATH" "Path/URL to the chaincode (deploy only, mutually exclsive with -n)"]
