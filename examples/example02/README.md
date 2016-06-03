@@ -5,6 +5,7 @@ This directory contains an implementation of the chaincode application called "e
 ```
 ├── README.md
 ├── app
+│   ├── app.iml
 │   ├── chaincode.yaml
 │   └── src
 │       ├── chaincode
@@ -13,27 +14,44 @@ This directory contains an implementation of the chaincode application called "e
 │           ├── appinit.cci
 │           └── org.hyperledger.chaincode.example02.cci
 └── client
-    ├── cljs
-    │   ├── Makefile
-    │   ├── appinit.proto
-    │   ├── org.hyperledger.chaincode.example02.proto
-    │   ├── project.clj
-    │   └── src
-    │       └── example02
-    │           ├── core.cljs
-    │           ├── main.cljs
-    │           └── rpc.cljs
-    └── nodejs
+    ├── rest
+    │   ├── cljs
+    │   │   ├── Makefile
+    │   │   ├── appinit.proto
+    │   │   ├── org.hyperledger.chaincode.example02.proto
+    │   │   ├── project.clj
+    │   │   └── src
+    │   │       └── example02
+    │   │           ├── core.cljs
+    │   │           ├── main.cljs
+    │   │           └── rpc.cljs
+    │   └── nodejs
+    │       ├── appinit.proto
+    │       ├── index.js
+    │       ├── org.hyperledger.chaincode.example02.proto
+    │       └── package.json
+    └── sdk
+        ├── Makefile
         ├── appinit.proto
-        ├── index.js
         ├── org.hyperledger.chaincode.example02.proto
-        └── package.json
+        ├── project.clj
+        └── src
+            └── example02
+                ├── core.cljs
+                ├── hlc
+                │   ├── core.cljs
+                │   └── user.cljs
+                ├── main.cljs
+                ├── rpc.cljs
+                └── util.cljs
 ```
 * app - contains a org.hyperledger.chaincode.golang platform based chaincode application.
   * This is the code deployed to the blockchain
 * client - client applications for interacting with the chaincode application
-  * nodejs - A simple demonstration of using nodejs+REST.
-  * cljs - A complete client for example02 over REST written in ClojureScript
+  * rest - REST api based clients
+    * nodejs - A simple demonstration of using nodejs+REST.
+    * cljs - A complete client for example02 over REST written in ClojureScript
+  * sdk - SDK based client, written in ClojureScript
 
 ## Deploying and interacting with the example02
 ### Step 1 - Fabric environment
@@ -64,11 +82,11 @@ Chaincode SHA3:      f7026e0675b22a9d78b9f7f0cb97c93165bdefedc86de97f00e76b506c7
 #### Note:
 The _chaintool package_ command is designed to package for deployment, not development. If you started your node with _peer node start --peer-chaincodedev_, run _chaintool build_ instead. This is analogous to building non-chaintool chaincode using _go build_. The output will be placed in the _app/build/bin/_ directory.
 ### Step 3 - Compile the client
-Run 'make' from the client/cljs folder
+Run 'make' from the client/rest/cljs folder
 ```
 $ make
 lein npm install
-example02@0.1.0-SNAPSHOT /Users/ghaskins/sandbox/git/chaintool/examples/example02/client/cljs
+example02@0.1.0-SNAPSHOT /Users/ghaskins/sandbox/git/chaintool/examples/example02/client/rest/cljs
 ├─┬ protobufjs@5.0.1
 │ ├─┬ ascli@1.0.0
 │ │ ├── colour@0.7.1
