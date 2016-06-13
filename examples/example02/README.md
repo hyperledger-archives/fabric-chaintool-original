@@ -62,7 +62,7 @@ Compression Alg:     gzip
 Chaincode SHA3:      f7026e0675b22a9d78b9f7f0cb97c93165bdefedc86de97f00e76b506c707b4ddbdfe97ad702ad600eae518891b9f0f1c8cb9a8b29b83908c2f6d46a6bcf4ecd
 ```
 #### Note:
-The _chaintool package_ command is designed to package for deployment, not development. If you started your node with _peer node start --peer-chaincodedev_, run _chaincode build_ instead. This is analogous to building non-chaintool chaincode using _go build_. The output will be placed in the _app/build/bin/_ directory.
+The _chaintool package_ command is designed to package for deployment, not development. If you started your node with _peer node start --peer-chaincodedev_, run _chaintool build_ instead. This is analogous to building non-chaintool chaincode using _go build_. The output will be placed in the _app/build/bin/_ directory.
 ### Step 3 - Compile the client
 Run 'make' from the client/cljs folder
 ```
@@ -142,7 +142,7 @@ Note the hash that is returned in the {:result {:message}}, as this is your chai
 
 -a is expected to be a JSON structure that matches the protobuf definition for the request in particular.  In this case, we are deploying so we are interested in the _Init_ message within the appinit.proto.
 
-#####If you started your node with _peer node start --peer-chaincodedev_, deploy your chaincode build like you would with non-chaintool chaincode.
+#####If you started your node with _peer node start --peer-chaincodedev_, deploy your chaintool build like you would with non-chaintool chaincode.
 ```
 $ CORE_CHAINCODE_ID_NAME=org.hyperledger.chaincode.example02 CORE_PEER_ADDRESS=0.0.0.0:30303 ./app/build/bin/org.hyperledger.chaincode.example02-0.1-SNAPSHOT
 $ node ./out/example02.js -c deploy -n org.hyperledger.chaincode.example02 --port 5000 --args '{"partyA":{"entity":"a", "value":100}, "partyB":{"entity":"b", "value":100}}'
