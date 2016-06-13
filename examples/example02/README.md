@@ -61,6 +61,8 @@ Archive Size:        2371 bytes
 Compression Alg:     gzip
 Chaincode SHA3:      f7026e0675b22a9d78b9f7f0cb97c93165bdefedc86de97f00e76b506c707b4ddbdfe97ad702ad600eae518891b9f0f1c8cb9a8b29b83908c2f6d46a6bcf4ecd
 ```
+#### Note:
+The _chaintool package_ command is designed to package for deployment, not development. If you started your node with _peer node start --peer-chaincodedev_, run _chaincode build_ instead. This is analogous to building non-chaintool chaincode using _go build_. The output will be placed in the _app/build/bin/_ directory.
 ### Step 3 - Compile the client
 Run 'make' from the client/cljs folder
 ```
@@ -127,7 +129,7 @@ Options Summary:
 We can deploy the CAR we packaged in Step 2 using the "-c deploy" feature of the client.  We specify the path the CAR with -p and args with -a.
 
 ```
- node ./out/example02.js -c deploy -p /fqp/to/app.car --port 5000 --args '{"partyA":{"entity":"a", "value":100}, "partyB":{"entity":"b", "value":100}}'
+$ node ./out/example02.js -c deploy -p /fqp/to/app.car --port 5000 --args '{"partyA":{"entity":"a", "value":100}, "partyB":{"entity":"b", "value":100}}'
 ```
 This will return something that looks like:
 ```
@@ -135,9 +137,17 @@ Response: {:result {:status OK, :message a9114852d11579bb6000abd7b2d3b25403aa7ff
 ```
 Note the hash that is returned in the {:result {:message}}, as this is your chaincode instance ID or "name".
 
-NOTE: -p must be a fully qualified path since it is passed to the VP as is.  Future versions of the tool/peer may allow inline data, TBD.
+#### Note:
+-p must be a fully qualified path since it is passed to the VP as is.  Future versions of the tool/peer may allow inline data, TBD.
 
-NOTE: -a is expected to be a JSON structure that matches the protobuf definition for the request in particular.  In this case, we are deploying so we are interested in the _Init_ message within the appinit.proto.
+-a is expected to be a JSON structure that matches the protobuf definition for the request in particular.  In this case, we are deploying so we are interested in the _Init_ message within the appinit.proto.
+
+#####If you started your node with _peer node start --peer-chaincodedev_, deploy your chaincode build like you would with non-chaintool chaincode.
+```
+$ CORE_CHAINCODE_ID_NAME=org.hyperledger.chaincode.example02 CORE_PEER_ADDRESS=0.0.0.0:30303 ./app/build/bin/org.hyperledger.chaincode.example02-0.1-SNAPSHOT
+$ node ./out/example02.js -c deploy -n org.hyperledger.chaincode.example02 --port 5000 --args '{"partyA":{"entity":"a", "value":100}, "partyB":{"entity":"b", "value":100}}'
+```
+
 #### Where did the .proto files come from?
 _chaintool proto_ was used to generate .proto files from the .cci files defined in ./app/src/interfaces
 ### Step 5 - Query our current balances
@@ -150,6 +160,11 @@ This should return with
 Success: Balance = 100
 ```
 We can repeat the process with id "b".  Likewise, we can confirm that the system should return an error for any ids besides "a" or "b".
+#### Note:
+If you started your node with _peer node start --peer-chaincodedev_, change the hash (_a9114....946e83a95b_) to the name you chose in Step 4.
+```
+$ node ./out/example02.js -n org.hyperledger.chaincode.example02 --port 5000 -c check-balance --args '{"id":"a"}'
+```
 ### Step 6 - Make a Payment
 Now lets transfer 10 tokens from a to b.
 ```
