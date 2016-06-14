@@ -8,8 +8,7 @@
                      :fcn func
                      :args #js [(.toBase64 args)]}]
 
-    (p/chain (method user request)
-             #(when (some? %) (.toString %)))))
+    (p/chain (method user request) str)))
 
 (defn deploy [args]
   (post hlc.user/deploy args))
