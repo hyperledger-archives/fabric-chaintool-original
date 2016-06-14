@@ -1,5 +1,5 @@
 SRCS = $(shell find src -type f)
-LEIN = $(shell which lein || echo ../../../../lein)
+LEIN = $(shell which lein || echo ../../../../../lein)
 
 all: client
 
