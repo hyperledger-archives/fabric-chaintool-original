@@ -14,4 +14,5 @@ node_modules: project.clj
 
 clean:
 	-@rm -rf ./out ||:
+	-@rm -rf ./target ||:
 	-@rm -rf node_modules ||:
