@@ -71,7 +71,7 @@
       (exit -1 "Error: " (string/join errors))
 
       (nil? id)
-      (println "ERROR: Must specify a chaincodeID")
+      (exit -1 "Error: Must specify a chaincodeID")
 
       :else
       (let [desc (commands command)
