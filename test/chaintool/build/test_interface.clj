@@ -136,7 +136,7 @@
 
 (def example-bad-default-enum
   "
-  enum ConflictingEnum {
+  enum BadDefaultEnum {
          ZERO = 1;
          ONE  = 2;
          TWO  = 3;
