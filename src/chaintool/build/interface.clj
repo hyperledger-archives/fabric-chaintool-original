@@ -216,9 +216,19 @@
       :scalar [ast nil])))
 
 ;;-----------------------------------------------------------------
-;; verify-index: ensures we do not have any duplicate indices
+;; check-index-default: ensures our default index is 0
 ;;-----------------------------------------------------------------
-(defn verify-index [index indices ast]
+(defn check-index-default [index indices ast]
+  (if (and (empty? indices) (not (zero? index)))
+    (let [node (->> ast zip/up zip/node)]
+      [nil (str "line " (get-lineno node) ": default/first index must be 0")])
+    ;; else
+    [ast nil]))
+
+;;-----------------------------------------------------------------
+;; check-index-dups: ensures we do not have any duplicate indices
+;;-----------------------------------------------------------------
+(defn check-index-dups [index indices ast]
   (if (contains? indices index)
     (let [node (->> ast zip/up zip/node)]
       [nil (str "line " (get-lineno node) ": duplicate index " index ", previously seen on line " (indices index))])
@@ -233,7 +243,7 @@
 (defn verify-msg-field [ast indices]
   (let [[_ error] (err->> ast
                           verify-fieldtype
-                          #(verify-index (get-index ast) indices %))
+                          #(check-index-dups (get-index ast) indices %))
         lineno (->> ast zip/up zip/node get-lineno)]
     (if (nil? error)
       ;; add our index to the table
@@ -247,12 +257,14 @@
 ;; our indices do not conflict
 ;;-----------------------------------------------------------------
 (defn verify-enum-field [ast indices]
-  (let [[_ error] (err->> ast
-                          #(verify-index (get-enum-index ast) indices %))
+  (let [index (->> ast get-enum-index Integer/parseInt)
+        [_ error] (err->> ast
+                          #(check-index-default index indices %)
+                          #(check-index-dups index indices %))
         lineno (->> ast zip/up zip/node get-lineno)]
     (if (nil? error)
       ;; add our index to the table
-      [(assoc indices (get-enum-index ast) lineno) nil]
+      [(assoc indices index lineno) nil]
       ;; else, stop on error
       [indices error])))
 

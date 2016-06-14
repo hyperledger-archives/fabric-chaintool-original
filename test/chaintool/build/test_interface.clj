@@ -133,3 +133,17 @@
 (deftest test-conflicting-enum
   (let [intf (parse example-conflicting-enum)]
     (is (some? (verify-intf intf)))))
+
+(def example-bad-default-enum
+  "
+  enum ConflictingEnum {
+         ZERO = 1;
+         ONE  = 2;
+         TWO  = 3;
+  }
+
+  ")
+
+(deftest test-bad-default-enum
+  (let [intf (parse example-bad-default-enum)]
+    (is (some? (verify-intf intf)))))
