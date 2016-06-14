@@ -70,7 +70,7 @@
       (not= errors nil)
       (exit -1 "Error: " (string/join errors))
 
-      (and (nil? id))
+      (nil? id)
       (println "ERROR: Must specify a chaincodeID")
 
       :else
