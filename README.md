@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ghaskins/chaintool.svg?branch=master)](https://travis-ci.org/ghaskins/chaintool)
+[![Build Status](https://travis-ci.org/hyperledger/fabric-chaintool.svg?branch=master)](https://travis-ci.org/hyperledger/fabric-chaintool)
 
 # chaintool - Hyperledger Chaincode Compiler
 
