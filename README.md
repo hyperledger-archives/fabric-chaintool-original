@@ -1,10 +1,10 @@
 [![Build Status](https://travis-ci.org/ghaskins/chaintool.svg?branch=master)](https://travis-ci.org/ghaskins/chaintool)
 
-# chaintool - Hyperledger Chaincode Compiler (Work In Progress)
+# chaintool - Hyperledger Chaincode Compiler
 
 ## Introduction
 
-_chaintool_ is a proposal for a toolchain to assist in various phases of [hyperledger](https://github.com/hyperledger) chaincode development, such as compilation, test, packaging, and deployment.  A chaincode app developer may express the interface in a highlevel protobuf structure and _chaintool_ will generate (1) the chaincode with appropriate methods stub and (2) package it for the user so it can be directly deployed.
+_chaintool_ is a toolchain to assist in various phases of [Hyperledger Fabric](https://github.com/hyperledger/fabric) chaincode development, such as compilation, test, packaging, and deployment.  A chaincode app developer may express the interface in a highlevel protobuf structure and _chaintool_ will generate (1) the chaincode with appropriate method stubs and (2) package it for the user so it can be directly deployed.
 
 ### Why?
 
