@@ -1,5 +1,6 @@
 (defproject example02 "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
+  :min-lein-version "2.0.0"
+  :description "Clojurescript client for chaintool version of example02"
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.34"]
