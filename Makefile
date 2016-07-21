@@ -1,6 +1,6 @@
 NAME=chaintool
 LEIN = $(shell which lein || echo ./lein)
-BINDIR ?= /usr/bin
+BINDIR ?= /usr/local/bin
 OUTPUT=target/$(NAME)
 META=org.hyperledger.chaintool.meta
 
