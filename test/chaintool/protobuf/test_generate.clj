@@ -59,6 +59,12 @@
       :else
       (recur (zip/up loc) (inc depth)))))
 
+(defn- round-about
+  "takes an AST, exports it to protobuf, and then reparses the protobuf back to a new AST"
+  [ast]
+  (let [pb (->> ["fictional.interface" ast] (pb/to-string "fictional.package"))]
+    (parse pb)))
+
 (def nested-input
   (zip/vector-zip
    [:interface
@@ -73,7 +79,7 @@
         [:message "Level4"]]]]]]))
 
 (deftest nested-messages
-  (let [result (->> ["fictional.interface" nested-input] (pb/to-string "fictional.package") parse)
+  (let [result (round-about nested-input)
         level4 (find result (fn [loc] (= (zip/node loc) "Level4")))]
     (is level4)
     (is (= (tree-depth level4) 7))))
@@ -83,7 +89,15 @@
    [:interface [:enum "MyEnum" [:enumField "ZERO" 0] [:enumField "ONE" 1] [:enumField "TWO" 2]]]))
 
 (deftest enum-test
-  (let [result (->> ["fictional.interface" enum-input] (pb/to-string "fictional.package") parse)]
+  (let [result (round-about enum-input)]
     (is (= (->> result zip/down zip/node) :proto))
     (is (= (->> result (ast/find :syntax) zip/down zip/right zip/node) "proto3"))
     (is (= (->> result (ast/find :enum) zip/down zip/right zip/right zip/node) [:enumField "ZERO" "0"]))))
+
+(def parameterless-function
+  (zip/vector-zip
+   [:interface [:queries [:function [:rettype "string"] [:functionName "Parameterless"] [:index "1"]]]]))
+
+(deftest parameterless-test
+  (let [result (round-about parameterless-function)]
+    (some? result)))
