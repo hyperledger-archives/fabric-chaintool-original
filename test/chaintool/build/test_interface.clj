@@ -147,3 +147,15 @@
 (deftest test-bad-default-enum
   (let [intf (parse example-bad-default-enum)]
     (is (some? (verify-intf intf)))))
+
+(def example-no-parameters
+  "
+  queries {
+      string Parameterless() = 1;
+  }
+
+  ")
+
+(deftest test-no-parameters
+  (let [intf (parse example-no-parameters)]
+    (is (nil? (verify-intf intf)))))
