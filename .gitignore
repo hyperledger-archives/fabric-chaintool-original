@@ -11,3 +11,5 @@ pom.xml
 /project.clj
 .idea
 *.iml
+**/node_modules
+**/out
