@@ -352,7 +352,7 @@ dispatchfunctions(txn, intf, functions) ::= "<functions.values:{x | <dispatchfun
 
 declarefunctions(intf, functions) ::=
 <<
-<functions.values:{x | <x.name>(*shim.ChaincodeStub, *<x.param>) <if(x.rettype)>(*<x.rettype>, error)<else>error<endif> }; separator="\n">
+<functions.values:{x | <x.name>(*shim.ChaincodeStub<if(x.param)>, *<x.param><endif>) <if(x.rettype)>(*<x.rettype>, error)<else>error<endif> }; separator="\n">
 >>
 
 dispatchfunction(txn, intf, func) ::=
@@ -383,6 +383,9 @@ implementserver(intf, func) ::=
 
 func (self *stubImpl) proxy<func.name>(stub *shim.ChaincodeStub, _params string) ([]byte, error) {
 
+     var err error;
+
+     <if(func.param)>
      params := &<func.param>{}
      _pbinput, err := base64.StdEncoding.DecodeString(_params)
      if (err != nil) {
@@ -392,8 +395,9 @@ func (self *stubImpl) proxy<func.name>(stub *shim.ChaincodeStub, _params string)
      if (err != nil) {
         return nil, err
      }
+     <endif>
 
-     <if(func.rettype)>result, err := <else>err = <endif>self.intf.<func.name>(stub, params)
+     <if(func.rettype)>result, err := <else>err = <endif>self.intf.<func.name>(stub<if(func.param)>, params<endif>)
      if (err != nil) {
         return nil, err
      }
@@ -415,18 +419,20 @@ func (self *stubImpl) proxy<func.name>(stub *shim.ChaincodeStub, _params string)
 implementclient(txn, intf, func) ::=
 <<
 
-func <func.name>(stub *shim.ChaincodeStub, chaincodeName string, params *<func.param>) <\\>
+func <func.name>(stub *shim.ChaincodeStub, chaincodeName string<if(func.param)>, params *<func.param><endif>) <\\>
 <if(func.rettype)>(*<func.rettype>, error)<else>error<endif> {
 
      args := make([]string, 1)
      var err error
 
+     <if(func.param)>
      _pboutput, err := proto.Marshal(params)
      if (err != nil) {
           return <if(func.rettype)>nil, <endif>err
      }
 
      args[0] = base64.StdEncoding.EncodeToString(_pboutput)
+     <endif>
 
      <if(func.rettype)>_result, err :=<else>_, err =<endif> stub.<if(txn)>Invoke<else>Query<endif>Chaincode(chaincodeName, <compositename(txn, intf, func)>, args)
 
