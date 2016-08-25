@@ -1,4 +1,4 @@
-(defproject chaintool "0.9.0"
+(defproject chaintool "0.9.1-SNAPSHOT"
   :description "hyperledger chaincode tool"
   :url "https://github.com/ghaskins/chaintool"
   :license {:name "Apache License"
