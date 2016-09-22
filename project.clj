@@ -18,7 +18,7 @@
                  [org.antlr/ST4 "4.0.8"]
                  [me.raynes/conch "0.8.0"]
                  [me.raynes/fs "1.4.6"]
-                 [org.clojars.ghaskins/protobuf "0.2"]
+                 [org.clojars.ghaskins/protobuf "3.0.2-1"]
                  [commons-io/commons-io "2.5"]
                  [org.tukaani/xz "1.5"]
                  [org.apache.commons/commons-compress "1.11"]
