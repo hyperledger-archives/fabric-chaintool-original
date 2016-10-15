@@ -35,7 +35,9 @@ var txnre   = regexp.MustCompile("([a-zA-Z0-9.]*)/txn/([0-9]*)")
 var queryre = regexp.MustCompile("([a-zA-Z0-9.]*)/query/([0-9]*)")
 
 // Initialization function, called only once
-func (self *stubHandler) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (self *stubHandler) Init(stub shim.ChaincodeStubInterface) ([]byte, error) {
+
+	function, args := stub.GetFunctionAndParameters()
 
 	if len(args) != 1 {
 		return nil, errors.New("Expected exactly one argument")
@@ -363,7 +365,9 @@ case function == <func.index>:
 
 implementhandler(txn) ::=
 <<
-func (self *stubHandler) <if(txn)>Invoke<else>Query<endif>(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (self *stubHandler) <if(txn)>Invoke<else>Query<endif>(stub shim.ChaincodeStubInterface) ([]byte, error) {
+
+	function, args := stub.GetFunctionAndParameters()
 
         var params string;
 
