@@ -31,6 +31,7 @@ This directory contains an implementation of the chaincode application called "e
     └── nodejs
         ├── appinit.proto
         ├── index.js
+        ├── util.js
         ├── org.hyperledger.chaincode.example02.proto
         └── package.json
 ```
@@ -39,10 +40,10 @@ This directory contains an implementation of the chaincode application called "e
 * client - client applications for interacting with the chaincode application
   * nodejs - A simple demonstration of using nodejs.
   * cljs - A complete client for example02 written in ClojureScript
-  
+
 ## Deploying and interacting with the example02
 ### Step 1 - Fabric environment
-You will need a functioning peer that has chaintool v0.7 or higher available in the $PATH.  You may check the version of chaintool you have with 'chaintool -h'.  Once confirmed, start the peer with _peer node start_ as you normally would.  It is advised to keep the configuration as simple as possible (1 VP, no security, noops consensus)
+You will need a functioning peer that has chaintool v0.10.1 or higher available in the $PATH.  You may check the version of chaintool you have with 'chaintool -h'.  Once confirmed, start the peer with _peer node start_ as you normally would.  It is advised to keep the configuration as simple as possible (1 VP, no security, noops consensus)
 
 ### Step 2 - Package the chaincode application
 Run 'chaintool package' from the app folder, noting the CAR output path
