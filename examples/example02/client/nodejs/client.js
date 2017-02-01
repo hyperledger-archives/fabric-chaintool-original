@@ -103,14 +103,15 @@ program
 program
     .command('deploy')
     .description('deploy description')
-    .option("-p, --path [path]", "Path to chaincode.car")
+    .option("-p, --path <path>", "Path to chaincode.car")
     .action(function(options){
         return connect()
             .then(function() {
                 return deploy({
                     'partyA': {'entity':'A', 'value':100},
-                    'partyB': {'entity':'B', 'value':200}});
-            }, options.path)
+                    'partyB': {'entity':'B', 'value':200}},
+                              options.path);
+            })
             .catch(function(err) {
                 console.log("error:" + err);
             });
